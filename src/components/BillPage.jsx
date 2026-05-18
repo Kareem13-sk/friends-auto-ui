@@ -21,7 +21,7 @@ function BillPage() {
   const fetchBills = async () => {
 
     const response =
-      await axios.get("http://localhost:8080/bills");
+      await axios.get("https://friends-auto-backend-1utc.onrender.com");
 
     setBills(response.data);
   };
@@ -37,7 +37,7 @@ function BillPage() {
   const createBill = async () => {
 
     await axios.post(
-      "http://localhost:8080/bills",
+      "https://friends-auto-backend-1utc.onrender.com",
       formData
     );
 
@@ -215,7 +215,7 @@ function BillPage() {
                   <td style={tableCell}>
 
                     <a
-                      href={`http://localhost:8080/bills/${bill.id}/invoice`}
+                      href={`https://friends-auto-backend-1utc.onrender.com/${bill.id}/invoice`}
                       target="_blank"
                       rel="noreferrer"
                     >

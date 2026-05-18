@@ -17,7 +17,7 @@ function CustomerDetails() {
 
     const response =
       await axios.get(
-        `http://localhost:8080/bills/customer/${customerName}`
+        `https://friends-auto-backend-1utc.onrender.com/${customerName}`
       );
 
     const billData = response.data;
@@ -168,7 +168,7 @@ function CustomerDetails() {
                 <td style={tableCell}>
 
                   <a
-                    href={`http://localhost:8080/bills/${bill.id}/invoice`}
+                    href={`https://friends-auto-backend-1utc.onrender.com/${bill.id}/invoice`}
                     target="_blank"
                   >
                     Download PDF

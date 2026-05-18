@@ -14,13 +14,13 @@ function Dashboard() {
   const fetchData = async () => {
 
     const customerResponse =
-      await axios.get("http://localhost:8080/customers");
+      await axios.get("https://friends-auto-backend-1utc.onrender.com");
 
     const productResponse =
-      await axios.get("http://localhost:8080/products");
+      await axios.get("https://friends-auto-backend-1utc.onrender.com");
 
     const billResponse =
-      await axios.get("http://localhost:8080/bills");
+      await axios.get("https://friends-auto-backend-1utc.onrender.com");
 
     setCustomers(customerResponse.data);
     setProducts(productResponse.data);

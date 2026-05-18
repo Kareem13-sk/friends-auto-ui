@@ -24,7 +24,9 @@ function CustomerPage() {
   const fetchCustomers = async () => {
 
     const response =
-      await axios.get("http://localhost:8080/customers");
+      await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/customers"
+      );
 
     setCustomers(response.data);
   };
@@ -42,14 +44,14 @@ function CustomerPage() {
     if (editingId) {
 
       await axios.put(
-        `http://localhost:8080/customers/${editingId}`,
+        `https://friends-auto-backend-1utc.onrender.com/customers/${editingId}`,
         formData
       );
 
     } else {
 
       await axios.post(
-        "http://localhost:8080/customers",
+        "https://friends-auto-backend-1utc.onrender.com/customers",
         formData
       );
     }
@@ -75,7 +77,7 @@ function CustomerPage() {
   const deleteCustomer = async (id) => {
 
     await axios.delete(
-      `http://localhost:8080/customers/${id}`
+      `https://friends-auto-backend-1utc.onrender.com/customers/${id}`
     );
 
     fetchCustomers();

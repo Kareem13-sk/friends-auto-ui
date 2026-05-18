@@ -21,7 +21,7 @@ function ProductPage() {
   const fetchProducts = async () => {
 
     const response =
-      await axios.get("http://localhost:8080/products");
+      await axios.get("https://friends-auto-backend-1utc.onrender.com");
 
     setProducts(response.data);
   };
@@ -39,14 +39,14 @@ function ProductPage() {
     if (editingId) {
 
       await axios.put(
-        `http://localhost:8080/products/${editingId}`,
+        `https://friends-auto-backend-1utc.onrender.com/${editingId}`,
         formData
       );
 
     } else {
 
       await axios.post(
-        "http://localhost:8080/products",
+        "https://friends-auto-backend-1utc.onrender.com",
         formData
       );
     }
@@ -71,7 +71,7 @@ function ProductPage() {
   const deleteProduct = async (id) => {
 
     await axios.delete(
-      `http://localhost:8080/products/${id}`
+      `https://friends-auto-backend-1utc.onrender.com/${id}`
     );
 
     fetchProducts();
