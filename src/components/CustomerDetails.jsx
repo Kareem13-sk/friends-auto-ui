@@ -3,7 +3,8 @@ import axios from "axios";
 
 function CustomerDetails() {
 
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] =
+    useState("");
 
   const [bills, setBills] = useState([]);
 
@@ -15,83 +16,134 @@ function CustomerDetails() {
 
   const searchCustomer = async () => {
 
-    const response =
-      await axios.get(
-        `https://friends-auto-backend-1utc.onrender.com/${customerName}`
-      );
+    try {
 
-    const billData = response.data;
+      const response =
+        await axios.get(
+          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
+        );
 
-    setBills(billData);
+      const billData = response.data;
 
-    const totalPurchase =
-      billData.reduce(
-        (sum, bill) => sum + bill.finalAmount,
-        0
-      );
+      setBills(billData);
 
-    const totalPaid =
-      billData.reduce(
-        (sum, bill) => sum + bill.paidAmount,
-        0
-      );
+      const totalPurchase =
+        billData.reduce(
+          (sum, bill) =>
+            sum + bill.finalAmount,
+          0
+        );
 
-    const totalBalance =
-      billData.reduce(
-        (sum, bill) => sum + bill.balanceAmount,
-        0
-      );
+      const totalPaid =
+        billData.reduce(
+          (sum, bill) =>
+            sum + bill.paidAmount,
+          0
+        );
 
-    setSummary({
-      totalPurchase,
-      totalPaid,
-      totalBalance
-    });
+      const totalBalance =
+        billData.reduce(
+          (sum, bill) =>
+            sum + bill.balanceAmount,
+          0
+        );
+
+      setSummary({
+        totalPurchase,
+        totalPaid,
+        totalBalance
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Customer not found");
+    }
   };
 
   return (
 
     <div style={{
-      backgroundColor: "white",
       padding: "20px",
-      borderRadius: "10px",
-      boxShadow: "0px 2px 8px rgba(0,0,0,0.1)"
+      backgroundColor: "#f4f7fb",
+      minHeight: "100vh"
     }}>
 
-      <h2 style={{ color: "black" }}>
-        Customer Details
-      </h2>
+      {/* HEADER */}
 
       <div style={{
-        display: "flex",
-        gap: "10px",
-        marginBottom: "20px",
-        flexWrap: "wrap"
+        backgroundColor: "#0d47a1",
+        color: "white",
+        padding: "20px",
+        borderRadius: "15px",
+        marginBottom: "25px",
+        boxShadow:
+          "0px 4px 12px rgba(0,0,0,0.15)"
       }}>
 
-        <input
-          type="text"
-          placeholder="Enter Customer Name"
-          value={customerName}
-          onChange={(e) =>
-            setCustomerName(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <button
-          onClick={searchCustomer}
-          style={buttonStyle}
-        >
-          Search
-        </button>
+        <h1 style={{
+          margin: 0,
+          fontSize: "32px"
+        }}>
+          Customer Details
+        </h1>
 
       </div>
+
+      {/* SEARCH SECTION */}
+
+      <div style={{
+        backgroundColor: "white",
+        padding: "25px",
+        borderRadius: "18px",
+        marginBottom: "25px",
+        boxShadow:
+          "0px 4px 15px rgba(0,0,0,0.08)"
+      }}>
+
+        <h2 style={{
+          color: "#0d47a1",
+          marginBottom: "20px"
+        }}>
+          Search Customer
+        </h2>
+
+        <div style={{
+          display: "flex",
+          gap: "15px",
+          flexWrap: "wrap"
+        }}>
+
+          <input
+            type="text"
+            placeholder="Enter Customer Name"
+            value={customerName}
+            onChange={(e) =>
+              setCustomerName(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+          <button
+            onClick={searchCustomer}
+            style={buttonStyle}
+          >
+            Search
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* SUMMARY */}
 
       <div style={{
         display: "grid",
         gridTemplateColumns:
-          "repeat(auto-fit,minmax(220px,1fr))",
+          "repeat(auto-fit,minmax(250px,1fr))",
 
         gap: "20px",
         marginBottom: "30px"
@@ -99,90 +151,135 @@ function CustomerDetails() {
 
         <SummaryCard
           title="Total Purchase"
-          value={`₹${summary.totalPurchase}`}
+          value={`₹${summary.totalPurchase.toFixed(2)}`}
         />
 
         <SummaryCard
           title="Total Paid"
-          value={`₹${summary.totalPaid}`}
+          value={`₹${summary.totalPaid.toFixed(2)}`}
         />
 
         <SummaryCard
           title="Pending Balance"
-          value={`₹${summary.totalBalance}`}
+          value={`₹${summary.totalBalance.toFixed(2)}`}
         />
 
       </div>
 
-      <div style={{ overflowX: "auto" }}>
+      {/* TABLE */}
 
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse"
+      <div style={{
+        backgroundColor: "white",
+        padding: "25px",
+        borderRadius: "18px",
+        boxShadow:
+          "0px 4px 15px rgba(0,0,0,0.08)"
+      }}>
+
+        <h2 style={{
+          color: "#0d47a1",
+          marginBottom: "20px"
+        }}>
+          Bill History
+        </h2>
+
+        <div style={{
+          overflowX: "auto"
         }}>
 
-          <thead>
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            minWidth: "900px"
+          }}>
 
-            <tr style={{
-              backgroundColor: "#0d47a1",
-              color: "white"
-            }}>
+            <thead>
 
-              <th style={tableHeader}>Total</th>
-              <th style={tableHeader}>GST</th>
-              <th style={tableHeader}>Final</th>
-              <th style={tableHeader}>Paid</th>
-              <th style={tableHeader}>Balance</th>
-              <th style={tableHeader}>Invoice</th>
+              <tr style={{
+                backgroundColor: "#0d47a1",
+                color: "white"
+              }}>
 
-            </tr>
+                <th style={tableHeader}>
+                  Total
+                </th>
 
-          </thead>
+                <th style={tableHeader}>
+                  GST
+                </th>
 
-          <tbody>
+                <th style={tableHeader}>
+                  Final
+                </th>
 
-            {bills.map((bill) => (
+                <th style={tableHeader}>
+                  Paid
+                </th>
 
-              <tr key={bill.id}>
+                <th style={tableHeader}>
+                  Balance
+                </th>
 
-                <td style={tableCell}>
-                  ₹{bill.totalAmount}
-                </td>
-
-                <td style={tableCell}>
-                  ₹{bill.gst}
-                </td>
-
-                <td style={tableCell}>
-                  ₹{bill.finalAmount}
-                </td>
-
-                <td style={tableCell}>
-                  ₹{bill.paidAmount}
-                </td>
-
-                <td style={tableCell}>
-                  ₹{bill.balanceAmount}
-                </td>
-
-                <td style={tableCell}>
-
-                  <a
-                    href={`https://friends-auto-backend-1utc.onrender.com/${bill.id}/invoice`}
-                    target="_blank"
-                  >
-                    Download PDF
-                  </a>
-
-                </td>
+                <th style={tableHeader}>
+                  Invoice
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {bills.map((bill) => (
+
+                <tr key={bill.id}>
+
+                  <td style={tableCell}>
+                    ₹{bill.subtotal}
+                  </td>
+
+                  <td style={tableCell}>
+                    ₹{bill.gst}
+                  </td>
+
+                  <td style={tableCell}>
+                    ₹{bill.finalAmount}
+                  </td>
+
+                  <td style={tableCell}>
+                    ₹{bill.paidAmount}
+                  </td>
+
+                  <td style={tableCell}>
+                    ₹{bill.balanceAmount}
+                  </td>
+
+                  <td style={tableCell}>
+
+                    <a
+                      href={`https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}/invoice`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: "#0d47a1",
+                        fontWeight: "600",
+                        textDecoration: "none"
+                      }}
+                    >
+                      Download PDF
+                    </a>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
@@ -190,49 +287,72 @@ function CustomerDetails() {
   );
 }
 
-function SummaryCard({ title, value }) {
+function SummaryCard({
+  title,
+  value
+}) {
 
   return (
 
     <div style={{
       backgroundColor: "#0d47a1",
       color: "white",
-      padding: "20px",
-      borderRadius: "10px"
+      padding: "30px",
+      borderRadius: "18px",
+      textAlign: "center",
+      boxShadow:
+        "0px 4px 15px rgba(0,0,0,0.15)"
     }}>
 
-      <h3>{title}</h3>
+      <h3 style={{
+        marginBottom: "15px",
+        fontSize: "22px"
+      }}>
+        {title}
+      </h3>
 
-      <h1>{value}</h1>
+      <h1 style={{
+        margin: 0,
+        fontSize: "38px"
+      }}>
+        {value}
+      </h1>
 
     </div>
   );
 }
 
 const inputStyle = {
-  padding: "12px",
-  borderRadius: "8px",
+  width: "100%",
+  maxWidth: "350px",
+  padding: "14px",
+  borderRadius: "10px",
   border: "1px solid #ccc",
-  width: "300px"
+  fontSize: "16px",
+  boxSizing: "border-box"
 };
 
 const buttonStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
   border: "none",
-  padding: "12px 20px",
-  borderRadius: "8px",
-  cursor: "pointer"
+  padding: "14px 20px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "600"
 };
 
 const tableHeader = {
-  padding: "14px",
-  textAlign: "left"
+  padding: "16px",
+  textAlign: "left",
+  fontSize: "16px"
 };
 
 const tableCell = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd"
+  padding: "14px",
+  borderBottom: "1px solid #ddd",
+  fontSize: "15px"
 };
 
 export default CustomerDetails;

@@ -99,39 +99,53 @@ function CustomerPage() {
   return (
 
     <div style={{
-      padding: "30px",
+      padding: "20px",
       backgroundColor: "#f4f7fb",
-      borderRadius: "10px",
-      marginBottom: "30px"
+      minHeight: "100vh"
     }}>
 
       <div style={{
         backgroundColor: "#0d47a1",
         color: "white",
         padding: "20px",
-        borderRadius: "10px",
-        marginBottom: "30px"
+        borderRadius: "15px",
+        marginBottom: "25px",
+        boxShadow: "0px 4px 12px rgba(0,0,0,0.15)"
       }}>
 
-        <h1>Friends Auto Mobile</h1>
+        <h1 style={{
+          margin: 0,
+          fontSize: "32px"
+        }}>
+          Customers
+        </h1>
 
       </div>
 
+      {/* FORM SECTION */}
+
       <div style={{
         backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "10px",
-        marginBottom: "30px",
-        boxShadow: "0px 2px 8px rgba(0,0,0,0.1)"
+        padding: "25px",
+        borderRadius: "18px",
+        marginBottom: "25px",
+        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
       }}>
 
-        <h2 style={{ color: "black" }}>
-          {editingId ? "Edit Customer" : "Add Customer"}
+        <h2 style={{
+          color: "#0d47a1",
+          marginBottom: "20px"
+        }}>
+          {editingId
+            ? "Edit Customer"
+            : "Add Customer"}
         </h2>
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+          gridTemplateColumns:
+            "repeat(auto-fit,minmax(250px,1fr))",
+
           gap: "15px"
         }}>
 
@@ -147,7 +161,7 @@ function CustomerPage() {
           <input
             type="text"
             name="phone"
-            placeholder="Phone"
+            placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
             style={inputStyle}
@@ -174,7 +188,7 @@ function CustomerPage() {
           <input
             type="number"
             name="totalBalance"
-            placeholder="Balance"
+            placeholder="Balance Amount"
             value={formData.totalBalance}
             onChange={handleChange}
             style={inputStyle}
@@ -184,7 +198,8 @@ function CustomerPage() {
 
         <div style={{
           display: "flex",
-          gap: "10px",
+          gap: "15px",
+          flexWrap: "wrap",
           marginTop: "20px"
         }}>
 
@@ -192,7 +207,9 @@ function CustomerPage() {
             onClick={saveCustomer}
             style={buttonStyle}
           >
-            {editingId ? "Update Customer" : "Add Customer"}
+            {editingId
+              ? "Update Customer"
+              : "Add Customer"}
           </button>
 
           <button
@@ -209,22 +226,28 @@ function CustomerPage() {
 
       </div>
 
+      {/* CUSTOMER LIST */}
+
       <div style={{
         backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0px 2px 8px rgba(0,0,0,0.1)"
+        padding: "25px",
+        borderRadius: "18px",
+        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
       }}>
 
         <div style={{
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: "20px",
+          alignItems: "center",
           flexWrap: "wrap",
-          gap: "10px"
+          gap: "15px",
+          marginBottom: "20px"
         }}>
 
-          <h2 style={{ color: "black" }}>
+          <h2 style={{
+            color: "#0d47a1",
+            margin: 0
+          }}>
             Customer List
           </h2>
 
@@ -232,17 +255,25 @@ function CustomerPage() {
             type="text"
             placeholder="Search Customer"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={inputStyle}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            style={{
+              ...inputStyle,
+              maxWidth: "300px"
+            }}
           />
 
         </div>
 
-        <div style={{ overflowX: "auto" }}>
+        <div style={{
+          overflowX: "auto"
+        }}>
 
           <table style={{
             width: "100%",
-            borderCollapse: "collapse"
+            borderCollapse: "collapse",
+            minWidth: "800px"
           }}>
 
             <thead>
@@ -252,12 +283,29 @@ function CustomerPage() {
                 color: "white"
               }}>
 
-                <th style={tableHeader}>Name</th>
-                <th style={tableHeader}>Phone</th>
-                <th style={tableHeader}>Address</th>
-                <th style={tableHeader}>Discount</th>
-                <th style={tableHeader}>Balance</th>
-                <th style={tableHeader}>Actions</th>
+                <th style={tableHeader}>
+                  Name
+                </th>
+
+                <th style={tableHeader}>
+                  Phone
+                </th>
+
+                <th style={tableHeader}>
+                  Address
+                </th>
+
+                <th style={tableHeader}>
+                  Discount
+                </th>
+
+                <th style={tableHeader}>
+                  Balance
+                </th>
+
+                <th style={tableHeader}>
+                  Actions
+                </th>
 
               </tr>
 
@@ -269,7 +317,9 @@ function CustomerPage() {
                 .filter((customer) =>
                   customer.customerName
                     .toLowerCase()
-                    .includes(search.toLowerCase())
+                    .includes(
+                      search.toLowerCase()
+                    )
                 )
                 .map((customer) => (
 
@@ -297,25 +347,37 @@ function CustomerPage() {
 
                     <td style={tableCell}>
 
-                      <button
-                        onClick={() => editCustomer(customer)}
-                        style={{
-                          ...actionButton,
-                          backgroundColor: "#0d47a1"
-                        }}
-                      >
-                        Edit
-                      </button>
+                      <div style={{
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap"
+                      }}>
 
-                      <button
-                        onClick={() => deleteCustomer(customer.id)}
-                        style={{
-                          ...actionButton,
-                          backgroundColor: "red"
-                        }}
-                      >
-                        Delete
-                      </button>
+                        <button
+                          onClick={() =>
+                            editCustomer(customer)
+                          }
+                          style={{
+                            ...actionButton,
+                            backgroundColor: "#0d47a1"
+                          }}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            deleteCustomer(customer.id)
+                          }
+                          style={{
+                            ...actionButton,
+                            backgroundColor: "red"
+                          }}
+                        >
+                          Delete
+                        </button>
+
+                      </div>
 
                     </td>
 
@@ -336,37 +398,45 @@ function CustomerPage() {
 }
 
 const inputStyle = {
-  padding: "12px",
-  borderRadius: "8px",
-  border: "1px solid #ccc"
+  width: "100%",
+  padding: "14px",
+  borderRadius: "10px",
+  border: "1px solid #ccc",
+  marginBottom: "14px",
+  fontSize: "16px",
+  boxSizing: "border-box"
 };
 
 const buttonStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
-  padding: "12px 20px",
+  padding: "14px 20px",
   border: "none",
-  borderRadius: "8px",
-  cursor: "pointer"
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "600"
 };
 
 const actionButton = {
   color: "white",
   border: "none",
-  padding: "8px 12px",
-  marginRight: "10px",
-  borderRadius: "6px",
-  cursor: "pointer"
+  padding: "10px 14px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontSize: "14px"
 };
 
 const tableHeader = {
-  padding: "14px",
-  textAlign: "left"
+  padding: "16px",
+  textAlign: "left",
+  fontSize: "16px"
 };
 
 const tableCell = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd"
+  padding: "14px",
+  borderBottom: "1px solid #ddd",
+  fontSize: "15px"
 };
 
 export default CustomerPage;

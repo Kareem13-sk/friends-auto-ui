@@ -13,53 +13,69 @@ function Dashboard() {
 
   const fetchData = async () => {
 
-    const customerResponse =
-      await axios.get("https://friends-auto-backend-1utc.onrender.com");
+    try {
 
-    const productResponse =
-      await axios.get("https://friends-auto-backend-1utc.onrender.com");
+      const customerResponse =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
 
-    const billResponse =
-      await axios.get("https://friends-auto-backend-1utc.onrender.com");
+      const productResponse =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/products"
+        );
 
-    setCustomers(customerResponse.data);
-    setProducts(productResponse.data);
-    setBills(billResponse.data);
+      const billResponse =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/bills"
+        );
+
+      setCustomers(customerResponse.data);
+      setProducts(productResponse.data);
+      setBills(billResponse.data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
-
-//   const totalBalance = bills.reduce(
-//     (sum, bill) => sum + bill.balanceAmount,
-//     0
-//   );
 
   return (
 
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-      gap: "20px",
-      marginBottom: "30px"
-    }}>
+    <div>
 
-      <Card
-        title="Customers"
-        value={customers.length}
-      />
+      <h1 style={{
+        color: "#0d47a1",
+        marginBottom: "25px",
+        fontSize: "34px"
+      }}>
+        Dashboard
+      </h1>
 
-      <Card
-        title="Products"
-        value={products.length}
-      />
+      <div style={{
+        display: "grid",
+        gridTemplateColumns:
+          "repeat(auto-fit,minmax(250px,1fr))",
 
-      <Card
-        title="Bills"
-        value={bills.length}
-      />
+        gap: "20px"
+      }}>
 
-      {/* <Card
-        title="Pending Balance"
-        value={`₹${totalBalance}`}
-      /> */}
+        <Card
+          title="Total Customers"
+          value={customers.length}
+        />
+
+        <Card
+          title="Total Products"
+          value={products.length}
+        />
+
+        <Card
+          title="Total Bills"
+          value={bills.length}
+        />
+
+      </div>
 
     </div>
   );
@@ -67,19 +83,32 @@ function Dashboard() {
 
 function Card({ title, value }) {
 
+  const cardStyle = {
+    backgroundColor: "#0d47a1",
+    color: "white",
+    borderRadius: "18px",
+    padding: "30px",
+    boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
+    textAlign: "center"
+  };
+
   return (
 
-    <div style={{
-      backgroundColor: "#0d47a1",
-      color: "white",
-      padding: "25px",
-      borderRadius: "12px",
-      boxShadow: "0px 2px 8px rgba(0,0,0,0.2)"
-    }}>
+    <div style={cardStyle}>
 
-      <h3>{title}</h3>
+      <h2 style={{
+        marginBottom: "15px",
+        fontSize: "24px"
+      }}>
+        {title}
+      </h2>
 
-      <h1>{value}</h1>
+      <h1 style={{
+        fontSize: "48px",
+        margin: 0
+      }}>
+        {value}
+      </h1>
 
     </div>
   );

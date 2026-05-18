@@ -7,6 +7,8 @@ function ProductPage() {
 
   const [editingId, setEditingId] = useState(null);
 
+  const [search, setSearch] = useState("");
+
   const [formData, setFormData] = useState({
     productName: "",
     category: "",
@@ -21,7 +23,9 @@ function ProductPage() {
   const fetchProducts = async () => {
 
     const response =
-      await axios.get("https://friends-auto-backend-1utc.onrender.com");
+      await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/products"
+      );
 
     setProducts(response.data);
   };
@@ -39,14 +43,14 @@ function ProductPage() {
     if (editingId) {
 
       await axios.put(
-        `https://friends-auto-backend-1utc.onrender.com/${editingId}`,
+        `https://friends-auto-backend-1utc.onrender.com/products/${editingId}`,
         formData
       );
 
     } else {
 
       await axios.post(
-        "https://friends-auto-backend-1utc.onrender.com",
+        "https://friends-auto-backend-1utc.onrender.com/products",
         formData
       );
     }
@@ -71,7 +75,7 @@ function ProductPage() {
   const deleteProduct = async (id) => {
 
     await axios.delete(
-      `https://friends-auto-backend-1utc.onrender.com/${id}`
+      `https://friends-auto-backend-1utc.onrender.com/products/${id}`
     );
 
     fetchProducts();
@@ -92,168 +96,282 @@ function ProductPage() {
   return (
 
     <div style={{
-      backgroundColor: "white",
       padding: "20px",
-      borderRadius: "10px",
-      marginTop: "30px",
-      boxShadow: "0px 2px 8px rgba(0,0,0,0.1)"
+      backgroundColor: "#f4f7fb",
+      minHeight: "100vh"
     }}>
 
-      <h2 style={{ color: "black" }}>
-        Product Management
-      </h2>
+      {/* HEADER */}
 
       <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-        gap: "15px"
+        backgroundColor: "#0d47a1",
+        color: "white",
+        padding: "20px",
+        borderRadius: "15px",
+        marginBottom: "25px",
+        boxShadow: "0px 4px 12px rgba(0,0,0,0.15)"
       }}>
 
-        <input
-          type="text"
-          name="productName"
-          placeholder="Product Name"
-          value={formData.productName}
-          onChange={handleChange}
-          style={inputStyle}
-        />
-
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          name="stock"
-          placeholder="Stock"
-          value={formData.stock}
-          onChange={handleChange}
-          style={inputStyle}
-        />
+        <h1 style={{
+          margin: 0,
+          fontSize: "32px"
+        }}>
+          Products
+        </h1>
 
       </div>
 
+      {/* FORM SECTION */}
+
       <div style={{
-        display: "flex",
-        gap: "10px",
-        marginTop: "20px"
+        backgroundColor: "white",
+        padding: "25px",
+        borderRadius: "18px",
+        marginBottom: "25px",
+        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
       }}>
 
-        <button
-          onClick={saveProduct}
-          style={buttonStyle}
-        >
-          {editingId ? "Update Product" : "Add Product"}
-        </button>
+        <h2 style={{
+          color: "#0d47a1",
+          marginBottom: "20px"
+        }}>
+          {editingId
+            ? "Edit Product"
+            : "Add Product"}
+        </h2>
 
-        <button
-          onClick={resetForm}
-          style={{
-            ...buttonStyle,
-            backgroundColor: "gray"
-          }}
-        >
-          Clear
-        </button>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit,minmax(250px,1fr))",
+
+          gap: "15px"
+        }}>
+
+          <input
+            type="text"
+            name="productName"
+            placeholder="Product Name"
+            value={formData.productName}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={formData.category}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={formData.price}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+
+          <input
+            type="number"
+            name="stock"
+            placeholder="Stock"
+            value={formData.stock}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+
+        </div>
+
+        <div style={{
+          display: "flex",
+          gap: "15px",
+          flexWrap: "wrap",
+          marginTop: "20px"
+        }}>
+
+          <button
+            onClick={saveProduct}
+            style={buttonStyle}
+          >
+            {editingId
+              ? "Update Product"
+              : "Add Product"}
+          </button>
+
+          <button
+            onClick={resetForm}
+            style={{
+              ...buttonStyle,
+              backgroundColor: "gray"
+            }}
+          >
+            Clear
+          </button>
+
+        </div>
 
       </div>
 
+      {/* PRODUCT LIST */}
+
       <div style={{
-        overflowX: "auto",
-        marginTop: "30px"
+        backgroundColor: "white",
+        padding: "25px",
+        borderRadius: "18px",
+        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
       }}>
 
-        <table
-          style={{
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "15px",
+          marginBottom: "20px"
+        }}>
+
+          <h2 style={{
+            color: "#0d47a1",
+            margin: 0
+          }}>
+            Product List
+          </h2>
+
+          <input
+            type="text"
+            placeholder="Search Product"
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            style={{
+              ...inputStyle,
+              maxWidth: "300px"
+            }}
+          />
+
+        </div>
+
+        <div style={{
+          overflowX: "auto"
+        }}>
+
+          <table style={{
             width: "100%",
-            borderCollapse: "collapse"
-          }}
-        >
+            borderCollapse: "collapse",
+            minWidth: "800px"
+          }}>
 
-          <thead>
+            <thead>
 
-            <tr style={{
-              backgroundColor: "#0d47a1",
-              color: "white"
-            }}>
+              <tr style={{
+                backgroundColor: "#0d47a1",
+                color: "white"
+              }}>
 
-              <th style={tableHeader}>Product</th>
-              <th style={tableHeader}>Category</th>
-              <th style={tableHeader}>Price</th>
-              <th style={tableHeader}>Stock</th>
-              <th style={tableHeader}>Actions</th>
+                <th style={tableHeader}>
+                  Product
+                </th>
 
-            </tr>
+                <th style={tableHeader}>
+                  Category
+                </th>
 
-          </thead>
+                <th style={tableHeader}>
+                  Price
+                </th>
 
-          <tbody>
+                <th style={tableHeader}>
+                  Stock
+                </th>
 
-            {products.map((product) => (
-
-              <tr key={product.id}>
-
-                <td style={tableCell}>
-                  {product.productName}
-                </td>
-
-                <td style={tableCell}>
-                  {product.category}
-                </td>
-
-                <td style={tableCell}>
-                  ₹{product.price}
-                </td>
-
-                <td style={tableCell}>
-                  {product.stock}
-                </td>
-
-                <td style={tableCell}>
-
-                  <button
-                    onClick={() => editProduct(product)}
-                    style={{
-                      ...actionButton,
-                      backgroundColor: "#0d47a1"
-                    }}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => deleteProduct(product.id)}
-                    style={{
-                      ...actionButton,
-                      backgroundColor: "red"
-                    }}
-                  >
-                    Delete
-                  </button>
-
-                </td>
+                <th style={tableHeader}>
+                  Actions
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {products
+                .filter((product) =>
+                  product.productName
+                    .toLowerCase()
+                    .includes(
+                      search.toLowerCase()
+                    )
+                )
+                .map((product) => (
+
+                  <tr key={product.id}>
+
+                    <td style={tableCell}>
+                      {product.productName}
+                    </td>
+
+                    <td style={tableCell}>
+                      {product.category}
+                    </td>
+
+                    <td style={tableCell}>
+                      ₹{product.price}
+                    </td>
+
+                    <td style={tableCell}>
+                      {product.stock}
+                    </td>
+
+                    <td style={tableCell}>
+
+                      <div style={{
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap"
+                      }}>
+
+                        <button
+                          onClick={() =>
+                            editProduct(product)
+                          }
+                          style={{
+                            ...actionButton,
+                            backgroundColor: "#0d47a1"
+                          }}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            deleteProduct(product.id)
+                          }
+                          style={{
+                            ...actionButton,
+                            backgroundColor: "red"
+                          }}
+                        >
+                          Delete
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
@@ -262,37 +380,45 @@ function ProductPage() {
 }
 
 const inputStyle = {
-  padding: "12px",
-  borderRadius: "8px",
-  border: "1px solid #ccc"
+  width: "100%",
+  padding: "14px",
+  borderRadius: "10px",
+  border: "1px solid #ccc",
+  marginBottom: "14px",
+  fontSize: "16px",
+  boxSizing: "border-box"
 };
 
 const buttonStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
-  padding: "12px 20px",
+  padding: "14px 20px",
   border: "none",
-  borderRadius: "8px",
-  cursor: "pointer"
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "600"
 };
 
 const actionButton = {
   color: "white",
   border: "none",
-  padding: "8px 12px",
-  marginRight: "10px",
-  borderRadius: "6px",
-  cursor: "pointer"
+  padding: "10px 14px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontSize: "14px"
 };
 
 const tableHeader = {
-  padding: "14px",
-  textAlign: "left"
+  padding: "16px",
+  textAlign: "left",
+  fontSize: "16px"
 };
 
 const tableCell = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd"
+  padding: "14px",
+  borderBottom: "1px solid #ddd",
+  fontSize: "15px"
 };
 
 export default ProductPage;
