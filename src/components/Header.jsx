@@ -20,6 +20,28 @@ function Header() {
 
     </div>
   );
+  <div style={{
+  padding: "10px",
+  backgroundColor: "#0d47a1"
+}}>
+
+  <button
+    onClick={() =>
+      setMobileMenu(!mobileMenu)
+    }
+    style={{
+      backgroundColor: "white",
+      color: "#0d47a1",
+      border: "none",
+      padding: "10px 15px",
+      borderRadius: "8px",
+      cursor: "pointer"
+    }}
+  >
+    ☰ Menu
+  </button>
+
+</div>
 }
 
 export default Header;

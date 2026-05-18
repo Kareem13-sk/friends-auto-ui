@@ -19,6 +19,8 @@ function Layout({ children }) {
 
   const location = useLocation();
 
+  const [mobileMenu, setMobileMenu] = useState(false);
+
   return (
 
     <div style={{
@@ -93,14 +95,18 @@ function Layout({ children }) {
       <div style={{
         flex: 1,
         display: "flex",
-        flexDirection: "column"
+flexDirection:
+  window.innerWidth < 768
+    ? "column"
+    : "row",
       }}>
 
         <Header />
 
         <div style={{
-          padding: "20px",
-          flex: 1
+  width: mobileMenu ? "260px" : "0px",
+  overflow: "hidden",
+  transition: "0.3s",
         }}>
 
           {children}
