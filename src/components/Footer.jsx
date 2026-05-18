@@ -5,14 +5,14 @@ function Footer() {
     <div style={{
       backgroundColor: "#0d47a1",
       color: "white",
-      padding: "15px",
       textAlign: "center",
-      marginTop: "30px",
-      borderRadius: "10px"
+      padding: "18px",
+      fontSize: "20px",
+      fontWeight: "500",
+      marginTop: "auto"
     }}>
 
-      © 2026 Friends Auto Mobile |
-      All Rights Reserved
+      © 2026 Friends Auto Mobile | All Rights Reserved
 
     </div>
   );
