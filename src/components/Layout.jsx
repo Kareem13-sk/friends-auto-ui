@@ -95,10 +95,7 @@ function Layout({ children }) {
       <div style={{
         flex: 1,
         display: "flex",
-flexDirection:
-  window.innerWidth < 768
-    ? "column"
-    : "row",
+        flexDirection: "row",
       }}>
 
         <Header />
