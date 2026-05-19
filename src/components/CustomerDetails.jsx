@@ -30,7 +30,7 @@ function CustomerDetails() {
       const totalPurchase =
         billData.reduce(
           (sum, bill) =>
-            sum + bill.finalAmount,
+            sum + bill.totalAmount,
           0
         );
 
@@ -190,7 +190,7 @@ function CustomerDetails() {
           <table style={{
             width: "100%",
             borderCollapse: "collapse",
-            minWidth: "900px"
+            minWidth: "700px"
           }}>
 
             <thead>
@@ -202,14 +202,6 @@ function CustomerDetails() {
 
                 <th style={tableHeader}>
                   Total
-                </th>
-
-                <th style={tableHeader}>
-                  GST
-                </th>
-
-                <th style={tableHeader}>
-                  Final
                 </th>
 
                 <th style={tableHeader}>
@@ -235,15 +227,7 @@ function CustomerDetails() {
                 <tr key={bill.id}>
 
                   <td style={tableCell}>
-                    ₹{bill.subtotal}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{bill.gst}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{bill.finalAmount}
+                    ₹{bill.totalAmount}
                   </td>
 
                   <td style={tableCell}>
@@ -261,9 +245,12 @@ function CustomerDetails() {
                       target="_blank"
                       rel="noreferrer"
                       style={{
-                        color: "#0d47a1",
-                        fontWeight: "600",
-                        textDecoration: "none"
+                        backgroundColor: "#0d47a1",
+                        color: "white",
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontWeight: "600"
                       }}
                     >
                       Download PDF
