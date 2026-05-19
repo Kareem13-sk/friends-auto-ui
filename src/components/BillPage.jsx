@@ -3,19 +3,26 @@ import axios from "axios";
 
 function BillPage() {
 
-  const [customerName, setCustomerName] = useState("");
+  const [customerName, setCustomerName] =
+    useState("");
 
-  const [customers, setCustomers] = useState([]);
+  const [customers, setCustomers] =
+    useState([]);
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] =
+    useState([]);
 
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedProduct, setSelectedProduct] =
+    useState("");
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] =
+    useState(1);
 
-  const [billItems, setBillItems] = useState([]);
+  const [billItems, setBillItems] =
+    useState([]);
 
-  const [paidAmount, setPaidAmount] = useState("");
+  const [paidAmount, setPaidAmount] =
+    useState("");
 
   useEffect(() => {
 
@@ -31,9 +38,10 @@ function BillPage() {
 
     try {
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/customers"
-      );
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
 
       setCustomers(response.data);
 
@@ -49,9 +57,10 @@ function BillPage() {
 
     try {
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/products"
-      );
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/products"
+        );
 
       setProducts(response.data);
 
@@ -84,7 +93,8 @@ function BillPage() {
     }
 
     const itemTotal =
-      Number(product.price) * Number(quantity);
+      Number(product.price) *
+      Number(quantity);
 
     const item = {
 
@@ -97,7 +107,10 @@ function BillPage() {
       total: itemTotal
     };
 
-    setBillItems([...billItems, item]);
+    setBillItems([
+      ...billItems,
+      item
+    ]);
 
     setSelectedProduct("");
 
@@ -107,14 +120,16 @@ function BillPage() {
   // CALCULATIONS
 
   const subtotal = billItems.reduce(
-    (sum, item) => sum + item.total,
+    (sum, item) =>
+      sum + item.total,
     0
   );
 
   const finalAmount = subtotal;
 
   const balance =
-    finalAmount - Number(paidAmount || 0);
+    finalAmount -
+    Number(paidAmount || 0);
 
   // SAVE BILL
 
@@ -138,25 +153,66 @@ function BillPage() {
 
       const billData = {
 
-        customerName: customerName,
+        customerName:
+          customerName,
 
-        totalAmount: subtotal,
+        totalAmount:
+          subtotal,
 
-        finalAmount: finalAmount,
+        paidAmount:
+          Number(paidAmount),
 
-        paidAmount: Number(paidAmount),
+        balanceAmount:
+          balance,
 
-        balanceAmount: balance
+        items:
+          billItems.map(
+            (item) => ({
+
+              productName:
+                item.productName,
+
+              quantity:
+                Number(
+                  item.quantity
+                ),
+
+              price:
+                Number(
+                  item.price
+                ),
+
+              total:
+                Number(
+                  item.total
+                )
+            })
+          )
       };
 
-      console.log(billData);
+      console.log(
+        "Sending Bill Data:",
+        JSON.stringify(
+          billData,
+          null,
+          2
+        )
+      );
 
       await axios.post(
         "https://friends-auto-backend-1utc.onrender.com/bills",
-        billData
+        billData,
+        {
+          headers: {
+            "Content-Type":
+              "application/json"
+          }
+        }
       );
 
-      alert("Bill Saved Successfully");
+      alert(
+        "Bill Saved Successfully"
+      );
 
       setCustomerName("");
 
@@ -166,9 +222,19 @@ function BillPage() {
 
     } catch (error) {
 
-      console.log(error);
+      console.log(
+        "FULL ERROR:",
+        error
+      );
 
-      alert("Failed To Save Bill");
+      console.log(
+        "ERROR RESPONSE:",
+        error.response
+      );
+
+      alert(
+        "Failed To Save Bill"
+      );
     }
   };
 
@@ -187,7 +253,9 @@ function BillPage() {
         placeholder="Customer Name"
         value={customerName}
         onChange={(e) =>
-          setCustomerName(e.target.value)
+          setCustomerName(
+            e.target.value
+          )
         }
         list="customerList"
         style={inputStyle}
@@ -195,14 +263,18 @@ function BillPage() {
 
       <datalist id="customerList">
 
-        {customers.map((customer) => (
+        {customers.map(
+          (customer) => (
 
-          <option
-            key={customer.id}
-            value={customer.customerName}
-          />
+            <option
+              key={customer.id}
+              value={
+                customer.customerName
+              }
+            />
 
-        ))}
+          )
+        )}
 
       </datalist>
 
@@ -213,7 +285,9 @@ function BillPage() {
         <select
           value={selectedProduct}
           onChange={(e) =>
-            setSelectedProduct(e.target.value)
+            setSelectedProduct(
+              e.target.value
+            )
           }
           style={inputStyle}
         >
@@ -222,18 +296,24 @@ function BillPage() {
             Select Product
           </option>
 
-          {products.map((product) => (
+          {products.map(
+            (product) => (
 
-            <option
-              key={product.id}
-              value={product.productName}
-            >
+              <option
+                key={product.id}
+                value={
+                  product.productName
+                }
+              >
 
-              {product.productName} - ₹{product.price}
+                {product.productName}
+                {" - ₹"}
+                {product.price}
 
-            </option>
+              </option>
 
-          ))}
+            )
+          )}
 
         </select>
 
@@ -242,7 +322,9 @@ function BillPage() {
           placeholder="Quantity"
           value={quantity}
           onChange={(e) =>
-            setQuantity(e.target.value)
+            setQuantity(
+              e.target.value
+            )
           }
           style={inputStyle}
         />
@@ -262,13 +344,21 @@ function BillPage() {
         Bill Items
       </h2>
 
-      <div style={{ overflowX: "auto" }}>
+      <div
+        style={{
+          overflowX: "auto"
+        }}
+      >
 
         <table style={tableStyle}>
 
           <thead>
 
-            <tr style={tableHeaderRow}>
+            <tr
+              style={
+                tableHeaderRow
+              }
+            >
 
               <th style={tableHeader}>
                 Product
@@ -292,29 +382,38 @@ function BillPage() {
 
           <tbody>
 
-            {billItems.map((item, index) => (
+            {billItems.map(
+              (
+                item,
+                index
+              ) => (
 
-              <tr key={index}>
+                <tr key={index}>
 
-                <td style={tableCell}>
-                  {item.productName}
-                </td>
+                  <td style={tableCell}>
+                    {
+                      item.productName
+                    }
+                  </td>
 
-                <td style={tableCell}>
-                  {item.quantity}
-                </td>
+                  <td style={tableCell}>
+                    {
+                      item.quantity
+                    }
+                  </td>
 
-                <td style={tableCell}>
-                  ₹{item.price}
-                </td>
+                  <td style={tableCell}>
+                    ₹{item.price}
+                  </td>
 
-                <td style={tableCell}>
-                  ₹{item.total}
-                </td>
+                  <td style={tableCell}>
+                    ₹{item.total}
+                  </td>
 
-              </tr>
+                </tr>
 
-            ))}
+              )
+            )}
 
           </tbody>
 
@@ -335,21 +434,26 @@ function BillPage() {
           placeholder="Paid Amount"
           value={paidAmount}
           onChange={(e) =>
-            setPaidAmount(e.target.value)
+            setPaidAmount(
+              e.target.value
+            )
           }
           style={inputStyle}
         />
 
         <h3>
-          Subtotal: ₹{subtotal}
+          Subtotal: ₹
+          {subtotal}
         </h3>
 
         <h3>
-          Final Amount: ₹{finalAmount}
+          Final Amount: ₹
+          {finalAmount}
         </h3>
 
         <h3>
-          Balance: ₹{balance}
+          Balance: ₹
+          {balance}
         </h3>
 
         <button
@@ -368,79 +472,124 @@ function BillPage() {
 /* STYLES */
 
 const containerStyle = {
+
   backgroundColor: "white",
+
   padding: "25px",
+
   borderRadius: "18px",
-  boxShadow: "0px 4px 15px rgba(0,0,0,0.1)"
+
+  boxShadow:
+    "0px 4px 15px rgba(0,0,0,0.1)"
 };
 
 const titleStyle = {
+
   color: "#0d47a1",
+
   textAlign: "center",
+
   marginBottom: "30px",
+
   fontSize: "50px"
 };
 
 const sectionTitle = {
+
   color: "#0d47a1",
+
   marginTop: "20px",
+
   marginBottom: "15px",
+
   textAlign: "center"
 };
 
 const productRow = {
+
   display: "grid",
+
   gridTemplateColumns:
     "repeat(auto-fit,minmax(220px,1fr))",
+
   gap: "15px",
+
   marginTop: "20px",
+
   marginBottom: "20px"
 };
 
 const inputStyle = {
+
   width: "100%",
+
   padding: "14px",
+
   borderRadius: "10px",
+
   border: "1px solid #ccc",
+
   marginBottom: "14px",
+
   fontSize: "16px",
+
   boxSizing: "border-box"
 };
 
 const buttonStyle = {
+
   backgroundColor: "#0d47a1",
+
   color: "white",
+
   border: "none",
+
   padding: "12px 20px",
+
   borderRadius: "10px",
+
   cursor: "pointer"
 };
 
 const tableStyle = {
+
   width: "100%",
+
   borderCollapse: "collapse",
+
   marginTop: "20px"
 };
 
 const tableHeaderRow = {
+
   backgroundColor: "#0d47a1",
+
   color: "white"
 };
 
 const tableHeader = {
+
   padding: "14px",
+
   textAlign: "left"
 };
 
 const tableCell = {
+
   padding: "12px",
-  borderBottom: "1px solid #ddd"
+
+  borderBottom:
+    "1px solid #ddd"
 };
 
 const summaryBox = {
+
   marginTop: "30px",
+
   backgroundColor: "#f4f7fb",
+
   padding: "20px",
+
   borderRadius: "14px"
 };
 
