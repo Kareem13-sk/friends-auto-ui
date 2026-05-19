@@ -1,8 +1,7 @@
 import {
   BrowserRouter,
   Routes,
-  Route,
-  Navigate
+  Route
 } from "react-router-dom";
 
 import Layout from "./components/Layout";
@@ -13,17 +12,6 @@ import ProductPage from "./components/ProductPage";
 import BillPage from "./components/BillPage";
 import PurchaseHistory from "./components/PurchaseHistory";
 import CustomerDetails from "./components/CustomerDetails";
-import LoginPage from "./components/LoginPage";
-
-function PrivateRoute({ children }) {
-
-  const isLoggedIn =
-    localStorage.getItem("loggedIn");
-
-  return isLoggedIn
-    ? children
-    : <Navigate to="/login" />;
-}
 
 function App() {
 
@@ -33,58 +21,39 @@ function App() {
 
       <Routes>
 
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
+        <Route path="/" element={<Layout />}>
 
-        <Route
-          path="*"
-          element={
+          <Route
+            index
+            element={<Dashboard />}
+          />
 
-            <PrivateRoute>
+          <Route
+            path="customers"
+            element={<CustomerPage />}
+          />
 
-              <Layout>
+          <Route
+            path="products"
+            element={<ProductPage />}
+          />
 
-                <Routes>
+          <Route
+            path="billing"
+            element={<BillPage />}
+          />
 
-                  <Route
-                    path="/"
-                    element={<Dashboard />}
-                  />
+          <Route
+            path="history"
+            element={<PurchaseHistory />}
+          />
 
-                  <Route
-                    path="/customers"
-                    element={<CustomerPage />}
-                  />
+          <Route
+            path="customer-details"
+            element={<CustomerDetails />}
+          />
 
-                  <Route
-                    path="/products"
-                    element={<ProductPage />}
-                  />
-
-                  <Route
-                    path="/billing"
-                    element={<BillPage />}
-                  />
-
-                  <Route
-                    path="/history"
-                    element={<PurchaseHistory />}
-                  />
-
-                  <Route
-                    path="/customer-details"
-                    element={<CustomerDetails />}
-                  />
-
-                </Routes>
-
-              </Layout>
-
-            </PrivateRoute>
-          }
-        />
+        </Route>
 
       </Routes>
 

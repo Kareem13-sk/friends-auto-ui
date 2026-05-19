@@ -17,13 +17,9 @@ function Layout() {
 
       <div style={{
         width: "280px",
-        minWidth: "280px",
-        backgroundColor: "#0d47a1",
-        minHeight: "100vh"
+        flexShrink: 0
       }}>
-
         <Sidebar />
-
       </div>
 
       {/* MAIN CONTENT */}
@@ -31,17 +27,14 @@ function Layout() {
       <div style={{
         flex: 1,
         display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh"
+        flexDirection: "column"
       }}>
 
         <Header />
 
-        {/* PAGE CONTENT */}
-
         <div style={{
           flex: 1,
-          padding: "20px"
+          padding: "30px"
         }}>
 
           <Outlet />

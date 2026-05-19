@@ -3,14 +3,13 @@ import axios from "axios";
 
 function BillPage() {
 
+  const [customerName, setCustomerName] = useState("");
+
   const [customers, setCustomers] = useState([]);
+
   const [products, setProducts] = useState([]);
 
-  const [selectedCustomer, setSelectedCustomer] =
-    useState("");
-
-  const [selectedProduct, setSelectedProduct] =
-    useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
 
   const [quantity, setQuantity] = useState(1);
 
@@ -19,361 +18,339 @@ function BillPage() {
   const [paidAmount, setPaidAmount] = useState("");
 
   useEffect(() => {
-    fetchData();
+
+    fetchCustomers();
+
+    fetchProducts();
+
   }, []);
 
-  const fetchData = async () => {
+  // FETCH CUSTOMERS
 
-    const customerResponse =
-      await axios.get(
+  const fetchCustomers = async () => {
+
+    try {
+
+      const response = await axios.get(
         "https://friends-auto-backend-1utc.onrender.com/customers"
       );
 
-    const productResponse =
-      await axios.get(
+      setCustomers(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  // FETCH PRODUCTS
+
+  const fetchProducts = async () => {
+
+    try {
+
+      const response = await axios.get(
         "https://friends-auto-backend-1utc.onrender.com/products"
       );
 
-    setCustomers(customerResponse.data);
-    setProducts(productResponse.data);
+      setProducts(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
+
+  // ADD ITEM
 
   const addItem = () => {
 
+    if (!selectedProduct) {
+
+      alert("Select Product");
+
+      return;
+    }
+
     const product = products.find(
-      (p) => p.id == selectedProduct
+      (p) => p.productName === selectedProduct
     );
 
-    if (!product) return;
+    if (!product) {
 
-    const total =
-      product.price * quantity;
+      alert("Product Not Found");
 
-    setBillItems([
-      ...billItems,
-      {
-        productName: product.productName,
-        quantity,
-        price: product.price,
-        total
-      }
-    ]);
+      return;
+    }
+
+    const itemTotal =
+      Number(product.price) * Number(quantity);
+
+    const item = {
+
+      productName: product.productName,
+
+      quantity: Number(quantity),
+
+      price: Number(product.price),
+
+      total: itemTotal
+    };
+
+    setBillItems([...billItems, item]);
+
+    setSelectedProduct("");
+
+    setQuantity(1);
   };
+
+  // CALCULATIONS
 
   const subtotal = billItems.reduce(
     (sum, item) => sum + item.total,
     0
   );
 
-  const gst = subtotal * 0.18;
+  const finalAmount = subtotal;
 
-  const finalAmount = subtotal + gst;
-
-  const balanceAmount =
+  const balance =
     finalAmount - Number(paidAmount || 0);
+
+  // SAVE BILL
 
   const saveBill = async () => {
 
-    const customer = customers.find(
-      (c) => c.id == selectedCustomer
-    );
+    if (!customerName) {
 
-    const billData = {
-      customerName: customer.customerName,
-      items: JSON.stringify(billItems),
-      subtotal,
-      gst,
-      finalAmount,
-      paidAmount,
-      balanceAmount
-    };
+      alert("Enter Customer Name");
 
-    await axios.post(
-      "https://friends-auto-backend-1utc.onrender.com/bills",
-      billData
-    );
+      return;
+    }
 
-    alert("Bill Saved Successfully");
+    if (billItems.length === 0) {
 
-    setBillItems([]);
-    setPaidAmount("");
+      alert("Add Products");
+
+      return;
+    }
+
+    try {
+
+      const billData = {
+
+        customerName: customerName,
+
+        totalAmount: subtotal,
+
+        finalAmount: finalAmount,
+
+        paidAmount: Number(paidAmount),
+
+        balanceAmount: balance
+      };
+
+      console.log(billData);
+
+      await axios.post(
+        "https://friends-auto-backend-1utc.onrender.com/bills",
+        billData
+      );
+
+      alert("Bill Saved Successfully");
+
+      setCustomerName("");
+
+      setBillItems([]);
+
+      setPaidAmount("");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed To Save Bill");
+    }
   };
 
   return (
 
-    <div style={{
-      padding: "20px",
-      backgroundColor: "#f4f7fb",
-      minHeight: "100vh"
-    }}>
+    <div style={containerStyle}>
 
-      {/* HEADER */}
+      <h1 style={titleStyle}>
+        Billing Management
+      </h1>
 
-      <div style={{
-        backgroundColor: "#0d47a1",
-        color: "white",
-        padding: "20px",
-        borderRadius: "15px",
-        marginBottom: "25px",
-        boxShadow: "0px 4px 12px rgba(0,0,0,0.15)"
-      }}>
+      {/* CUSTOMER */}
 
-        <h1 style={{
-          margin: 0,
-          fontSize: "32px"
-        }}>
-          Billing
-        </h1>
+      <input
+        type="text"
+        placeholder="Customer Name"
+        value={customerName}
+        onChange={(e) =>
+          setCustomerName(e.target.value)
+        }
+        list="customerList"
+        style={inputStyle}
+      />
 
-      </div>
+      <datalist id="customerList">
 
-      {/* BILL FORM */}
+        {customers.map((customer) => (
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        marginBottom: "25px",
-        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
-
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px"
-        }}>
-          Create Bill
-        </h2>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(250px,1fr))",
-
-          gap: "15px"
-        }}>
-
-          <select
-            value={selectedCustomer}
-            onChange={(e) =>
-              setSelectedCustomer(e.target.value)
-            }
-            style={inputStyle}
-          >
-
-            <option value="">
-              Select Customer
-            </option>
-
-            {customers.map((customer) => (
-
-              <option
-                key={customer.id}
-                value={customer.id}
-              >
-                {customer.customerName}
-              </option>
-
-            ))}
-
-          </select>
-
-          <select
-            value={selectedProduct}
-            onChange={(e) =>
-              setSelectedProduct(e.target.value)
-            }
-            style={inputStyle}
-          >
-
-            <option value="">
-              Select Product
-            </option>
-
-            {products.map((product) => (
-
-              <option
-                key={product.id}
-                value={product.id}
-              >
-                {product.productName}
-              </option>
-
-            ))}
-
-          </select>
-
-          <input
-            type="number"
-            placeholder="Quantity"
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(e.target.value)
-            }
-            style={inputStyle}
+          <option
+            key={customer.id}
+            value={customer.customerName}
           />
 
-        </div>
+        ))}
 
-        <button
-          onClick={addItem}
-          style={buttonStyle}
+      </datalist>
+
+      {/* PRODUCT */}
+
+      <div style={productRow}>
+
+        <select
+          value={selectedProduct}
+          onChange={(e) =>
+            setSelectedProduct(e.target.value)
+          }
+          style={inputStyle}
         >
-          Add Item
-        </button>
+
+          <option value="">
+            Select Product
+          </option>
+
+          {products.map((product) => (
+
+            <option
+              key={product.id}
+              value={product.productName}
+            >
+
+              {product.productName} - ₹{product.price}
+
+            </option>
+
+          ))}
+
+        </select>
+
+        <input
+          type="number"
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(e.target.value)
+          }
+          style={inputStyle}
+        />
 
       </div>
+
+      <button
+        onClick={addItem}
+        style={buttonStyle}
+      >
+        Add Item
+      </button>
 
       {/* BILL ITEMS */}
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        marginBottom: "25px",
-        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
+      <h2 style={sectionTitle}>
+        Bill Items
+      </h2>
 
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px"
-        }}>
-          Bill Items
-        </h2>
+      <div style={{ overflowX: "auto" }}>
 
-        <div style={{
-          overflowX: "auto"
-        }}>
+        <table style={tableStyle}>
 
-          <table style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            minWidth: "700px"
-          }}>
+          <thead>
 
-            <thead>
+            <tr style={tableHeaderRow}>
 
-              <tr style={{
-                backgroundColor: "#0d47a1",
-                color: "white"
-              }}>
+              <th style={tableHeader}>
+                Product
+              </th>
 
-                <th style={tableHeader}>
-                  Product
-                </th>
+              <th style={tableHeader}>
+                Quantity
+              </th>
 
-                <th style={tableHeader}>
-                  Quantity
-                </th>
+              <th style={tableHeader}>
+                Price
+              </th>
 
-                <th style={tableHeader}>
-                  Price
-                </th>
+              <th style={tableHeader}>
+                Total
+              </th>
 
-                <th style={tableHeader}>
-                  Total
-                </th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {billItems.map((item, index) => (
+
+              <tr key={index}>
+
+                <td style={tableCell}>
+                  {item.productName}
+                </td>
+
+                <td style={tableCell}>
+                  {item.quantity}
+                </td>
+
+                <td style={tableCell}>
+                  ₹{item.price}
+                </td>
+
+                <td style={tableCell}>
+                  ₹{item.total}
+                </td>
 
               </tr>
 
-            </thead>
+            ))}
 
-            <tbody>
+          </tbody>
 
-              {billItems.map((item, index) => (
-
-                <tr key={index}>
-
-                  <td style={tableCell}>
-                    {item.productName}
-                  </td>
-
-                  <td style={tableCell}>
-                    {item.quantity}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{item.price}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{item.total}
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
+        </table>
 
       </div>
 
-      {/* BILL SUMMARY */}
+      {/* SUMMARY */}
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
+      <div style={summaryBox}>
 
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px"
-        }}>
+        <h2 style={sectionTitle}>
           Bill Summary
         </h2>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(250px,1fr))",
+        <input
+          type="number"
+          placeholder="Paid Amount"
+          value={paidAmount}
+          onChange={(e) =>
+            setPaidAmount(e.target.value)
+          }
+          style={inputStyle}
+        />
 
-          gap: "15px",
-          marginBottom: "20px"
-        }}>
+        <h3>
+          Subtotal: ₹{subtotal}
+        </h3>
 
-          <input
-            type="number"
-            placeholder="Paid Amount"
-            value={paidAmount}
-            onChange={(e) =>
-              setPaidAmount(e.target.value)
-            }
-            style={inputStyle}
-          />
+        <h3>
+          Final Amount: ₹{finalAmount}
+        </h3>
 
-        </div>
-
-        <div style={{
-          lineHeight: "35px",
-          fontSize: "18px"
-        }}>
-
-          <p>
-            <strong>Subtotal:</strong>
-            ₹{subtotal.toFixed(2)}
-          </p>
-
-          <p>
-            <strong>GST (18%):</strong>
-            ₹{gst.toFixed(2)}
-          </p>
-
-          <p>
-            <strong>Final Amount:</strong>
-            ₹{finalAmount.toFixed(2)}
-          </p>
-
-          <p>
-            <strong>Balance:</strong>
-            ₹{balanceAmount.toFixed(2)}
-          </p>
-
-        </div>
+        <h3>
+          Balance: ₹{balance}
+        </h3>
 
         <button
           onClick={saveBill}
@@ -388,6 +365,38 @@ function BillPage() {
   );
 }
 
+/* STYLES */
+
+const containerStyle = {
+  backgroundColor: "white",
+  padding: "25px",
+  borderRadius: "18px",
+  boxShadow: "0px 4px 15px rgba(0,0,0,0.1)"
+};
+
+const titleStyle = {
+  color: "#0d47a1",
+  textAlign: "center",
+  marginBottom: "30px",
+  fontSize: "50px"
+};
+
+const sectionTitle = {
+  color: "#0d47a1",
+  marginTop: "20px",
+  marginBottom: "15px",
+  textAlign: "center"
+};
+
+const productRow = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+  gap: "15px",
+  marginTop: "20px",
+  marginBottom: "20px"
+};
+
 const inputStyle = {
   width: "100%",
   padding: "14px",
@@ -401,25 +410,38 @@ const inputStyle = {
 const buttonStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
-  padding: "14px 20px",
   border: "none",
+  padding: "12px 20px",
   borderRadius: "10px",
-  cursor: "pointer",
-  fontSize: "16px",
-  fontWeight: "600",
-  marginTop: "10px"
+  cursor: "pointer"
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
+  marginTop: "20px"
+};
+
+const tableHeaderRow = {
+  backgroundColor: "#0d47a1",
+  color: "white"
 };
 
 const tableHeader = {
-  padding: "16px",
-  textAlign: "left",
-  fontSize: "16px"
+  padding: "14px",
+  textAlign: "left"
 };
 
 const tableCell = {
-  padding: "14px",
-  borderBottom: "1px solid #ddd",
-  fontSize: "15px"
+  padding: "12px",
+  borderBottom: "1px solid #ddd"
+};
+
+const summaryBox = {
+  marginTop: "30px",
+  backgroundColor: "#f4f7fb",
+  padding: "20px",
+  borderRadius: "14px"
 };
 
 export default BillPage;

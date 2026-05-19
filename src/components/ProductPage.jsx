@@ -5,373 +5,280 @@ function ProductPage() {
 
   const [products, setProducts] = useState([]);
 
-  const [editingId, setEditingId] = useState(null);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  const [name, setName] = useState("");
+
+  const [category, setCategory] = useState("");
+
+  const [price, setPrice] = useState("");
+
+  const [stock, setStock] = useState("");
 
   const [search, setSearch] = useState("");
 
-  const [formData, setFormData] = useState({
-    productName: "",
-    category: "",
-    price: "",
-    stock: ""
-  });
-
   useEffect(() => {
+
     fetchProducts();
+
   }, []);
 
   const fetchProducts = async () => {
 
-    const response =
-      await axios.get(
+    try {
+
+      const response = await axios.get(
         "https://friends-auto-backend-1utc.onrender.com/products"
       );
 
-    setProducts(response.data);
+      setProducts(response.data);
+
+      setFilteredProducts(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
 
-  const handleChange = (e) => {
+  const addProduct = async () => {
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+    try {
 
-  const saveProduct = async () => {
+      const productData = {
 
-    if (editingId) {
+        productName: name,
+        category,
+        price: Number(price),
+        stock: Number(stock)
 
-      await axios.put(
-        `https://friends-auto-backend-1utc.onrender.com/products/${editingId}`,
-        formData
-      );
-
-    } else {
+      };
 
       await axios.post(
         "https://friends-auto-backend-1utc.onrender.com/products",
-        formData
+        productData
       );
+
+      alert("Product Added Successfully");
+
+      setName("");
+
+      setCategory("");
+
+      setPrice("");
+
+      setStock("");
+
+      fetchProducts();
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed To Add Product");
     }
-
-    fetchProducts();
-
-    resetForm();
-  };
-
-  const editProduct = (product) => {
-
-    setEditingId(product.id);
-
-    setFormData({
-      productName: product.productName,
-      category: product.category,
-      price: product.price,
-      stock: product.stock
-    });
   };
 
   const deleteProduct = async (id) => {
 
-    await axios.delete(
-      `https://friends-auto-backend-1utc.onrender.com/products/${id}`
-    );
+    try {
 
-    fetchProducts();
+      await axios.delete(
+        `https://friends-auto-backend-1utc.onrender.com/products/${id}`
+      );
+
+      fetchProducts();
+
+    } catch (error) {
+
+      console.log(error);
+    }
   };
 
-  const resetForm = () => {
+  const searchProduct = (value) => {
 
-    setEditingId(null);
+    setSearch(value);
 
-    setFormData({
-      productName: "",
-      category: "",
-      price: "",
-      stock: ""
-    });
+    const filtered =
+      products.filter((product) =>
+        product.productName
+          ?.toLowerCase()
+          .includes(value.toLowerCase())
+      );
+
+    setFilteredProducts(filtered);
+  };
+
+  const clearForm = () => {
+
+    setName("");
+
+    setCategory("");
+
+    setPrice("");
+
+    setStock("");
   };
 
   return (
 
-    <div style={{
-      padding: "20px",
-      backgroundColor: "#f4f7fb",
-      minHeight: "100vh"
-    }}>
+    <div style={containerStyle}>
 
-      {/* HEADER */}
+      <h1 style={titleStyle}>
+        Product Management
+      </h1>
 
-      <div style={{
-        backgroundColor: "#0d47a1",
-        color: "white",
-        padding: "20px",
-        borderRadius: "15px",
-        marginBottom: "25px",
-        boxShadow: "0px 4px 12px rgba(0,0,0,0.15)"
-      }}>
+      <div style={formGrid}>
 
-        <h1 style={{
-          margin: 0,
-          fontSize: "32px"
-        }}>
-          Products
-        </h1>
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) =>
+            setName(e.target.value)
+          }
+          style={inputStyle}
+        />
 
-      </div>
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) =>
+            setCategory(e.target.value)
+          }
+          style={inputStyle}
+        />
 
-      {/* FORM SECTION */}
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) =>
+            setPrice(e.target.value)
+          }
+          style={inputStyle}
+        />
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        marginBottom: "25px",
-        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
-
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px"
-        }}>
-          {editingId
-            ? "Edit Product"
-            : "Add Product"}
-        </h2>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(250px,1fr))",
-
-          gap: "15px"
-        }}>
-
-          <input
-            type="text"
-            name="productName"
-            placeholder="Product Name"
-            value={formData.productName}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            name="category"
-            placeholder="Category"
-            value={formData.category}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-
-          <input
-            type="number"
-            name="price"
-            placeholder="Price"
-            value={formData.price}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-
-          <input
-            type="number"
-            name="stock"
-            placeholder="Stock"
-            value={formData.stock}
-            onChange={handleChange}
-            style={inputStyle}
-          />
-
-        </div>
-
-        <div style={{
-          display: "flex",
-          gap: "15px",
-          flexWrap: "wrap",
-          marginTop: "20px"
-        }}>
-
-          <button
-            onClick={saveProduct}
-            style={buttonStyle}
-          >
-            {editingId
-              ? "Update Product"
-              : "Add Product"}
-          </button>
-
-          <button
-            onClick={resetForm}
-            style={{
-              ...buttonStyle,
-              backgroundColor: "gray"
-            }}
-          >
-            Clear
-          </button>
-
-        </div>
+        <input
+          type="number"
+          placeholder="Stock"
+          value={stock}
+          onChange={(e) =>
+            setStock(e.target.value)
+          }
+          style={inputStyle}
+        />
 
       </div>
 
-      {/* PRODUCT LIST */}
-
       <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        boxShadow: "0px 4px 15px rgba(0,0,0,0.08)"
+        display: "flex",
+        gap: "10px",
+        marginBottom: "20px",
+        flexWrap: "wrap"
       }}>
 
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "15px",
-          marginBottom: "20px"
-        }}>
+        <button
+          onClick={addProduct}
+          style={buttonStyle}
+        >
+          Add Product
+        </button>
 
-          <h2 style={{
-            color: "#0d47a1",
-            margin: 0
-          }}>
-            Product List
-          </h2>
+        <button
+          onClick={clearForm}
+          style={clearButton}
+        >
+          Clear
+        </button>
 
-          <input
-            type="text"
-            placeholder="Search Product"
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            style={{
-              ...inputStyle,
-              maxWidth: "300px"
-            }}
-          />
+      </div>
 
-        </div>
+      <input
+        type="text"
+        placeholder="Search Product"
+        value={search}
+        onChange={(e) =>
+          searchProduct(e.target.value)
+        }
+        style={inputStyle}
+      />
 
-        <div style={{
-          overflowX: "auto"
-        }}>
+      <div style={{ overflowX: "auto" }}>
 
-          <table style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            minWidth: "800px"
-          }}>
+        <table style={tableStyle}>
 
-            <thead>
+          <thead>
 
-              <tr style={{
-                backgroundColor: "#0d47a1",
-                color: "white"
-              }}>
+            <tr style={tableHeaderRow}>
 
-                <th style={tableHeader}>
-                  Product
-                </th>
+              <th style={tableHeader}>
+                Product
+              </th>
 
-                <th style={tableHeader}>
-                  Category
-                </th>
+              <th style={tableHeader}>
+                Category
+              </th>
 
-                <th style={tableHeader}>
-                  Price
-                </th>
+              <th style={tableHeader}>
+                Price
+              </th>
 
-                <th style={tableHeader}>
-                  Stock
-                </th>
+              <th style={tableHeader}>
+                Stock
+              </th>
 
-                <th style={tableHeader}>
-                  Actions
-                </th>
+              <th style={tableHeader}>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {filteredProducts.map((product) => (
+
+              <tr key={product.id}>
+
+                <td style={tableCell}>
+                  {product.productName}
+                </td>
+
+                <td style={tableCell}>
+                  {product.category}
+                </td>
+
+                <td style={tableCell}>
+                  ₹{product.price}
+                </td>
+
+                <td style={tableCell}>
+                  {product.stock}
+                </td>
+
+                <td style={tableCell}>
+
+                  <button
+                    onClick={() =>
+                      deleteProduct(product.id)
+                    }
+                    style={deleteButton}
+                  >
+                    Delete
+                  </button>
+
+                </td>
 
               </tr>
 
-            </thead>
+            ))}
 
-            <tbody>
+          </tbody>
 
-              {products
-                .filter((product) =>
-                  product.productName
-                    .toLowerCase()
-                    .includes(
-                      search.toLowerCase()
-                    )
-                )
-                .map((product) => (
-
-                  <tr key={product.id}>
-
-                    <td style={tableCell}>
-                      {product.productName}
-                    </td>
-
-                    <td style={tableCell}>
-                      {product.category}
-                    </td>
-
-                    <td style={tableCell}>
-                      ₹{product.price}
-                    </td>
-
-                    <td style={tableCell}>
-                      {product.stock}
-                    </td>
-
-                    <td style={tableCell}>
-
-                      <div style={{
-                        display: "flex",
-                        gap: "10px",
-                        flexWrap: "wrap"
-                      }}>
-
-                        <button
-                          onClick={() =>
-                            editProduct(product)
-                          }
-                          style={{
-                            ...actionButton,
-                            backgroundColor: "#0d47a1"
-                          }}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            deleteProduct(product.id)
-                          }
-                          style={{
-                            ...actionButton,
-                            backgroundColor: "red"
-                          }}
-                        >
-                          Delete
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
+        </table>
 
       </div>
 
@@ -379,12 +286,35 @@ function ProductPage() {
   );
 }
 
+/* STYLES */
+
+const containerStyle = {
+  backgroundColor: "white",
+  padding: "25px",
+  borderRadius: "18px",
+  boxShadow: "0px 4px 15px rgba(0,0,0,0.1)"
+};
+
+const titleStyle = {
+  color: "#0d47a1",
+  textAlign: "center",
+  marginBottom: "30px",
+  fontSize: "50px"
+};
+
+const formGrid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+  gap: "15px",
+  marginBottom: "20px"
+};
+
 const inputStyle = {
   width: "100%",
   padding: "14px",
   borderRadius: "10px",
   border: "1px solid #ccc",
-  marginBottom: "14px",
   fontSize: "16px",
   boxSizing: "border-box"
 };
@@ -392,33 +322,49 @@ const inputStyle = {
 const buttonStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
-  padding: "14px 20px",
   border: "none",
+  padding: "12px 20px",
   borderRadius: "10px",
-  cursor: "pointer",
-  fontSize: "16px",
-  fontWeight: "600"
+  cursor: "pointer"
 };
 
-const actionButton = {
+const clearButton = {
+  backgroundColor: "gray",
   color: "white",
   border: "none",
-  padding: "10px 14px",
+  padding: "12px 20px",
+  borderRadius: "10px",
+  cursor: "pointer"
+};
+
+const deleteButton = {
+  backgroundColor: "red",
+  color: "white",
+  border: "none",
+  padding: "8px 14px",
   borderRadius: "8px",
-  cursor: "pointer",
-  fontSize: "14px"
+  cursor: "pointer"
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
+  marginTop: "20px"
+};
+
+const tableHeaderRow = {
+  backgroundColor: "#0d47a1",
+  color: "white"
 };
 
 const tableHeader = {
-  padding: "16px",
-  textAlign: "left",
-  fontSize: "16px"
+  padding: "14px",
+  textAlign: "left"
 };
 
 const tableCell = {
-  padding: "14px",
-  borderBottom: "1px solid #ddd",
-  fontSize: "15px"
+  padding: "12px",
+  borderBottom: "1px solid #ddd"
 };
 
 export default ProductPage;
