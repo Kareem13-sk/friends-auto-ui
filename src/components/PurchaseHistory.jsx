@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 function PurchaseHistory() {
@@ -7,6 +7,55 @@ function PurchaseHistory() {
     useState("");
 
   const [bills, setBills] = useState([]);
+
+  const [customers, setCustomers] =
+    useState([]);
+
+  const [filteredCustomers,
+    setFilteredCustomers] =
+    useState([]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+
+    try {
+
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
+
+      setCustomers(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  const handleSearchChange = (value) => {
+
+    setCustomerName(value);
+
+    if (value.trim() === "") {
+
+      setFilteredCustomers([]);
+
+      return;
+    }
+
+    const filtered =
+      customers.filter((customer) =>
+        customer.customerName
+          .toLowerCase()
+          .includes(value.toLowerCase())
+      );
+
+    setFilteredCustomers(filtered);
+  };
 
   const searchBills = async () => {
 
@@ -77,20 +126,79 @@ function PurchaseHistory() {
         <div style={{
           display: "flex",
           gap: "15px",
-          flexWrap: "wrap"
+          flexWrap: "wrap",
+          position: "relative"
         }}>
 
-          <input
-            type="text"
-            placeholder="Enter Customer Name"
-            value={customerName}
-            onChange={(e) =>
-              setCustomerName(
-                e.target.value
+          <div style={{
+            width: "100%",
+            maxWidth: "350px",
+            position: "relative"
+          }}>
+
+            <input
+              type="text"
+              placeholder="Enter Customer Name"
+              value={customerName}
+              onChange={(e) =>
+                handleSearchChange(
+                  e.target.value
+                )
+              }
+              style={inputStyle}
+            />
+
+            {
+              filteredCustomers.length > 0 && (
+
+                <div style={{
+                  position: "absolute",
+                  top: "55px",
+                  width: "100%",
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  borderRadius: "10px",
+                  maxHeight: "180px",
+                  overflowY: "auto",
+                  zIndex: 1000,
+                  boxShadow:
+                    "0px 4px 10px rgba(0,0,0,0.1)"
+                }}>
+
+                  {
+                    filteredCustomers.map(
+                      (customer) => (
+
+                        <div
+                          key={customer.id}
+                          style={{
+                            padding: "12px",
+                            cursor: "pointer",
+                            borderBottom:
+                              "1px solid #eee"
+                          }}
+                          onClick={() => {
+
+                            setCustomerName(
+                              customer.customerName
+                            );
+
+                            setFilteredCustomers([]);
+                          }}
+                        >
+
+                          {customer.customerName}
+
+                        </div>
+                      )
+                    )
+                  }
+
+                </div>
               )
             }
-            style={inputStyle}
-          />
+
+          </div>
 
           <button
             onClick={searchBills}
@@ -126,8 +234,7 @@ function PurchaseHistory() {
 
           <table style={{
             width: "100%",
-            borderCollapse: "collapse",
-            minWidth: "900px"
+            borderCollapse: "collapse"
           }}>
 
             <thead>
@@ -139,18 +246,6 @@ function PurchaseHistory() {
 
                 <th style={tableHeader}>
                   Customer
-                </th>
-
-                <th style={tableHeader}>
-                  Subtotal
-                </th>
-
-                <th style={tableHeader}>
-                  GST
-                </th>
-
-                <th style={tableHeader}>
-                  Final
                 </th>
 
                 <th style={tableHeader}>
@@ -173,18 +268,6 @@ function PurchaseHistory() {
 
                   <td style={tableCell}>
                     {bill.customerName}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{bill.subtotal}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{bill.gst}
-                  </td>
-
-                  <td style={tableCell}>
-                    ₹{bill.finalAmount}
                   </td>
 
                   <td style={tableCell}>
@@ -213,7 +296,6 @@ function PurchaseHistory() {
 
 const inputStyle = {
   width: "100%",
-  maxWidth: "350px",
   padding: "14px",
   borderRadius: "10px",
   border: "1px solid #ccc",
