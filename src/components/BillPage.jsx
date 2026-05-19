@@ -18,6 +18,9 @@ function BillPage() {
   const [quantity, setQuantity] =
     useState(1);
 
+  const [percentage, setPercentage] =
+    useState(0);
+
   const [billItems, setBillItems] =
     useState([]);
 
@@ -92,19 +95,33 @@ function BillPage() {
       return;
     }
 
-    const itemTotal =
+    const originalTotal =
       Number(product.price) *
       Number(quantity);
 
+    const discountAmount =
+      (originalTotal *
+        Number(percentage || 0)) / 100;
+
+    const finalTotal =
+      originalTotal - discountAmount;
+
     const item = {
 
-      productName: product.productName,
+      productName:
+        product.productName,
 
-      quantity: Number(quantity),
+      quantity:
+        Number(quantity),
 
-      price: Number(product.price),
+      price:
+        Number(product.price),
 
-      total: itemTotal
+      percentage:
+        Number(percentage),
+
+      total:
+        finalTotal
     };
 
     setBillItems([
@@ -115,6 +132,8 @@ function BillPage() {
     setSelectedProduct("");
 
     setQuantity(1);
+
+    setPercentage(0);
   };
 
   // CALCULATIONS
@@ -182,6 +201,11 @@ function BillPage() {
                   item.price
                 ),
 
+              percentage:
+                Number(
+                  item.percentage
+                ),
+
               total:
                 Number(
                   item.total
@@ -190,24 +214,9 @@ function BillPage() {
           )
       };
 
-      console.log(
-        "Sending Bill Data:",
-        JSON.stringify(
-          billData,
-          null,
-          2
-        )
-      );
-
       await axios.post(
         "https://friends-auto-backend-1utc.onrender.com/bills",
-        billData,
-        {
-          headers: {
-            "Content-Type":
-              "application/json"
-          }
-        }
+        billData
       );
 
       alert(
@@ -222,15 +231,7 @@ function BillPage() {
 
     } catch (error) {
 
-      console.log(
-        "FULL ERROR:",
-        error
-      );
-
-      console.log(
-        "ERROR RESPONSE:",
-        error.response
-      );
+      console.log(error);
 
       alert(
         "Failed To Save Bill"
@@ -329,6 +330,18 @@ function BillPage() {
           style={inputStyle}
         />
 
+        <input
+          type="number"
+          placeholder="Percentage"
+          value={percentage}
+          onChange={(e) =>
+            setPercentage(
+              e.target.value
+            )
+          }
+          style={inputStyle}
+        />
+
       </div>
 
       <button
@@ -373,6 +386,10 @@ function BillPage() {
               </th>
 
               <th style={tableHeader}>
+                %
+              </th>
+
+              <th style={tableHeader}>
                 Total
               </th>
 
@@ -404,6 +421,12 @@ function BillPage() {
 
                   <td style={tableCell}>
                     ₹{item.price}
+                  </td>
+
+                  <td style={tableCell}>
+                    {
+                      item.percentage
+                    }%
                   </td>
 
                   <td style={tableCell}>
