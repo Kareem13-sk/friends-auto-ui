@@ -17,6 +17,9 @@ function ProductPage() {
 
   const [search, setSearch] = useState("");
 
+  // EDIT STATE
+  const [editingId, setEditingId] = useState(null);
+
   useEffect(() => {
 
     fetchProducts();
@@ -41,7 +44,8 @@ function ProductPage() {
     }
   };
 
-  const addProduct = async () => {
+  // ADD OR UPDATE PRODUCT
+  const saveProduct = async () => {
 
     try {
 
@@ -54,20 +58,28 @@ function ProductPage() {
 
       };
 
-      await axios.post(
-        "https://friends-auto-backend-1utc.onrender.com/products",
-        productData
-      );
+      // UPDATE
+      if (editingId) {
 
-      alert("Product Added Successfully");
+        await axios.put(
+          `https://friends-auto-backend-1utc.onrender.com/products/${editingId}`,
+          productData
+        );
 
-      setName("");
+        alert("Product Updated Successfully");
 
-      setCategory("");
+      } else {
 
-      setPrice("");
+        // ADD
+        await axios.post(
+          "https://friends-auto-backend-1utc.onrender.com/products",
+          productData
+        );
 
-      setStock("");
+        alert("Product Added Successfully");
+      }
+
+      clearForm();
 
       fetchProducts();
 
@@ -75,10 +87,11 @@ function ProductPage() {
 
       console.log(error);
 
-      alert("Failed To Add Product");
+      alert("Failed To Save Product");
     }
   };
 
+  // DELETE PRODUCT
   const deleteProduct = async (id) => {
 
     try {
@@ -95,6 +108,21 @@ function ProductPage() {
     }
   };
 
+  // EDIT PRODUCT
+  const editProduct = (product) => {
+
+    setEditingId(product.id);
+
+    setName(product.productName);
+
+    setCategory(product.category);
+
+    setPrice(product.price);
+
+    setStock(product.stock);
+  };
+
+  // SEARCH
   const searchProduct = (value) => {
 
     setSearch(value);
@@ -109,6 +137,7 @@ function ProductPage() {
     setFilteredProducts(filtered);
   };
 
+  // CLEAR
   const clearForm = () => {
 
     setName("");
@@ -118,6 +147,8 @@ function ProductPage() {
     setPrice("");
 
     setStock("");
+
+    setEditingId(null);
   };
 
   return (
@@ -180,10 +211,12 @@ function ProductPage() {
       }}>
 
         <button
-          onClick={addProduct}
+          onClick={saveProduct}
           style={buttonStyle}
         >
-          Add Product
+          {editingId
+            ? "Update Product"
+            : "Add Product"}
         </button>
 
         <button
@@ -261,6 +294,17 @@ function ProductPage() {
 
                 <td style={tableCell}>
 
+                  {/* EDIT BUTTON */}
+                  <button
+                    onClick={() =>
+                      editProduct(product)
+                    }
+                    style={editButton}
+                  >
+                    Edit
+                  </button>
+
+                  {/* DELETE BUTTON */}
                   <button
                     onClick={() =>
                       deleteProduct(product.id)
@@ -335,6 +379,16 @@ const clearButton = {
   padding: "12px 20px",
   borderRadius: "10px",
   cursor: "pointer"
+};
+
+const editButton = {
+  backgroundColor: "#1976d2",
+  color: "white",
+  border: "none",
+  padding: "8px 14px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  marginRight: "10px"
 };
 
 const deleteButton = {
