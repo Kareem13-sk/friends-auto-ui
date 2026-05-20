@@ -3,15 +3,22 @@ import axios from "axios";
 
 function Dashboard() {
 
-  const [customers, setCustomers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [bills, setBills] = useState([]);
+  const [customers, setCustomers] =
+    useState([]);
+
+  const [products, setProducts] =
+    useState([]);
+
+  const [bills, setBills] =
+    useState([]);
 
   useEffect(() => {
-    fetchData();
+
+    fetchDashboardData();
+
   }, []);
 
-  const fetchData = async () => {
+  const fetchDashboardData = async () => {
 
     try {
 
@@ -42,38 +49,87 @@ function Dashboard() {
 
   return (
 
-    <div>
+    <div style={{
+      padding: "20px",
+      backgroundColor: "#f4f7fb",
+      minHeight: "100vh"
+    }}>
 
-      <h1 style={{
-        color: "#0d47a1",
+      {/* HEADER */}
+
+      <div style={{
+        backgroundColor: "#0d47a1",
+        color: "white",
+        padding: "20px",
+        borderRadius: "15px",
         marginBottom: "25px",
-        fontSize: "34px"
+        boxShadow:
+          "0px 4px 12px rgba(0,0,0,0.15)"
       }}>
-        Dashboard
-      </h1>
+
+        <h1 style={{
+          margin: 0,
+          fontSize: "32px"
+        }}>
+          Dashboard
+        </h1>
+
+      </div>
+
+      {/* DASHBOARD CARDS */}
 
       <div style={{
         display: "grid",
         gridTemplateColumns:
           "repeat(auto-fit,minmax(250px,1fr))",
-
-        gap: "20px"
+        gap: "20px",
+        marginTop: "30px"
       }}>
 
-        <Card
-          title="Total Customers"
-          value={customers.length}
-        />
+        {/* CUSTOMERS CARD */}
 
-        <Card
-          title="Total Products"
-          value={products.length}
-        />
+        <div
+          onClick={() =>
+            window.location.href = "/customers"
+          }
+          style={cardStyle}
+        >
 
-        <Card
-          title="Total Bills"
-          value={bills.length}
-        />
+          <h2>Total Customers</h2>
+
+          <h1>{customers.length}</h1>
+
+        </div>
+
+        {/* PRODUCTS CARD */}
+
+        <div
+          onClick={() =>
+            window.location.href = "/products"
+          }
+          style={cardStyle}
+        >
+
+          <h2>Total Products</h2>
+
+          <h1>{products.length}</h1>
+
+        </div>
+
+        {/* BILLS CARD */}
+
+        <div
+          onClick={() =>
+            window.location.href = "/history"
+          }
+          style={cardStyle}
+        >
+
+          <h2>Total Bills</h2>
+
+          <h1>{bills.length}</h1>
+
+        </div>
 
       </div>
 
@@ -81,37 +137,16 @@ function Dashboard() {
   );
 }
 
-function Card({ title, value }) {
-
-  const cardStyle = {
-    backgroundColor: "#0d47a1",
-    color: "white",
-    borderRadius: "18px",
-    padding: "30px",
-    boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
-    textAlign: "center"
-  };
-
-  return (
-
-    <div style={cardStyle}>
-
-      <h2 style={{
-        marginBottom: "15px",
-        fontSize: "24px"
-      }}>
-        {title}
-      </h2>
-
-      <h1 style={{
-        fontSize: "48px",
-        margin: 0
-      }}>
-        {value}
-      </h1>
-
-    </div>
-  );
-}
+const cardStyle = {
+  backgroundColor: "#0d47a1",
+  color: "white",
+  padding: "30px",
+  borderRadius: "18px",
+  textAlign: "center",
+  cursor: "pointer",
+  boxShadow:
+    "0px 4px 12px rgba(0,0,0,0.15)",
+  transition: "0.3s"
+};
 
 export default Dashboard;
