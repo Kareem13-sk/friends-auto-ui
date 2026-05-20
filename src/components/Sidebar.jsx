@@ -1,112 +1,117 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
 
-  const navigate = useNavigate();
+  const location = useLocation();
+
+  const menuItems = [
+    { name: "Dashboard", path: "/" },
+    { name: "Customers", path: "/customers" },
+    { name: "Products", path: "/products" },
+    { name: "Billing", path: "/billing" },
+    { name: "Purchase History", path: "/history" },
+    { name: "Customer Details", path: "/customer-details" },
+  ];
 
   return (
 
-    <div style={sidebarStyle}>
+    <div
+      style={{
+        width: "280px",
+        minHeight: "100vh",
+        background:
+          "linear-gradient(180deg,#0d47a1,#002b6b)",
+        padding: "30px 20px",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        overflowY: "auto",
+        position: "sticky",
+        top: 0
+      }}
+    >
 
-      <h1 style={logoStyle}>
-        Friends Auto
-      </h1>
+      {/* LOGO */}
 
-      <button
-        style={navButton}
-        onClick={() => navigate("/")}
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: "40px"
+        }}
       >
-        Dashboard
-      </button>
 
-      <button
-        style={navButton}
-        onClick={() => navigate("/products")}
-      >
-        Products
-      </button>
+        <h1
+          style={{
+            color: "white",
+            fontSize: "clamp(32px,4vw,58px)",
+            lineHeight: "1.1",
+            fontWeight: "700",
+            margin: 0
+          }}
+        >
+          Friends Auto
+        </h1>
 
-      <button
-        style={navButton}
-        onClick={() => navigate("/billing")}
-      >
-        Billing
-      </button>
+      </div>
 
-      <button
-        style={navButton}
-        onClick={() => navigate("/history")}
-      >
-        Purchase History
-      </button>
+      {/* MENU */}
 
-      <button
-        style={navButton}
-        onClick={() =>
-          navigate("/customer-details")
-        }
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "18px"
+        }}
       >
-        Customer Details
-      </button>
+
+        {menuItems.map((item) => {
+
+          const isActive =
+            location.pathname === item.path;
+
+          return (
+
+            <Link
+              key={item.path}
+              to={item.path}
+              style={{
+                textDecoration: "none"
+              }}
+            >
+
+              <div
+                style={{
+                  backgroundColor: isActive
+                    ? "white"
+                    : "rgba(255,255,255,0.12)",
+
+                  color: isActive
+                    ? "#0d47a1"
+                    : "white",
+
+                  padding: "18px",
+                  borderRadius: "18px",
+                  textAlign: "center",
+                  fontSize: "24px",
+                  fontWeight: "600",
+                  transition: "0.3s",
+                  cursor: "pointer",
+                  boxShadow:
+                    "0 4px 10px rgba(0,0,0,0.15)"
+                }}
+              >
+                {item.name}
+              </div>
+
+            </Link>
+
+          );
+        })}
+
+      </div>
 
     </div>
   );
 }
-
-const sidebarStyle = {
-
-  width: "250px",
-
-  height: "100vh",
-
-  background:
-    "linear-gradient(180deg,#0d47a1,#062b63)",
-
-  position: "fixed",
-
-  left: 0,
-
-  top: 0,
-
-  padding: "30px 20px",
-
-  boxShadow:
-    "4px 0px 15px rgba(0,0,0,0.15)"
-};
-
-const logoStyle = {
-
-  color: "white",
-
-  marginBottom: "40px",
-
-  textAlign: "center",
-
-  fontSize: "32px"
-};
-
-const navButton = {
-
-  width: "100%",
-
-  padding: "15px",
-
-  marginBottom: "16px",
-
-  borderRadius: "12px",
-
-  border: "none",
-
-  backgroundColor:
-    "rgba(255,255,255,0.12)",
-
-  color: "white",
-
-  fontSize: "16px",
-
-  cursor: "pointer",
-
-  fontWeight: "600"
-};
 
 export default Sidebar;
