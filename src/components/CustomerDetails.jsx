@@ -9,20 +9,19 @@ function CustomerDetails() {
   const [customers, setCustomers] =
     useState([]);
 
-  const [filteredCustomers,
-    setFilteredCustomers] = useState([]);
-
-  const [bills, setBills] =
+  const [filteredCustomers, setFilteredCustomers] =
     useState([]);
 
-  const [totalPurchase,
-    setTotalPurchase] = useState(0);
+  const [bills, setBills] = useState([]);
 
-  const [totalPaid,
-    setTotalPaid] = useState(0);
+  const [totalPurchase, setTotalPurchase] =
+    useState(0);
 
-  const [pendingBalance,
-    setPendingBalance] = useState(0);
+  const [totalPaid, setTotalPaid] =
+    useState(0);
+
+  const [pendingBalance, setPendingBalance] =
+    useState(0);
 
   useEffect(() => {
 
@@ -34,9 +33,10 @@ function CustomerDetails() {
 
     try {
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/customers"
-      );
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
 
       setCustomers(response.data);
 
@@ -46,36 +46,73 @@ function CustomerDetails() {
     }
   };
 
+  const handleCustomerInput = (value) => {
+
+    setCustomerName(value);
+
+    if (value.length > 0) {
+
+      const filtered =
+        customers.filter((customer) =>
+          customer.customerName
+            ?.toLowerCase()
+            .includes(value.toLowerCase())
+        );
+
+      setFilteredCustomers(filtered);
+
+    } else {
+
+      setFilteredCustomers([]);
+    }
+  };
+
+  const selectCustomer = (name) => {
+
+    setCustomerName(name);
+
+    setFilteredCustomers([]);
+  };
+
   const searchCustomer = async () => {
 
     try {
 
-      const response = await axios.get(
-        `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
-      );
+      const response =
+        await axios.get(
+          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
+        );
 
-      setBills(response.data);
+      const data = response.data;
+
+      setBills(data);
 
       let purchase = 0;
+
       let paid = 0;
+
       let balance = 0;
 
-      response.data.forEach((bill) => {
+      data.forEach((bill) => {
 
-        purchase += bill.totalAmount || 0;
+        purchase += bill.finalAmount || 0;
+
         paid += bill.paidAmount || 0;
+
         balance += bill.balanceAmount || 0;
       });
 
       setTotalPurchase(purchase);
+
       setTotalPaid(paid);
+
       setPendingBalance(balance);
 
     } catch (error) {
 
       console.log(error);
 
-      alert("Customer not found");
+      alert("Customer Not Found");
     }
   };
 
@@ -95,13 +132,14 @@ function CustomerDetails() {
         padding: "20px",
         borderRadius: "15px",
         marginBottom: "25px",
+        textAlign: "center",
         boxShadow:
           "0px 4px 12px rgba(0,0,0,0.15)"
       }}>
 
         <h1 style={{
           margin: 0,
-          fontSize: "32px"
+          fontSize: "34px"
         }}>
           Customer Details
         </h1>
@@ -115,13 +153,15 @@ function CustomerDetails() {
         padding: "25px",
         borderRadius: "18px",
         marginBottom: "25px",
+        position: "relative",
         boxShadow:
           "0px 4px 15px rgba(0,0,0,0.08)"
       }}>
 
         <h2 style={{
           color: "#0d47a1",
-          marginBottom: "20px"
+          marginBottom: "20px",
+          textAlign: "center"
         }}>
           Search Customer
         </h2>
@@ -129,72 +169,54 @@ function CustomerDetails() {
         <div style={{
           display: "flex",
           gap: "15px",
-          flexWrap: "wrap",
-          alignItems: "flex-start"
+          flexWrap: "wrap"
         }}>
 
           <div style={{
-            position: "relative",
-            width: "350px"
+            flex: 1,
+            position: "relative"
           }}>
 
             <input
               type="text"
               placeholder="Enter Customer Name"
               value={customerName}
-              onChange={(e) => {
-
-                const value = e.target.value;
-
-                setCustomerName(value);
-
-                if (value.length > 0) {
-
-                  const filtered =
-                    customers.filter((customer) =>
-                      customer.customerName
-                        .toLowerCase()
-                        .includes(value.toLowerCase())
-                    );
-
-                  setFilteredCustomers(filtered);
-
-                } else {
-
-                  setFilteredCustomers([]);
-                }
-              }}
+              onChange={(e) =>
+                handleCustomerInput(
+                  e.target.value
+                )
+              }
               style={inputStyle}
             />
+
+            {/* DROPDOWN */}
 
             {filteredCustomers.length > 0 && (
 
               <div style={{
                 position: "absolute",
-                width: "100%",
-                background: "white",
-                border: "1px solid #ccc",
+                top: "55px",
+                left: 0,
+                right: 0,
+                backgroundColor: "white",
+                border: "1px solid #ddd",
                 borderRadius: "10px",
-                marginTop: "5px",
                 zIndex: 1000,
                 maxHeight: "200px",
                 overflowY: "auto",
                 boxShadow:
-                  "0px 4px 10px rgba(0,0,0,0.1)"
+                  "0px 4px 10px rgba(0,0,0,0.15)"
               }}>
 
                 {filteredCustomers.map((customer) => (
 
                   <div
                     key={customer.id}
-                    onClick={() => {
-
-                      setCustomerName(
+                    onClick={() =>
+                      selectCustomer(
                         customer.customerName
-                      );
-
-                      setFilteredCustomers([]);
-                    }}
+                      )
+                    }
                     style={{
                       padding: "12px",
                       cursor: "pointer",
@@ -202,9 +224,7 @@ function CustomerDetails() {
                         "1px solid #eee"
                     }}
                   >
-
                     {customer.customerName}
-
                   </div>
 
                 ))}
@@ -238,31 +258,37 @@ function CustomerDetails() {
 
         <div style={cardStyle}>
 
-          <h3>Total Purchase</h3>
+          <h2>Total Purchase</h2>
 
-          <h1>₹{totalPurchase}</h1>
-
-        </div>
-
-        <div style={cardStyle}>
-
-          <h3>Total Paid</h3>
-
-          <h1>₹{totalPaid}</h1>
+          <h1>
+            ₹{totalPurchase.toFixed(0)}
+          </h1>
 
         </div>
 
         <div style={cardStyle}>
 
-          <h3>Pending Balance</h3>
+          <h2>Total Paid</h2>
 
-          <h1>₹{pendingBalance}</h1>
+          <h1>
+            ₹{totalPaid.toFixed(0)}
+          </h1>
+
+        </div>
+
+        <div style={cardStyle}>
+
+          <h2>Pending Balance</h2>
+
+          <h1>
+            ₹{pendingBalance.toFixed(0)}
+          </h1>
 
         </div>
 
       </div>
 
-      {/* TABLE SECTION */}
+      {/* BILL HISTORY */}
 
       <div style={{
         backgroundColor: "white",
@@ -274,7 +300,8 @@ function CustomerDetails() {
 
         <h2 style={{
           color: "#0d47a1",
-          marginBottom: "20px"
+          marginBottom: "20px",
+          textAlign: "center"
         }}>
           Bill History
         </h2>
@@ -322,15 +349,15 @@ function CustomerDetails() {
                 <tr key={bill.id}>
 
                   <td style={tableCell}>
-                    ₹{bill.totalAmount}
+                    ₹{bill.finalAmount?.toFixed(0)}
                   </td>
 
                   <td style={tableCell}>
-                    ₹{bill.paidAmount}
+                    ₹{bill.paidAmount?.toFixed(0)}
                   </td>
 
                   <td style={tableCell}>
-                    ₹{bill.balanceAmount}
+                    ₹{bill.balanceAmount?.toFixed(0)}
                   </td>
 
                   <td style={tableCell}>
@@ -340,12 +367,17 @@ function CustomerDetails() {
                       target="_blank"
                       rel="noreferrer"
                       style={{
-                        textDecoration: "none",
-                        color: "#0d47a1",
-                        fontWeight: "bold"
+                        backgroundColor:
+                          "#0d47a1",
+                        color: "white",
+                        padding:
+                          "10px 15px",
+                        borderRadius: "8px",
+                        textDecoration:
+                          "none"
                       }}
                     >
-                      Download
+                      View Invoice
                     </a>
 
                   </td>
@@ -390,10 +422,10 @@ const cardStyle = {
   backgroundColor: "#0d47a1",
   color: "white",
   padding: "30px",
-  borderRadius: "18px",
+  borderRadius: "20px",
   textAlign: "center",
   boxShadow:
-    "0px 4px 12px rgba(0,0,0,0.15)"
+    "0px 4px 15px rgba(0,0,0,0.15)"
 };
 
 const tableHeader = {
