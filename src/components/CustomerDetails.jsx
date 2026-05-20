@@ -136,6 +136,8 @@ function Customers() {
       <div
         style={{
           width: "100%",
+          maxWidth: "1400px",
+          margin: "0 auto",
           backgroundColor: "white",
           borderRadius: "25px",
           padding: "25px",
@@ -162,7 +164,8 @@ function Customers() {
             alt="Piston"
             style={{
               width: "100%",
-              height: "300px",
+              height:
+                "clamp(220px,35vw,320px)",
               objectFit: "cover",
               display: "block"
             }}
@@ -182,7 +185,8 @@ function Customers() {
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
-              padding: "20px"
+              padding: "20px",
+              boxSizing: "border-box"
             }}
           >
 
@@ -236,6 +240,8 @@ function Customers() {
             Customers
           </h1>
 
+          {/* INPUTS */}
+
           <div
             style={{
               display: "grid",
@@ -284,6 +290,8 @@ function Customers() {
 
           </div>
 
+          {/* BUTTON */}
+
           <button
             onClick={addCustomer}
             style={buttonStyle}
@@ -327,7 +335,7 @@ function Customers() {
                 width: "100%",
                 borderCollapse:
                   "collapse",
-                minWidth: "700px"
+                minWidth: "100%"
               }}
             >
 
