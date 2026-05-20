@@ -15,10 +15,13 @@ function ProductPage() {
 
   const [stock, setStock] = useState("");
 
+  const [defaultPercentage,
+    setDefaultPercentage] = useState("");
+
   const [search, setSearch] = useState("");
 
-  // EDIT STATE
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] =
+    useState(null);
 
   useEffect(() => {
 
@@ -44,7 +47,6 @@ function ProductPage() {
     }
   };
 
-  // ADD OR UPDATE PRODUCT
   const saveProduct = async () => {
 
     try {
@@ -52,13 +54,17 @@ function ProductPage() {
       const productData = {
 
         productName: name,
-        category,
-        price: Number(price),
-        stock: Number(stock)
 
+        category,
+
+        price: Number(price),
+
+        stock: Number(stock),
+
+        defaultPercentage:
+          Number(defaultPercentage)
       };
 
-      // UPDATE
       if (editingId) {
 
         await axios.put(
@@ -66,17 +72,20 @@ function ProductPage() {
           productData
         );
 
-        alert("Product Updated Successfully");
+        alert(
+          "Product Updated Successfully"
+        );
 
       } else {
 
-        // ADD
         await axios.post(
           "https://friends-auto-backend-1utc.onrender.com/products",
           productData
         );
 
-        alert("Product Added Successfully");
+        alert(
+          "Product Added Successfully"
+        );
       }
 
       clearForm();
@@ -87,11 +96,12 @@ function ProductPage() {
 
       console.log(error);
 
-      alert("Failed To Save Product");
+      alert(
+        "Failed To Save Product"
+      );
     }
   };
 
-  // DELETE PRODUCT
   const deleteProduct = async (id) => {
 
     try {
@@ -108,7 +118,6 @@ function ProductPage() {
     }
   };
 
-  // EDIT PRODUCT
   const editProduct = (product) => {
 
     setEditingId(product.id);
@@ -120,9 +129,12 @@ function ProductPage() {
     setPrice(product.price);
 
     setStock(product.stock);
+
+    setDefaultPercentage(
+      product.defaultPercentage || 0
+    );
   };
 
-  // SEARCH
   const searchProduct = (value) => {
 
     setSearch(value);
@@ -131,13 +143,14 @@ function ProductPage() {
       products.filter((product) =>
         product.productName
           ?.toLowerCase()
-          .includes(value.toLowerCase())
+          .includes(
+            value.toLowerCase()
+          )
       );
 
     setFilteredProducts(filtered);
   };
 
-  // CLEAR
   const clearForm = () => {
 
     setName("");
@@ -147,6 +160,8 @@ function ProductPage() {
     setPrice("");
 
     setStock("");
+
+    setDefaultPercentage("");
 
     setEditingId(null);
   };
@@ -201,6 +216,18 @@ function ProductPage() {
           style={inputStyle}
         />
 
+        <input
+          type="number"
+          placeholder="Default Percentage"
+          value={defaultPercentage}
+          onChange={(e) =>
+            setDefaultPercentage(
+              e.target.value
+            )
+          }
+          style={inputStyle}
+        />
+
       </div>
 
       <div style={{
@@ -214,9 +241,11 @@ function ProductPage() {
           onClick={saveProduct}
           style={buttonStyle}
         >
+
           {editingId
             ? "Update Product"
             : "Add Product"}
+
         </button>
 
         <button
@@ -233,12 +262,16 @@ function ProductPage() {
         placeholder="Search Product"
         value={search}
         onChange={(e) =>
-          searchProduct(e.target.value)
+          searchProduct(
+            e.target.value
+          )
         }
         style={inputStyle}
       />
 
-      <div style={{ overflowX: "auto" }}>
+      <div style={{
+        overflowX: "auto"
+      }}>
 
         <table style={tableStyle}>
 
@@ -263,6 +296,10 @@ function ProductPage() {
               </th>
 
               <th style={tableHeader}>
+                %
+              </th>
+
+              <th style={tableHeader}>
                 Actions
               </th>
 
@@ -272,53 +309,61 @@ function ProductPage() {
 
           <tbody>
 
-            {filteredProducts.map((product) => (
+            {filteredProducts.map(
+              (product) => (
 
-              <tr key={product.id}>
+                <tr key={product.id}>
 
-                <td style={tableCell}>
-                  {product.productName}
-                </td>
+                  <td style={tableCell}>
+                    {product.productName}
+                  </td>
 
-                <td style={tableCell}>
-                  {product.category}
-                </td>
+                  <td style={tableCell}>
+                    {product.category}
+                  </td>
 
-                <td style={tableCell}>
-                  ₹{product.price}
-                </td>
+                  <td style={tableCell}>
+                    ₹{product.price}
+                  </td>
 
-                <td style={tableCell}>
-                  {product.stock}
-                </td>
+                  <td style={tableCell}>
+                    {product.stock}
+                  </td>
 
-                <td style={tableCell}>
+                  <td style={tableCell}>
+                    {
+                      product.defaultPercentage
+                    }%
+                  </td>
 
-                  {/* EDIT BUTTON */}
-                  <button
-                    onClick={() =>
-                      editProduct(product)
-                    }
-                    style={editButton}
-                  >
-                    Edit
-                  </button>
+                  <td style={tableCell}>
 
-                  {/* DELETE BUTTON */}
-                  <button
-                    onClick={() =>
-                      deleteProduct(product.id)
-                    }
-                    style={deleteButton}
-                  >
-                    Delete
-                  </button>
+                    <button
+                      onClick={() =>
+                        editProduct(product)
+                      }
+                      style={editButton}
+                    >
+                      Edit
+                    </button>
 
-                </td>
+                    <button
+                      onClick={() =>
+                        deleteProduct(
+                          product.id
+                        )
+                      }
+                      style={deleteButton}
+                    >
+                      Delete
+                    </button>
 
-              </tr>
+                  </td>
 
-            ))}
+                </tr>
+
+              )
+            )}
 
           </tbody>
 
@@ -336,7 +381,8 @@ const containerStyle = {
   backgroundColor: "white",
   padding: "25px",
   borderRadius: "18px",
-  boxShadow: "0px 4px 15px rgba(0,0,0,0.1)"
+  boxShadow:
+    "0px 4px 15px rgba(0,0,0,0.1)"
 };
 
 const titleStyle = {

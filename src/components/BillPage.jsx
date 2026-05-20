@@ -3,28 +3,36 @@ import axios from "axios";
 
 function BillPage() {
 
-  const [customerName, setCustomerName] =
+  const [customerName,
+    setCustomerName] =
     useState("");
 
-  const [customers, setCustomers] =
+  const [customers,
+    setCustomers] =
     useState([]);
 
-  const [products, setProducts] =
+  const [products,
+    setProducts] =
     useState([]);
 
-  const [selectedProduct, setSelectedProduct] =
+  const [selectedProduct,
+    setSelectedProduct] =
     useState("");
 
-  const [quantity, setQuantity] =
+  const [quantity,
+    setQuantity] =
     useState(1);
 
-  const [percentage, setPercentage] =
+  const [percentage,
+    setPercentage] =
     useState(0);
 
-  const [billItems, setBillItems] =
+  const [billItems,
+    setBillItems] =
     useState([]);
 
-  const [paidAmount, setPaidAmount] =
+  const [paidAmount,
+    setPaidAmount] =
     useState("");
 
   useEffect(() => {
@@ -35,62 +43,88 @@ function BillPage() {
 
   }, []);
 
-  // FETCH CUSTOMERS
+  const fetchCustomers =
+    async () => {
 
-  const fetchCustomers = async () => {
+      try {
 
-    try {
+        const response =
+          await axios.get(
+            "https://friends-auto-backend-1utc.onrender.com/customers"
+          );
 
-      const response =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/customers"
+        setCustomers(
+          response.data
         );
 
-      setCustomers(response.data);
+      } catch (error) {
 
-    } catch (error) {
+        console.log(error);
+      }
+    };
 
-      console.log(error);
-    }
-  };
+  const fetchProducts =
+    async () => {
 
-  // FETCH PRODUCTS
+      try {
 
-  const fetchProducts = async () => {
+        const response =
+          await axios.get(
+            "https://friends-auto-backend-1utc.onrender.com/products"
+          );
 
-    try {
-
-      const response =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/products"
+        setProducts(
+          response.data
         );
 
-      setProducts(response.data);
+      } catch (error) {
 
-    } catch (error) {
+        console.log(error);
+      }
+    };
 
-      console.log(error);
-    }
-  };
+  const handleProductChange =
+    (value) => {
 
-  // ADD ITEM
+      setSelectedProduct(value);
+
+      const product =
+        products.find(
+          (p) =>
+            p.productName === value
+        );
+
+      if (product) {
+
+        setPercentage(
+          product.defaultPercentage || 0
+        );
+      }
+    };
 
   const addItem = () => {
 
     if (!selectedProduct) {
 
-      alert("Select Product");
+      alert(
+        "Select Product"
+      );
 
       return;
     }
 
-    const product = products.find(
-      (p) => p.productName === selectedProduct
-    );
+    const product =
+      products.find(
+        (p) =>
+          p.productName ===
+          selectedProduct
+      );
 
     if (!product) {
 
-      alert("Product Not Found");
+      alert(
+        "Product Not Found"
+      );
 
       return;
     }
@@ -99,12 +133,17 @@ function BillPage() {
       Number(product.price) *
       Number(quantity);
 
-    const discountAmount =
-      (originalTotal *
-        Number(percentage || 0)) / 100;
+    const increaseAmount =
+      (
+        originalTotal *
+        Number(
+          percentage || 0
+        )
+      ) / 100;
 
     const finalTotal =
-      originalTotal - discountAmount;
+      originalTotal +
+      increaseAmount;
 
     const item = {
 
@@ -121,7 +160,9 @@ function BillPage() {
         Number(percentage),
 
       total:
-        finalTotal
+        Number(
+          finalTotal.toFixed(2)
+        )
     };
 
     setBillItems([
@@ -136,108 +177,94 @@ function BillPage() {
     setPercentage(0);
   };
 
-  // CALCULATIONS
+  const subtotal =
+    billItems.reduce(
+      (sum, item) =>
+        sum + item.total,
+      0
+    );
 
-  const subtotal = billItems.reduce(
-    (sum, item) =>
-      sum + item.total,
-    0
-  );
-
-  const finalAmount = subtotal;
+  const finalAmount =
+    subtotal;
 
   const balance =
     finalAmount -
-    Number(paidAmount || 0);
+    Number(
+      paidAmount || 0
+    );
 
-  // SAVE BILL
+  const saveBill =
+    async () => {
 
-  const saveBill = async () => {
+      if (!customerName) {
 
-    if (!customerName) {
+        alert(
+          "Enter Customer Name"
+        );
 
-      alert("Enter Customer Name");
+        return;
+      }
 
-      return;
-    }
+      if (
+        billItems.length === 0
+      ) {
 
-    if (billItems.length === 0) {
+        alert(
+          "Add Products"
+        );
 
-      alert("Add Products");
+        return;
+      }
 
-      return;
-    }
+      try {
 
-    try {
+        const billData = {
 
-      const billData = {
-
-        customerName:
           customerName,
 
-        totalAmount:
-          subtotal,
+          totalAmount:
+            Number(
+              subtotal.toFixed(2)
+            ),
 
-        paidAmount:
-          Number(paidAmount),
+          paidAmount:
+            Number(
+              paidAmount
+            ),
 
-        balanceAmount:
-          balance,
+          balanceAmount:
+            Number(
+              balance.toFixed(2)
+            ),
 
-        items:
-          billItems.map(
-            (item) => ({
+          items:
+            billItems
+        };
 
-              productName:
-                item.productName,
+        await axios.post(
+          "https://friends-auto-backend-1utc.onrender.com/bills",
+          billData
+        );
 
-              quantity:
-                Number(
-                  item.quantity
-                ),
+        alert(
+          "Bill Saved Successfully"
+        );
 
-              price:
-                Number(
-                  item.price
-                ),
+        setCustomerName("");
 
-              percentage:
-                Number(
-                  item.percentage
-                ),
+        setBillItems([]);
 
-              total:
-                Number(
-                  item.total
-                )
-            })
-          )
-      };
+        setPaidAmount("");
 
-      await axios.post(
-        "https://friends-auto-backend-1utc.onrender.com/bills",
-        billData
-      );
+      } catch (error) {
 
-      alert(
-        "Bill Saved Successfully"
-      );
+        console.log(error);
 
-      setCustomerName("");
-
-      setBillItems([]);
-
-      setPaidAmount("");
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert(
-        "Failed To Save Bill"
-      );
-    }
-  };
+        alert(
+          "Failed To Save Bill"
+        );
+      }
+    };
 
   return (
 
@@ -246,8 +273,6 @@ function BillPage() {
       <h1 style={titleStyle}>
         Billing Management
       </h1>
-
-      {/* CUSTOMER */}
 
       <input
         type="text"
@@ -279,14 +304,12 @@ function BillPage() {
 
       </datalist>
 
-      {/* PRODUCT */}
-
       <div style={productRow}>
 
         <select
           value={selectedProduct}
           onChange={(e) =>
-            setSelectedProduct(
+            handleProductChange(
               e.target.value
             )
           }
@@ -350,8 +373,6 @@ function BillPage() {
       >
         Add Item
       </button>
-
-      {/* BILL ITEMS */}
 
       <h2 style={sectionTitle}>
         Bill Items
@@ -444,8 +465,6 @@ function BillPage() {
 
       </div>
 
-      {/* SUMMARY */}
-
       <div style={summaryBox}>
 
         <h2 style={sectionTitle}>
@@ -466,17 +485,17 @@ function BillPage() {
 
         <h3>
           Subtotal: ₹
-          {subtotal}
+          {subtotal.toFixed(2)}
         </h3>
 
         <h3>
           Final Amount: ₹
-          {finalAmount}
+          {finalAmount.toFixed(2)}
         </h3>
 
         <h3>
           Balance: ₹
-          {balance}
+          {balance.toFixed(2)}
         </h3>
 
         <button
@@ -495,124 +514,81 @@ function BillPage() {
 /* STYLES */
 
 const containerStyle = {
-
   backgroundColor: "white",
-
   padding: "25px",
-
   borderRadius: "18px",
-
   boxShadow:
     "0px 4px 15px rgba(0,0,0,0.1)"
 };
 
 const titleStyle = {
-
   color: "#0d47a1",
-
   textAlign: "center",
-
   marginBottom: "30px",
-
   fontSize: "50px"
 };
 
 const sectionTitle = {
-
   color: "#0d47a1",
-
   marginTop: "20px",
-
   marginBottom: "15px",
-
   textAlign: "center"
 };
 
 const productRow = {
-
   display: "grid",
-
   gridTemplateColumns:
     "repeat(auto-fit,minmax(220px,1fr))",
-
   gap: "15px",
-
   marginTop: "20px",
-
   marginBottom: "20px"
 };
 
 const inputStyle = {
-
   width: "100%",
-
   padding: "14px",
-
   borderRadius: "10px",
-
   border: "1px solid #ccc",
-
   marginBottom: "14px",
-
   fontSize: "16px",
-
   boxSizing: "border-box"
 };
 
 const buttonStyle = {
-
   backgroundColor: "#0d47a1",
-
   color: "white",
-
   border: "none",
-
   padding: "12px 20px",
-
   borderRadius: "10px",
-
   cursor: "pointer"
 };
 
 const tableStyle = {
-
   width: "100%",
-
   borderCollapse: "collapse",
-
   marginTop: "20px"
 };
 
 const tableHeaderRow = {
-
   backgroundColor: "#0d47a1",
-
   color: "white"
 };
 
 const tableHeader = {
-
   padding: "14px",
-
   textAlign: "left"
 };
 
 const tableCell = {
-
   padding: "12px",
-
   borderBottom:
     "1px solid #ddd"
 };
 
 const summaryBox = {
-
   marginTop: "30px",
-
   backgroundColor: "#f4f7fb",
-
   padding: "20px",
-
   borderRadius: "14px"
 };
 
