@@ -13,9 +13,7 @@ function CustomerDetails() {
     useState([]);
 
   useEffect(() => {
-
     fetchCustomers();
-
   }, []);
 
   const fetchCustomers = async () => {
@@ -35,37 +33,52 @@ function CustomerDetails() {
     }
   };
 
-  const handleSearch = (value) => {
+  const handleCustomerSearch = (value) => {
 
     setCustomerName(value);
 
-    if (value.length > 0) {
-
-      const filtered =
-        customers.filter((customer) =>
-          customer.customerName
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        );
-
-      setFilteredCustomers(filtered);
-
-    } else {
+    if (value.trim() === "") {
 
       setFilteredCustomers([]);
+
+      return;
     }
+
+    const filtered =
+      customers.filter((customer) =>
+        customer.customerName
+          ?.toLowerCase()
+          .includes(value.toLowerCase())
+      );
+
+    setFilteredCustomers(filtered);
   };
 
   return (
 
-    <div>
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#f4f7fb",
+        minHeight: "100vh"
+      }}
+    >
 
-      <h2>Search Customer</h2>
+      <h1
+        style={{
+          color: "#0d47a1"
+        }}
+      >
+        Customer Details
+      </h1>
+
+      {/* SEARCH CUSTOMER */}
 
       <div
         style={{
           position: "relative",
-          width: "350px"
+          width: "350px",
+          marginTop: "30px"
         }}
       >
 
@@ -74,16 +87,20 @@ function CustomerDetails() {
           placeholder="Enter Customer Name"
           value={customerName}
           onChange={(e) =>
-            handleSearch(e.target.value)
+            handleCustomerSearch(e.target.value)
           }
           style={{
             width: "100%",
             padding: "14px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            fontSize: "16px"
+            fontSize: "16px",
+            backgroundColor: "#333",
+            color: "white"
           }}
         />
+
+        {/* DROPDOWN */}
 
         {filteredCustomers.length > 0 && (
 
@@ -91,43 +108,43 @@ function CustomerDetails() {
             style={{
               position: "absolute",
               top: "55px",
+              left: 0,
               width: "100%",
               backgroundColor: "white",
-              border: "1px solid #ddd",
               borderRadius: "10px",
-              maxHeight: "200px",
+              border: "1px solid #ccc",
+              zIndex: 9999,
+              maxHeight: "250px",
               overflowY: "auto",
-              zIndex: 1000,
               boxShadow:
-                "0px 4px 10px rgba(0,0,0,0.1)"
+                "0px 4px 10px rgba(0,0,0,0.2)"
             }}
           >
 
-            {filteredCustomers.map(
-              (customer) => (
+            {filteredCustomers.map((customer) => (
 
-                <div
-                  key={customer.id}
-                  onClick={() => {
+              <div
+                key={customer.id}
+                onClick={() => {
 
-                    setCustomerName(
-                      customer.customerName
-                    );
+                  setCustomerName(
+                    customer.customerName
+                  );
 
-                    setFilteredCustomers([]);
-                  }}
-                  style={{
-                    padding: "12px",
-                    cursor: "pointer",
-                    borderBottom:
-                      "1px solid #eee"
-                  }}
-                >
-                  {customer.customerName}
-                </div>
+                  setFilteredCustomers([]);
+                }}
+                style={{
+                  padding: "12px",
+                  cursor: "pointer",
+                  borderBottom:
+                    "1px solid #eee",
+                  color: "black"
+                }}
+              >
+                {customer.customerName}
+              </div>
 
-              )
-            )}
+            ))}
 
           </div>
 
