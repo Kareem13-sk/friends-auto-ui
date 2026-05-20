@@ -1,28 +1,37 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import pistonImg from "../assets/piston.jpg";
+import engineBanner from "../assets/engine-banner.jpg";
 
-function CustomerPage() {
+function CustomerDetails() {
 
-  const [customers, setCustomers] = useState([]);
+  const [customerName, setCustomerName] =
+    useState("");
 
-  const [customerName, setCustomerName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState("");
-  const [search, setSearch] = useState("");
+  const [customers, setCustomers] =
+    useState([]);
+
+  const [selectedCustomer,
+    setSelectedCustomer] =
+    useState(null);
+
+  const [bills, setBills] =
+    useState([]);
 
   useEffect(() => {
+
     fetchCustomers();
+
   }, []);
 
   const fetchCustomers = async () => {
 
     try {
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/customers"
-      );
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
 
       setCustomers(response.data);
 
@@ -33,34 +42,35 @@ function CustomerPage() {
     }
   };
 
-  const addCustomer = async () => {
-
-    if (!customerName || !phoneNumber) {
-
-      alert("Please fill all fields");
-      return;
-    }
-
-    const customerData = {
-      customerName,
-      phoneNumber,
-      address,
-    };
+  const searchCustomer = async () => {
 
     try {
 
-      await axios.post(
-        "https://friends-auto-backend-1utc.onrender.com/customers",
-        customerData
-      );
+      const customer =
+        customers.find(
+          (c) =>
+            c.customerName
+              .toLowerCase()
+              .includes(
+                customerName.toLowerCase()
+              )
+        );
 
-      alert("Customer Added");
+      if (!customer) {
 
-      setCustomerName("");
-      setPhoneNumber("");
-      setAddress("");
+        alert("Customer Not Found");
 
-      fetchCustomers();
+        return;
+      }
+
+      setSelectedCustomer(customer);
+
+      const response =
+        await axios.get(
+          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customer.customerName}`
+        );
+
+      setBills(response.data);
 
     } catch (error) {
 
@@ -69,44 +79,50 @@ function CustomerPage() {
     }
   };
 
-  const deleteCustomer = async (id) => {
+  const totalPurchase =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.finalAmount,
+      0
+    );
 
-    try {
+  const totalPaid =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.paidAmount,
+      0
+    );
 
-      await axios.delete(
-        `https://friends-auto-backend-1utc.onrender.com/customers/${id}`
-      );
-
-      fetchCustomers();
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-  };
-
-  const filteredCustomers = customers.filter((customer) =>
-    customer.customerName
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const pendingBalance =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.balanceAmount,
+      0
+    );
 
   return (
 
     <div
       style={{
-        background: "#eef3f9",
+        backgroundColor: "#eef3f9",
         minHeight: "100vh",
         padding: "20px",
         overflowX: "hidden",
+        boxSizing: "border-box"
       }}
     >
 
       <div
         style={{
-          maxWidth: "1400px",
+          width: "100%",
+          maxWidth: "100%",
           margin: "0 auto",
+          backgroundColor: "white",
+          borderRadius: "25px",
+          padding: "25px",
+          boxSizing: "border-box",
+          boxShadow:
+            "0 5px 20px rgba(0,0,0,0.08)"
         }}
       >
 
@@ -116,84 +132,145 @@ function CustomerPage() {
           style={{
             position: "relative",
             width: "100%",
-            height: "320px",
-            borderRadius: "25px",
-            overflow: "hidden",
             marginBottom: "30px",
-            boxShadow: "0 5px 20px rgba(0,0,0,0.15)",
+            borderRadius: "20px",
+            overflow: "hidden"
           }}
         >
 
           <img
-            src={pistonImg}
-            alt="customer"
+            src={engineBanner}
+            alt="Engine Banner"
             style={{
               width: "100%",
-              height: "100%",
+              height: "300px",
               objectFit: "cover",
+              display: "block"
             }}
           />
 
           <div
             style={{
               position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.45)",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background:
+                "rgba(0,0,0,0.45)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
               padding: "20px",
+              boxSizing: "border-box"
             }}
           >
 
             <h1
               style={{
                 color: "white",
-                fontSize: "60px",
-                marginBottom: "10px",
+                fontSize:
+                  "clamp(32px,5vw,60px)",
+                marginBottom: "15px"
               }}
             >
-              Customer Management
+              Customer Details
             </h1>
 
             <p
               style={{
                 color: "white",
-                fontSize: "24px",
+                fontSize:
+                  "clamp(16px,2vw,28px)"
               }}
             >
-              Engine Spare Parts Customers
+              Engine Spare Parts Purchase
+              History
             </p>
 
           </div>
 
         </div>
 
-        {/* MAIN CARD */}
+        {/* SEARCH SECTION */}
 
         <div
           style={{
-            background: "white",
+            backgroundColor: "white",
             borderRadius: "25px",
-            padding: "30px",
-            boxShadow: "0 5px 20px rgba(0,0,0,0.08)",
+            padding: "25px",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,0.08)"
           }}
         >
 
-          <h2
+          <h1
             style={{
               textAlign: "center",
               color: "#0d47a1",
-              fontSize: "45px",
               marginBottom: "30px",
+              fontSize:
+                "clamp(32px,5vw,55px)"
             }}
           >
-            Customers
-          </h2>
+            Customer Details
+          </h1>
 
-          {/* FORM */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "15px",
+              marginBottom: "25px"
+            }}
+          >
+
+            <input
+              type="text"
+              placeholder="Search Customer"
+              value={customerName}
+              onChange={(e) =>
+                setCustomerName(
+                  e.target.value
+                )
+              }
+              style={{
+                flex: 1,
+                minWidth: "220px",
+                padding: "14px",
+                borderRadius: "12px",
+                border:
+                  "1px solid #ccc",
+                fontSize: "16px",
+                boxSizing:
+                  "border-box"
+              }}
+            />
+
+            <button
+              onClick={searchCustomer}
+              style={{
+                backgroundColor:
+                  "#1565c0",
+                color: "white",
+                border: "none",
+                padding:
+                  "14px 24px",
+                borderRadius:
+                  "12px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+            >
+              Search
+            </button>
+
+          </div>
+
+          {/* SUMMARY CARDS */}
 
           <div
             style={{
@@ -201,78 +278,73 @@ function CustomerPage() {
               gridTemplateColumns:
                 "repeat(auto-fit,minmax(250px,1fr))",
               gap: "20px",
-              marginBottom: "20px",
+              marginBottom: "30px"
             }}
           >
 
-            <input
-              type="text"
-              placeholder="Customer Name"
-              value={customerName}
-              onChange={(e) =>
-                setCustomerName(e.target.value)
-              }
-              style={inputStyle}
-            />
+            <div style={cardStyle}>
 
-            <input
-              type="text"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) =>
-                setPhoneNumber(e.target.value)
-              }
-              style={inputStyle}
-            />
+              <h2>Total Purchase</h2>
 
-            <input
-              type="text"
-              placeholder="Address"
-              value={address}
-              onChange={(e) =>
-                setAddress(e.target.value)
-              }
-              style={inputStyle}
-            />
+              <h1>
+                ₹
+                {totalPurchase.toFixed(
+                  0
+                )}
+              </h1>
 
-          </div>
+            </div>
 
-          <button
-            onClick={addCustomer}
-            style={buttonStyle}
-          >
-            Add Customer
-          </button>
+            <div style={cardStyle}>
 
-          {/* SEARCH */}
+              <h2>Total Paid</h2>
 
-          <div style={{ marginTop: "30px" }}>
+              <h1>
+                ₹
+                {totalPaid.toFixed(0)}
+              </h1>
 
-            <input
-              type="text"
-              placeholder="Search Customer"
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              style={inputStyle}
-            />
+            </div>
+
+            <div style={cardStyle}>
+
+              <h2>Pending Balance</h2>
+
+              <h1>
+                ₹
+                {pendingBalance.toFixed(
+                  0
+                )}
+              </h1>
+
+            </div>
 
           </div>
 
-          {/* TABLE */}
+          {/* BILL HISTORY */}
 
           <div
             style={{
-              overflowX: "auto",
-              marginTop: "30px",
+              marginTop: "20px",
+              overflowX: "auto"
             }}
           >
+
+            <h2
+              style={{
+                color: "#0d47a1",
+                marginBottom: "20px"
+              }}
+            >
+              Bill History
+            </h2>
 
             <table
               style={{
                 width: "100%",
-                borderCollapse: "collapse",
+                borderCollapse:
+                  "collapse",
+                minWidth: "700px"
               }}
             >
 
@@ -280,15 +352,27 @@ function CustomerPage() {
 
                 <tr
                   style={{
-                    background: "#0d47a1",
-                    color: "white",
+                    backgroundColor:
+                      "#0d47a1",
+                    color: "white"
                   }}
                 >
 
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Phone</th>
-                  <th style={thStyle}>Address</th>
-                  <th style={thStyle}>Action</th>
+                  <th style={tableHeader}>
+                    Total
+                  </th>
+
+                  <th style={tableHeader}>
+                    Paid
+                  </th>
+
+                  <th style={tableHeader}>
+                    Balance
+                  </th>
+
+                  <th style={tableHeader}>
+                    Invoice
+                  </th>
 
                 </tr>
 
@@ -296,39 +380,53 @@ function CustomerPage() {
 
               <tbody>
 
-                {filteredCustomers.map((customer) => (
+                {bills.map((bill) => (
 
-                  <tr key={customer.id}>
+                  <tr key={bill.id}>
 
-                    <td style={tdStyle}>
-                      {customer.customerName}
+                    <td style={tableCell}>
+                      ₹
+                      {bill.finalAmount.toFixed(
+                        0
+                      )}
                     </td>
 
-                    <td style={tdStyle}>
-                      {customer.phoneNumber}
+                    <td style={tableCell}>
+                      ₹
+                      {bill.paidAmount.toFixed(
+                        0
+                      )}
                     </td>
 
-                    <td style={tdStyle}>
-                      {customer.address}
+                    <td style={tableCell}>
+                      ₹
+                      {bill.balanceAmount.toFixed(
+                        0
+                      )}
                     </td>
 
-                    <td style={tdStyle}>
+                    <td style={tableCell}>
 
-                      <button
-                        onClick={() =>
-                          deleteCustomer(customer.id)
-                        }
+                      <a
+                        href={`https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}/invoice`}
+                        target="_blank"
+                        rel="noreferrer"
                         style={{
-                          background: "red",
+                          textDecoration:
+                            "none",
+                          backgroundColor:
+                            "#1565c0",
                           color: "white",
-                          border: "none",
-                          padding: "10px 18px",
-                          borderRadius: "10px",
-                          cursor: "pointer",
+                          padding:
+                            "10px 18px",
+                          borderRadius:
+                            "10px",
+                          fontWeight:
+                            "600"
                         }}
                       >
-                        Delete
-                      </button>
+                        View Invoice
+                      </a>
 
                     </td>
 
@@ -350,34 +448,32 @@ function CustomerPage() {
   );
 }
 
-const inputStyle = {
-  width: "100%",
-  padding: "15px",
-  borderRadius: "12px",
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  boxSizing: "border-box",
-};
+const cardStyle = {
 
-const buttonStyle = {
-  background: "#1565c0",
+  backgroundColor: "#0d47a1",
   color: "white",
-  border: "none",
-  padding: "14px 25px",
-  borderRadius: "12px",
-  fontSize: "16px",
-  cursor: "pointer",
-  fontWeight: "bold",
+  padding: "30px",
+  borderRadius: "20px",
+  textAlign: "center",
+  boxShadow:
+    "0 5px 15px rgba(0,0,0,0.1)"
+
 };
 
-const thStyle = {
+const tableHeader = {
+
   padding: "16px",
   textAlign: "left",
+  fontSize: "16px"
+
 };
 
-const tdStyle = {
+const tableCell = {
+
   padding: "16px",
   borderBottom: "1px solid #ddd",
+  fontSize: "15px"
+
 };
 
-export default CustomerPage;
+export default CustomerDetails;
