@@ -1,17 +1,12 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
-
 import Dashboard from "./components/Dashboard";
-import CustomerPage from "./components/CustomerPage";
 import ProductPage from "./components/ProductPage";
 import BillPage from "./components/BillPage";
 import PurchaseHistory from "./components/PurchaseHistory";
 import CustomerDetails from "./components/CustomerDetails";
+import CustomerPage from "./components/CustomerPage";
 
 function App() {
 
@@ -23,15 +18,7 @@ function App() {
 
         <Route path="/" element={<Layout />}>
 
-          <Route
-            index
-            element={<Dashboard />}
-          />
-
-          <Route
-            path="customers"
-            element={<CustomerPage />}
-          />
+          <Route index element={<Dashboard />} />
 
           <Route
             path="products"
@@ -51,6 +38,11 @@ function App() {
           <Route
             path="customer-details"
             element={<CustomerDetails />}
+          />
+
+          <Route
+            path="customers"
+            element={<CustomerPage />}
           />
 
         </Route>
