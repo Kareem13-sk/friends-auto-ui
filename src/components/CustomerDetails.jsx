@@ -11,10 +11,6 @@ function CustomerDetails() {
   const [customers, setCustomers] =
     useState([]);
 
-  const [selectedCustomer,
-    setSelectedCustomer] =
-    useState(null);
-
   const [bills, setBills] =
     useState([]);
 
@@ -50,7 +46,7 @@ function CustomerDetails() {
         customers.find(
           (c) =>
             c.customerName
-              .toLowerCase()
+              ?.toLowerCase()
               .includes(
                 customerName.toLowerCase()
               )
@@ -62,8 +58,6 @@ function CustomerDetails() {
 
         return;
       }
-
-      setSelectedCustomer(customer);
 
       const response =
         await axios.get(
@@ -82,21 +76,21 @@ function CustomerDetails() {
   const totalPurchase =
     bills.reduce(
       (acc, bill) =>
-        acc + bill.finalAmount,
+        acc + (bill.finalAmount || 0),
       0
     );
 
   const totalPaid =
     bills.reduce(
       (acc, bill) =>
-        acc + bill.paidAmount,
+        acc + (bill.paidAmount || 0),
       0
     );
 
   const pendingBalance =
     bills.reduce(
       (acc, bill) =>
-        acc + bill.balanceAmount,
+        acc + (bill.balanceAmount || 0),
       0
     );
 
@@ -108,21 +102,14 @@ function CustomerDetails() {
         minHeight: "100vh",
         padding: "20px",
         overflowX: "hidden",
-        boxSizing: "border-box"
       }}
     >
 
       <div
         style={{
           width: "100%",
-          maxWidth: "100%",
+          maxWidth: "1400px",
           margin: "0 auto",
-          backgroundColor: "white",
-          borderRadius: "25px",
-          padding: "25px",
-          boxSizing: "border-box",
-          boxShadow:
-            "0 5px 20px rgba(0,0,0,0.08)"
         }}
       >
 
@@ -132,30 +119,29 @@ function CustomerDetails() {
           style={{
             position: "relative",
             width: "100%",
+            height: "320px",
+            borderRadius: "25px",
+            overflow: "hidden",
             marginBottom: "30px",
-            borderRadius: "20px",
-            overflow: "hidden"
+            boxShadow:
+              "0 5px 20px rgba(0,0,0,0.15)"
           }}
         >
 
           <img
             src={engineBanner}
-            alt="Engine Banner"
+            alt="Engine"
             style={{
               width: "100%",
-              height: "300px",
-              objectFit: "cover",
-              display: "block"
+              height: "100%",
+              objectFit: "cover"
             }}
           />
 
           <div
             style={{
               position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
+              inset: 0,
               background:
                 "rgba(0,0,0,0.45)",
               display: "flex",
@@ -164,7 +150,6 @@ function CustomerDetails() {
               alignItems: "center",
               textAlign: "center",
               padding: "20px",
-              boxSizing: "border-box"
             }}
           >
 
@@ -172,8 +157,9 @@ function CustomerDetails() {
               style={{
                 color: "white",
                 fontSize:
-                  "clamp(32px,5vw,60px)",
-                marginBottom: "15px"
+                  "clamp(35px,5vw,65px)",
+                marginBottom: "10px",
+                fontWeight: "bold"
               }}
             >
               Customer Details
@@ -183,26 +169,25 @@ function CustomerDetails() {
               style={{
                 color: "white",
                 fontSize:
-                  "clamp(16px,2vw,28px)"
+                  "clamp(18px,2vw,28px)"
               }}
             >
-              Engine Spare Parts Purchase
-              History
+              Engine Spare Parts Purchase History
             </p>
 
           </div>
 
         </div>
 
-        {/* SEARCH SECTION */}
+        {/* MAIN SECTION */}
 
         <div
           style={{
             backgroundColor: "white",
             borderRadius: "25px",
-            padding: "25px",
+            padding: "30px",
             boxShadow:
-              "0 5px 15px rgba(0,0,0,0.08)"
+              "0 5px 20px rgba(0,0,0,0.08)"
           }}
         >
 
@@ -212,18 +197,20 @@ function CustomerDetails() {
               color: "#0d47a1",
               marginBottom: "30px",
               fontSize:
-                "clamp(32px,5vw,55px)"
+                "clamp(35px,5vw,55px)"
             }}
           >
             Customer Details
           </h1>
+
+          {/* SEARCH */}
 
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
               gap: "15px",
-              marginBottom: "25px"
+              marginBottom: "30px"
             }}
           >
 
@@ -238,14 +225,12 @@ function CustomerDetails() {
               }
               style={{
                 flex: 1,
-                minWidth: "220px",
-                padding: "14px",
+                minWidth: "250px",
+                padding: "15px",
                 borderRadius: "12px",
                 border:
                   "1px solid #ccc",
-                fontSize: "16px",
-                boxSizing:
-                  "border-box"
+                fontSize: "16px"
               }}
             />
 
@@ -257,12 +242,12 @@ function CustomerDetails() {
                 color: "white",
                 border: "none",
                 padding:
-                  "14px 24px",
+                  "15px 25px",
                 borderRadius:
                   "12px",
                 fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer"
+                cursor: "pointer",
+                fontWeight: "bold"
               }}
             >
               Search
@@ -278,7 +263,7 @@ function CustomerDetails() {
               gridTemplateColumns:
                 "repeat(auto-fit,minmax(250px,1fr))",
               gap: "20px",
-              marginBottom: "30px"
+              marginBottom: "35px"
             }}
           >
 
@@ -288,8 +273,8 @@ function CustomerDetails() {
 
               <h1>
                 ₹
-                {totalPurchase.toFixed(
-                  0
+                {Math.round(
+                  totalPurchase
                 )}
               </h1>
 
@@ -301,7 +286,9 @@ function CustomerDetails() {
 
               <h1>
                 ₹
-                {totalPaid.toFixed(0)}
+                {Math.round(
+                  totalPaid
+                )}
               </h1>
 
             </div>
@@ -312,8 +299,8 @@ function CustomerDetails() {
 
               <h1>
                 ₹
-                {pendingBalance.toFixed(
-                  0
+                {Math.round(
+                  pendingBalance
                 )}
               </h1>
 
@@ -321,11 +308,10 @@ function CustomerDetails() {
 
           </div>
 
-          {/* BILL HISTORY */}
+          {/* BILL TABLE */}
 
           <div
             style={{
-              marginTop: "20px",
               overflowX: "auto"
             }}
           >
@@ -333,7 +319,8 @@ function CustomerDetails() {
             <h2
               style={{
                 color: "#0d47a1",
-                marginBottom: "20px"
+                marginBottom: "20px",
+                fontSize: "32px"
               }}
             >
               Bill History
@@ -344,7 +331,8 @@ function CustomerDetails() {
                 width: "100%",
                 borderCollapse:
                   "collapse",
-                minWidth: "700px"
+                minWidth: "700px",
+                background: "white"
               }}
             >
 
@@ -386,22 +374,22 @@ function CustomerDetails() {
 
                     <td style={tableCell}>
                       ₹
-                      {bill.finalAmount.toFixed(
-                        0
+                      {Math.round(
+                        bill.finalAmount || 0
                       )}
                     </td>
 
                     <td style={tableCell}>
                       ₹
-                      {bill.paidAmount.toFixed(
-                        0
+                      {Math.round(
+                        bill.paidAmount || 0
                       )}
                     </td>
 
                     <td style={tableCell}>
                       ₹
-                      {bill.balanceAmount.toFixed(
-                        0
+                      {Math.round(
+                        bill.balanceAmount || 0
                       )}
                     </td>
 
@@ -422,7 +410,7 @@ function CustomerDetails() {
                           borderRadius:
                             "10px",
                           fontWeight:
-                            "600"
+                            "bold"
                         }}
                       >
                         View Invoice
@@ -462,7 +450,7 @@ const cardStyle = {
 
 const tableHeader = {
 
-  padding: "16px",
+  padding: "18px",
   textAlign: "left",
   fontSize: "16px"
 
@@ -470,7 +458,7 @@ const tableHeader = {
 
 const tableCell = {
 
-  padding: "16px",
+  padding: "18px",
   borderBottom: "1px solid #ddd",
   fontSize: "15px"
 
