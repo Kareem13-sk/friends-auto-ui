@@ -1,74 +1,112 @@
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar() {
 
-  const location = useLocation();
-
-  const menuItems = [
-    { name: "Dashboard", path: "/" },
-    { name: "Customers", path: "/customers" },
-    { name: "Products", path: "/products" },
-    { name: "Billing", path: "/billing" },
-    { name: "History", path: "/history" },
-    { name: "Customer Details", path: "/customer-details" }
-  ];
+  const navigate = useNavigate();
 
   return (
 
-    <div style={{
-      backgroundColor: "#0d47a1",
-      height: "100%",
-      padding: "25px 20px",
-      color: "white"
-    }}>
+    <div style={sidebarStyle}>
 
-      <h1 style={{
-        textAlign: "center",
-        marginBottom: "40px",
-        lineHeight: "55px",
-        fontSize: "52px"
-      }}>
-        Friends Auto Mobile
+      <h1 style={logoStyle}>
+        Friends Auto
       </h1>
 
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "18px"
-      }}>
+      <button
+        style={navButton}
+        onClick={() => navigate("/")}
+      >
+        Dashboard
+      </button>
 
-        {menuItems.map((item) => (
+      <button
+        style={navButton}
+        onClick={() => navigate("/products")}
+      >
+        Products
+      </button>
 
-          <Link
-            key={item.path}
-            to={item.path}
-            style={{
-              textDecoration: "none",
-              backgroundColor:
-                location.pathname === item.path
-                  ? "white"
-                  : "rgba(255,255,255,0.12)",
+      <button
+        style={navButton}
+        onClick={() => navigate("/billing")}
+      >
+        Billing
+      </button>
 
-              color:
-                location.pathname === item.path
-                  ? "#0d47a1"
-                  : "white",
+      <button
+        style={navButton}
+        onClick={() => navigate("/history")}
+      >
+        Purchase History
+      </button>
 
-              padding: "18px",
-              borderRadius: "14px",
-              fontSize: "24px",
-              fontWeight: "600"
-            }}
-          >
-            {item.name}
-          </Link>
-
-        ))}
-
-      </div>
+      <button
+        style={navButton}
+        onClick={() =>
+          navigate("/customer-details")
+        }
+      >
+        Customer Details
+      </button>
 
     </div>
   );
 }
+
+const sidebarStyle = {
+
+  width: "250px",
+
+  height: "100vh",
+
+  background:
+    "linear-gradient(180deg,#0d47a1,#062b63)",
+
+  position: "fixed",
+
+  left: 0,
+
+  top: 0,
+
+  padding: "30px 20px",
+
+  boxShadow:
+    "4px 0px 15px rgba(0,0,0,0.15)"
+};
+
+const logoStyle = {
+
+  color: "white",
+
+  marginBottom: "40px",
+
+  textAlign: "center",
+
+  fontSize: "32px"
+};
+
+const navButton = {
+
+  width: "100%",
+
+  padding: "15px",
+
+  marginBottom: "16px",
+
+  borderRadius: "12px",
+
+  border: "none",
+
+  backgroundColor:
+    "rgba(255,255,255,0.12)",
+
+  color: "white",
+
+  fontSize: "16px",
+
+  cursor: "pointer",
+
+  fontWeight: "600"
+};
 
 export default Sidebar;

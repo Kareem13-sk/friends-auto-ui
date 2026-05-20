@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+import sparepartsImg from "../assets/spareparts.jpg";
+
 function BillPage() {
+
+  const [products, setProducts] =
+    useState([]);
 
   const [customerName,
     setCustomerName] =
     useState("");
-
-  const [customers,
-    setCustomers] =
-    useState([]);
-
-  const [products,
-    setProducts] =
-    useState([]);
 
   const [selectedProduct,
     setSelectedProduct] =
@@ -25,7 +22,7 @@ function BillPage() {
 
   const [percentage,
     setPercentage] =
-    useState(0);
+    useState("");
 
   const [billItems,
     setBillItems] =
@@ -37,473 +34,524 @@ function BillPage() {
 
   useEffect(() => {
 
-    fetchCustomers();
-
     fetchProducts();
 
   }, []);
 
-  const fetchCustomers =
-    async () => {
+  const fetchProducts = async () => {
 
-      try {
+    try {
 
-        const response =
-          await axios.get(
-            "https://friends-auto-backend-1utc.onrender.com/customers"
-          );
-
-        setCustomers(
-          response.data
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/products"
         );
 
-      } catch (error) {
+      setProducts(response.data);
 
-        console.log(error);
-      }
-    };
+    } catch (error) {
 
-  const fetchProducts =
-    async () => {
+      console.log(error);
 
-      try {
-
-        const response =
-          await axios.get(
-            "https://friends-auto-backend-1utc.onrender.com/products"
-          );
-
-        setProducts(
-          response.data
-        );
-
-      } catch (error) {
-
-        console.log(error);
-      }
-    };
-
-  const handleProductChange =
-    (value) => {
-
-      setSelectedProduct(value);
-
-      const product =
-        products.find(
-          (p) =>
-            p.productName === value
-        );
-
-      if (product) {
-
-        setPercentage(
-          product.defaultPercentage || 0
-        );
-      }
-    };
+    }
+  };
 
   const addItem = () => {
-
-    if (!selectedProduct) {
-
-      alert(
-        "Select Product"
-      );
-
-      return;
-    }
 
     const product =
       products.find(
         (p) =>
-          p.productName ===
-          selectedProduct
+          p.productName === selectedProduct
       );
 
     if (!product) {
 
-      alert(
-        "Product Not Found"
-      );
+      alert("Select Product");
 
       return;
     }
 
-    const originalTotal =
-      Number(product.price) *
-      Number(quantity);
+    const percent =
+      percentage ||
+      product.defaultPercentage ||
+      0;
 
-    const increaseAmount =
+    const finalPrice =
+      product.price +
       (
-        originalTotal *
-        Number(
-          percentage || 0
-        )
+        product.price *
+        percent
       ) / 100;
 
-    const finalTotal =
-      originalTotal +
-      increaseAmount;
+    const total =
+      finalPrice * quantity;
 
-    const item = {
+    const newItem = {
 
       productName:
         product.productName,
 
-      quantity:
-        Number(quantity),
+      quantity,
 
-      price:
-        Number(product.price),
+      percentage: percent,
 
-      percentage:
-        Number(percentage),
+      price: finalPrice,
 
-      total:
-        Number(
-          finalTotal.toFixed(2)
-        )
+      total
+
     };
 
     setBillItems([
       ...billItems,
-      item
+      newItem
     ]);
 
     setSelectedProduct("");
 
     setQuantity(1);
 
-    setPercentage(0);
+    setPercentage("");
   };
 
   const subtotal =
     billItems.reduce(
-      (sum, item) =>
-        sum + item.total,
+      (acc, item) =>
+        acc + item.total,
       0
     );
 
-  const finalAmount =
-    subtotal;
-
   const balance =
-    finalAmount -
-    Number(
-      paidAmount || 0
-    );
+    subtotal -
+    (paidAmount || 0);
 
-  const saveBill =
-    async () => {
+  const saveBill = async () => {
 
-      if (!customerName) {
+    const billData = {
 
-        alert(
-          "Enter Customer Name"
-        );
+      customerName,
 
-        return;
-      }
+      subtotal,
 
-      if (
-        billItems.length === 0
-      ) {
+      finalAmount: subtotal,
 
-        alert(
-          "Add Products"
-        );
+      paidAmount,
 
-        return;
-      }
+      balanceAmount: balance,
 
-      try {
+      billItems
 
-        const billData = {
-
-          customerName,
-
-          totalAmount:
-            Number(
-              subtotal.toFixed(2)
-            ),
-
-          paidAmount:
-            Number(
-              paidAmount
-            ),
-
-          balanceAmount:
-            Number(
-              balance.toFixed(2)
-            ),
-
-          items:
-            billItems
-        };
-
-        await axios.post(
-          "https://friends-auto-backend-1utc.onrender.com/bills",
-          billData
-        );
-
-        alert(
-          "Bill Saved Successfully"
-        );
-
-        setCustomerName("");
-
-        setBillItems([]);
-
-        setPaidAmount("");
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          "Failed To Save Bill"
-        );
-      }
     };
+
+    try {
+
+      await axios.post(
+        "https://friends-auto-backend-1utc.onrender.com/bills",
+        billData
+      );
+
+      alert("Bill Saved");
+
+      setCustomerName("");
+
+      setBillItems([]);
+
+      setPaidAmount("");
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
 
   return (
 
-    <div style={containerStyle}>
-
-      <h1 style={titleStyle}>
-        Billing Management
-      </h1>
-
-      <input
-        type="text"
-        placeholder="Customer Name"
-        value={customerName}
-        onChange={(e) =>
-          setCustomerName(
-            e.target.value
-          )
-        }
-        list="customerList"
-        style={inputStyle}
-      />
-
-      <datalist id="customerList">
-
-        {customers.map(
-          (customer) => (
-
-            <option
-              key={customer.id}
-              value={
-                customer.customerName
-              }
-            />
-
-          )
-        )}
-
-      </datalist>
-
-      <div style={productRow}>
-
-        <select
-          value={selectedProduct}
-          onChange={(e) =>
-            handleProductChange(
-              e.target.value
-            )
-          }
-          style={inputStyle}
-        >
-
-          <option value="">
-            Select Product
-          </option>
-
-          {products.map(
-            (product) => (
-
-              <option
-                key={product.id}
-                value={
-                  product.productName
-                }
-              >
-
-                {product.productName}
-                {" - ₹"}
-                {product.price}
-
-              </option>
-
-            )
-          )}
-
-        </select>
-
-        <input
-          type="number"
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) =>
-            setQuantity(
-              e.target.value
-            )
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          placeholder="Percentage"
-          value={percentage}
-          onChange={(e) =>
-            setPercentage(
-              e.target.value
-            )
-          }
-          style={inputStyle}
-        />
-
-      </div>
-
-      <button
-        onClick={addItem}
-        style={buttonStyle}
-      >
-        Add Item
-      </button>
-
-      <h2 style={sectionTitle}>
-        Bill Items
-      </h2>
+    <div
+      style={{
+        backgroundColor: "#eef3f9",
+        minHeight: "100vh",
+        padding: "20px",
+        overflowX: "hidden",
+        boxSizing: "border-box"
+      }}
+    >
 
       <div
         style={{
-          overflowX: "auto"
+          width: "100%",
+          maxWidth: "100%",
+          margin: "0 auto",
+          backgroundColor: "white",
+          borderRadius: "25px",
+          padding: "25px",
+          boxSizing: "border-box",
+          boxShadow:
+            "0 5px 20px rgba(0,0,0,0.08)"
         }}
       >
 
-        <table style={tableStyle}>
+        {/* HERO IMAGE */}
 
-          <thead>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            marginBottom: "30px",
+            borderRadius: "20px",
+            overflow: "hidden"
+          }}
+        >
 
-            <tr
-              style={
-                tableHeaderRow
+          <img
+            src={sparepartsImg}
+            alt="Spare Parts"
+            style={{
+              width: "100%",
+              height: "300px",
+              objectFit: "cover",
+              display: "block"
+            }}
+          />
+
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background:
+                "rgba(0,0,0,0.45)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "20px",
+              boxSizing: "border-box"
+            }}
+          >
+
+            <h1
+              style={{
+                color: "white",
+                fontSize:
+                  "clamp(32px,5vw,60px)",
+                marginBottom: "15px"
+              }}
+            >
+              Friends Auto Mobile
+            </h1>
+
+            <p
+              style={{
+                color: "white",
+                fontSize:
+                  "clamp(16px,2vw,28px)"
+              }}
+            >
+              Engine Spare Parts Billing
+              System
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* BILL SECTION */}
+
+        <div
+          style={{
+            backgroundColor: "white",
+            borderRadius: "25px",
+            padding: "25px",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,0.08)"
+          }}
+        >
+
+          <h1
+            style={{
+              textAlign: "center",
+              color: "#0d47a1",
+              marginBottom: "30px",
+              fontSize:
+                "clamp(32px,5vw,55px)"
+            }}
+          >
+            Billing Management
+          </h1>
+
+          {/* FORM */}
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit,minmax(220px,1fr))",
+              gap: "20px",
+              marginBottom: "25px"
+            }}
+          >
+
+            <input
+              type="text"
+              placeholder="Customer Name"
+              value={customerName}
+              onChange={(e) =>
+                setCustomerName(
+                  e.target.value
+                )
               }
+              style={inputStyle}
+            />
+
+            <select
+              value={selectedProduct}
+              onChange={(e) => {
+
+                setSelectedProduct(
+                  e.target.value
+                );
+
+                const product =
+                  products.find(
+                    (p) =>
+                      p.productName ===
+                      e.target.value
+                  );
+
+                if (product) {
+
+                  setPercentage(
+                    product.defaultPercentage
+                  );
+                }
+
+              }}
+              style={inputStyle}
             >
 
-              <th style={tableHeader}>
-                Product
-              </th>
+              <option value="">
+                Select Product
+              </option>
 
-              <th style={tableHeader}>
-                Quantity
-              </th>
+              {products.map((product) => (
 
-              <th style={tableHeader}>
-                Price
-              </th>
+                <option
+                  key={product.id}
+                  value={
+                    product.productName
+                  }
+                >
+                  {product.productName}
+                </option>
 
-              <th style={tableHeader}>
-                %
-              </th>
+              ))}
 
-              <th style={tableHeader}>
-                Total
-              </th>
+            </select>
 
-            </tr>
+            <input
+              type="number"
+              placeholder="Quantity"
+              value={quantity}
+              onChange={(e) =>
+                setQuantity(
+                  e.target.value
+                )
+              }
+              style={inputStyle}
+            />
 
-          </thead>
+            <input
+              type="number"
+              placeholder="Percentage"
+              value={percentage}
+              onChange={(e) =>
+                setPercentage(
+                  e.target.value
+                )
+              }
+              style={inputStyle}
+            />
 
-          <tbody>
+          </div>
 
-            {billItems.map(
-              (
-                item,
-                index
-              ) => (
+          <button
+            onClick={addItem}
+            style={buttonStyle}
+          >
+            Add Item
+          </button>
 
-                <tr key={index}>
+          {/* TABLE */}
 
-                  <td style={tableCell}>
-                    {
-                      item.productName
-                    }
-                  </td>
+          <div
+            style={{
+              overflowX: "auto",
+              marginTop: "30px"
+            }}
+          >
 
-                  <td style={tableCell}>
-                    {
-                      item.quantity
-                    }
-                  </td>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                minWidth: "700px"
+              }}
+            >
 
-                  <td style={tableCell}>
-                    ₹{item.price}
-                  </td>
+              <thead>
 
-                  <td style={tableCell}>
-                    {
-                      item.percentage
-                    }%
-                  </td>
+                <tr
+                  style={{
+                    backgroundColor:
+                      "#0d47a1",
+                    color: "white"
+                  }}
+                >
 
-                  <td style={tableCell}>
-                    ₹{item.total}
-                  </td>
+                  <th style={tableHeader}>
+                    Product
+                  </th>
+
+                  <th style={tableHeader}>
+                    Qty
+                  </th>
+
+                  <th style={tableHeader}>
+                    %
+                  </th>
+
+                  <th style={tableHeader}>
+                    Price
+                  </th>
+
+                  <th style={tableHeader}>
+                    Total
+                  </th>
 
                 </tr>
 
-              )
-            )}
+              </thead>
 
-          </tbody>
+              <tbody>
 
-        </table>
+                {billItems.map(
+                  (item, index) => (
 
-      </div>
+                    <tr key={index}>
 
-      <div style={summaryBox}>
+                      <td style={tableCell}>
+                        {
+                          item.productName
+                        }
+                      </td>
 
-        <h2 style={sectionTitle}>
-          Bill Summary
-        </h2>
+                      <td style={tableCell}>
+                        {
+                          item.quantity
+                        }
+                      </td>
 
-        <input
-          type="number"
-          placeholder="Paid Amount"
-          value={paidAmount}
-          onChange={(e) =>
-            setPaidAmount(
-              e.target.value
-            )
-          }
-          style={inputStyle}
-        />
+                      <td style={tableCell}>
+                        {
+                          item.percentage
+                        }%
+                      </td>
 
-        <h3>
-          Subtotal: ₹
-          {subtotal.toFixed(2)}
-        </h3>
+                      <td style={tableCell}>
+                        ₹
+                        {item.price.toFixed(
+                          0
+                        )}
+                      </td>
 
-        <h3>
-          Final Amount: ₹
-          {finalAmount.toFixed(2)}
-        </h3>
+                      <td style={tableCell}>
+                        ₹
+                        {item.total.toFixed(
+                          0
+                        )}
+                      </td>
 
-        <h3>
-          Balance: ₹
-          {balance.toFixed(2)}
-        </h3>
+                    </tr>
 
-        <button
-          onClick={saveBill}
-          style={buttonStyle}
-        >
-          Save Bill
-        </button>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          {/* SUMMARY */}
+
+          <div
+            style={{
+              marginTop: "30px",
+              backgroundColor:
+                "#f4f7fb",
+              padding: "25px",
+              borderRadius: "20px"
+            }}
+          >
+
+            <h2
+              style={{
+                color: "#0d47a1",
+                marginBottom: "20px"
+              }}
+            >
+              Bill Summary
+            </h2>
+
+            <input
+              type="number"
+              placeholder="Paid Amount"
+              value={paidAmount}
+              onChange={(e) =>
+                setPaidAmount(
+                  e.target.value
+                )
+              }
+              style={{
+                ...inputStyle,
+                marginBottom: "20px"
+              }}
+            />
+
+            <h3>
+              Subtotal :
+              ₹
+              {subtotal.toFixed(0)}
+            </h3>
+
+            <h3>
+              Final Amount :
+              ₹
+              {subtotal.toFixed(0)}
+            </h3>
+
+            <h3>
+              Balance :
+              ₹
+              {balance.toFixed(0)}
+            </h3>
+
+            <button
+              onClick={saveBill}
+              style={{
+                ...buttonStyle,
+                marginTop: "15px"
+              }}
+            >
+              Save Bill
+            </button>
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -513,83 +561,44 @@ function BillPage() {
 
 /* STYLES */
 
-const containerStyle = {
-  backgroundColor: "white",
-  padding: "25px",
-  borderRadius: "18px",
-  boxShadow:
-    "0px 4px 15px rgba(0,0,0,0.1)"
-};
-
-const titleStyle = {
-  color: "#0d47a1",
-  textAlign: "center",
-  marginBottom: "30px",
-  fontSize: "50px"
-};
-
-const sectionTitle = {
-  color: "#0d47a1",
-  marginTop: "20px",
-  marginBottom: "15px",
-  textAlign: "center"
-};
-
-const productRow = {
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit,minmax(220px,1fr))",
-  gap: "15px",
-  marginTop: "20px",
-  marginBottom: "20px"
-};
-
 const inputStyle = {
+
   width: "100%",
   padding: "14px",
-  borderRadius: "10px",
+  borderRadius: "12px",
   border: "1px solid #ccc",
-  marginBottom: "14px",
   fontSize: "16px",
   boxSizing: "border-box"
+
 };
 
 const buttonStyle = {
-  backgroundColor: "#0d47a1",
+
+  backgroundColor: "#1565c0",
   color: "white",
   border: "none",
-  padding: "12px 20px",
-  borderRadius: "10px",
-  cursor: "pointer"
-};
+  padding: "14px 24px",
+  borderRadius: "12px",
+  fontSize: "16px",
+  cursor: "pointer",
+  fontWeight: "600"
 
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginTop: "20px"
-};
-
-const tableHeaderRow = {
-  backgroundColor: "#0d47a1",
-  color: "white"
 };
 
 const tableHeader = {
-  padding: "14px",
-  textAlign: "left"
+
+  padding: "16px",
+  textAlign: "left",
+  fontSize: "16px"
+
 };
 
 const tableCell = {
-  padding: "12px",
-  borderBottom:
-    "1px solid #ddd"
-};
 
-const summaryBox = {
-  marginTop: "30px",
-  backgroundColor: "#f4f7fb",
-  padding: "20px",
-  borderRadius: "14px"
+  padding: "14px",
+  borderBottom: "1px solid #ddd",
+  fontSize: "15px"
+
 };
 
 export default BillPage;

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+import engineBanner from "../assets/engine-banner.jpg";
+
 function Dashboard() {
 
   const [customers, setCustomers] = useState([]);
@@ -8,69 +10,143 @@ function Dashboard() {
   const [bills, setBills] = useState([]);
 
   useEffect(() => {
+
     fetchData();
+
   }, []);
 
   const fetchData = async () => {
 
     try {
 
-      const customerResponse =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/customers"
-        );
+      const customerRes = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/customers"
+      );
 
-      const productResponse =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/products"
-        );
+      const productRes = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/products"
+      );
 
-      const billResponse =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/bills"
-        );
+      const billRes = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/bills"
+      );
 
-      setCustomers(customerResponse.data);
-      setProducts(productResponse.data);
-      setBills(billResponse.data);
+      setCustomers(customerRes.data);
+      setProducts(productRes.data);
+      setBills(billRes.data);
 
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
   return (
 
-    <div>
+    <div
+      style={{
+        backgroundColor: "#eef3f9",
+        minHeight: "100vh",
+        padding: "20px"
+      }}
+    >
 
-      <h1 style={{
-        color: "#0d47a1",
-        marginBottom: "25px",
-        fontSize: "34px"
-      }}>
-        Dashboard
-      </h1>
+      {/* HERO SECTION */}
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit,minmax(250px,1fr))",
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          borderRadius: "20px",
+          overflow: "hidden",
+          marginBottom: "30px",
+          boxShadow:
+            "0 6px 18px rgba(0,0,0,0.15)"
+        }}
+      >
 
-        gap: "20px"
-      }}>
+        <img
+          src={engineBanner}
+          alt="Engine Banner"
+          style={{
+            width: "100%",
+            height: "320px",
+            objectFit: "cover",
+            display: "block"
+          }}
+        />
 
-        <Card
+        {/* OVERLAY */}
+
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background:
+              "rgba(0,0,0,0.45)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            padding: "20px",
+            boxSizing: "border-box"
+          }}
+        >
+
+          <h1
+            style={{
+              color: "white",
+              fontSize: "clamp(32px, 5vw, 60px)",
+              fontWeight: "700",
+              marginBottom: "15px"
+            }}
+          >
+            Friends Auto Mobile
+          </h1>
+
+          <p
+            style={{
+              color: "white",
+              fontSize: "clamp(16px, 2vw, 24px)",
+              maxWidth: "700px",
+              lineHeight: "1.5"
+            }}
+          >
+            Engine Spare Parts Billing &
+            Inventory Management
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* DASHBOARD CARDS */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(250px, 1fr))",
+          gap: "25px"
+        }}
+      >
+
+        <DashboardCard
           title="Total Customers"
           value={customers.length}
         />
 
-        <Card
+        <DashboardCard
           title="Total Products"
           value={products.length}
         />
 
-        <Card
+        <DashboardCard
           title="Total Bills"
           value={bills.length}
         />
@@ -81,32 +157,41 @@ function Dashboard() {
   );
 }
 
-function Card({ title, value }) {
+/* CARD COMPONENT */
 
-  const cardStyle = {
-    backgroundColor: "#0d47a1",
-    color: "white",
-    borderRadius: "18px",
-    padding: "30px",
-    boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
-    textAlign: "center"
-  };
+function DashboardCard({ title, value }) {
 
   return (
 
-    <div style={cardStyle}>
+    <div
+      style={{
+        background:
+          "linear-gradient(135deg,#0d47a1,#1565c0)",
+        borderRadius: "20px",
+        padding: "35px 20px",
+        color: "white",
+        textAlign: "center",
+        boxShadow:
+          "0 6px 15px rgba(0,0,0,0.15)"
+      }}
+    >
 
-      <h2 style={{
-        marginBottom: "15px",
-        fontSize: "24px"
-      }}>
+      <h2
+        style={{
+          marginBottom: "20px",
+          fontSize: "26px"
+        }}
+      >
         {title}
       </h2>
 
-      <h1 style={{
-        fontSize: "48px",
-        margin: 0
-      }}>
+      <h1
+        style={{
+          fontSize: "55px",
+          margin: 0,
+          fontWeight: "700"
+        }}
+      >
         {value}
       </h1>
 

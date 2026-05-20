@@ -1,26 +1,39 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+import pistonImg from "../assets/piston.jpg";
+
 function ProductPage() {
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] =
+    useState([]);
 
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [productName,
+    setProductName] =
+    useState("");
 
-  const [name, setName] = useState("");
+  const [category,
+    setCategory] =
+    useState("");
 
-  const [category, setCategory] = useState("");
+  const [price,
+    setPrice] =
+    useState("");
 
-  const [price, setPrice] = useState("");
-
-  const [stock, setStock] = useState("");
+  const [stock,
+    setStock] =
+    useState("");
 
   const [defaultPercentage,
-    setDefaultPercentage] = useState("");
+    setDefaultPercentage] =
+    useState("");
 
-  const [search, setSearch] = useState("");
+  const [search,
+    setSearch] =
+    useState("");
 
-  const [editingId, setEditingId] =
+  const [editId,
+    setEditId] =
     useState(null);
 
   useEffect(() => {
@@ -33,48 +46,42 @@ function ProductPage() {
 
     try {
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/products"
-      );
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/products"
+        );
 
       setProducts(response.data);
-
-      setFilteredProducts(response.data);
 
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
   const saveProduct = async () => {
 
+    const productData = {
+
+      productName,
+      category,
+      price,
+      stock,
+      defaultPercentage
+
+    };
+
     try {
 
-      const productData = {
-
-        productName: name,
-
-        category,
-
-        price: Number(price),
-
-        stock: Number(stock),
-
-        defaultPercentage:
-          Number(defaultPercentage)
-      };
-
-      if (editingId) {
+      if (editId) {
 
         await axios.put(
-          `https://friends-auto-backend-1utc.onrender.com/products/${editingId}`,
+          `https://friends-auto-backend-1utc.onrender.com/products/${editId}`,
           productData
         );
 
-        alert(
-          "Product Updated Successfully"
-        );
+        alert("Product Updated");
 
       } else {
 
@@ -83,12 +90,10 @@ function ProductPage() {
           productData
         );
 
-        alert(
-          "Product Added Successfully"
-        );
+        alert("Product Added");
       }
 
-      clearForm();
+      clearFields();
 
       fetchProducts();
 
@@ -96,9 +101,6 @@ function ProductPage() {
 
       console.log(error);
 
-      alert(
-        "Failed To Save Product"
-      );
     }
   };
 
@@ -115,14 +117,15 @@ function ProductPage() {
     } catch (error) {
 
       console.log(error);
+
     }
   };
 
   const editProduct = (product) => {
 
-    setEditingId(product.id);
+    setEditId(product.id);
 
-    setName(product.productName);
+    setProductName(product.productName);
 
     setCategory(product.category);
 
@@ -131,29 +134,15 @@ function ProductPage() {
     setStock(product.stock);
 
     setDefaultPercentage(
-      product.defaultPercentage || 0
+      product.defaultPercentage
     );
   };
 
-  const searchProduct = (value) => {
+  const clearFields = () => {
 
-    setSearch(value);
+    setEditId(null);
 
-    const filtered =
-      products.filter((product) =>
-        product.productName
-          ?.toLowerCase()
-          .includes(
-            value.toLowerCase()
-          )
-      );
-
-    setFilteredProducts(filtered);
-  };
-
-  const clearForm = () => {
-
-    setName("");
+    setProductName("");
 
     setCategory("");
 
@@ -162,212 +151,324 @@ function ProductPage() {
     setStock("");
 
     setDefaultPercentage("");
-
-    setEditingId(null);
   };
+
+  const filteredProducts =
+    products.filter((product) =>
+      product.productName
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
   return (
 
-    <div style={containerStyle}>
+    <div
+      style={{
+        backgroundColor: "#eef3f9",
+        minHeight: "100vh",
+        padding: "20px",
+        overflowX: "hidden",
+        boxSizing: "border-box"
+      }}
+    >
 
-      <h1 style={titleStyle}>
-        Product Management
-      </h1>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          margin: "0 auto",
+          backgroundColor: "white",
+          borderRadius: "25px",
+          padding: "25px",
+          boxSizing: "border-box",
+          boxShadow:
+            "0 5px 20px rgba(0,0,0,0.08)"
+        }}
+      >
 
-      <div style={formGrid}>
+        {/* TITLE */}
+
+        <h1
+          style={{
+            textAlign: "center",
+            color: "#0d47a1",
+            marginBottom: "30px",
+            fontSize:
+              "clamp(32px,5vw,55px)"
+          }}
+        >
+          Product Management
+        </h1>
+
+        {/* FORM */}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit,minmax(220px,1fr))",
+            gap: "20px",
+            marginBottom: "25px"
+          }}
+        >
+
+          <input
+            type="text"
+            placeholder="Product Name"
+            value={productName}
+            onChange={(e) =>
+              setProductName(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+          <input
+            type="text"
+            placeholder="Category"
+            value={category}
+            onChange={(e) =>
+              setCategory(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) =>
+              setPrice(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+          <input
+            type="number"
+            placeholder="Stock"
+            value={stock}
+            onChange={(e) =>
+              setStock(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+          <input
+            type="number"
+            placeholder="Default Percentage"
+            value={defaultPercentage}
+            onChange={(e) =>
+              setDefaultPercentage(
+                e.target.value
+              )
+            }
+            style={inputStyle}
+          />
+
+        </div>
+
+        {/* BUTTONS */}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "15px",
+            flexWrap: "wrap",
+            marginBottom: "25px"
+          }}
+        >
+
+          <button
+            onClick={saveProduct}
+            style={buttonStyle}
+          >
+            {editId
+              ? "Update Product"
+              : "Add Product"}
+          </button>
+
+          <button
+            onClick={clearFields}
+            style={clearButton}
+          >
+            Clear
+          </button>
+
+        </div>
+
+        {/* SEARCH */}
 
         <input
           type="text"
-          placeholder="Product Name"
-          value={name}
+          placeholder="Search Product"
+          value={search}
           onChange={(e) =>
-            setName(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) =>
-            setPrice(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          placeholder="Stock"
-          value={stock}
-          onChange={(e) =>
-            setStock(e.target.value)
-          }
-          style={inputStyle}
-        />
-
-        <input
-          type="number"
-          placeholder="Default Percentage"
-          value={defaultPercentage}
-          onChange={(e) =>
-            setDefaultPercentage(
+            setSearch(
               e.target.value
             )
           }
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            marginBottom: "25px"
+          }}
         />
 
-      </div>
+        {/* TABLE */}
 
-      <div style={{
-        display: "flex",
-        gap: "10px",
-        marginBottom: "20px",
-        flexWrap: "wrap"
-      }}>
-
-        <button
-          onClick={saveProduct}
-          style={buttonStyle}
+        <div
+          style={{
+            overflowX: "auto",
+            width: "100%"
+          }}
         >
 
-          {editingId
-            ? "Update Product"
-            : "Add Product"}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "700px"
+            }}
+          >
 
-        </button>
+            <thead>
 
-        <button
-          onClick={clearForm}
-          style={clearButton}
-        >
-          Clear
-        </button>
+              <tr
+                style={{
+                  backgroundColor:
+                    "#0d47a1",
+                  color: "white"
+                }}
+              >
 
-      </div>
+                <th style={tableHeader}>
+                  Image
+                </th>
 
-      <input
-        type="text"
-        placeholder="Search Product"
-        value={search}
-        onChange={(e) =>
-          searchProduct(
-            e.target.value
-          )
-        }
-        style={inputStyle}
-      />
+                <th style={tableHeader}>
+                  Product
+                </th>
 
-      <div style={{
-        overflowX: "auto"
-      }}>
+                <th style={tableHeader}>
+                  Category
+                </th>
 
-        <table style={tableStyle}>
+                <th style={tableHeader}>
+                  Price
+                </th>
 
-          <thead>
+                <th style={tableHeader}>
+                  Stock
+                </th>
 
-            <tr style={tableHeaderRow}>
+                <th style={tableHeader}>
+                  %
+                </th>
 
-              <th style={tableHeader}>
-                Product
-              </th>
+                <th style={tableHeader}>
+                  Actions
+                </th>
 
-              <th style={tableHeader}>
-                Category
-              </th>
+              </tr>
 
-              <th style={tableHeader}>
-                Price
-              </th>
+            </thead>
 
-              <th style={tableHeader}>
-                Stock
-              </th>
+            <tbody>
 
-              <th style={tableHeader}>
-                %
-              </th>
+              {filteredProducts.map(
+                (product) => (
 
-              <th style={tableHeader}>
-                Actions
-              </th>
+                  <tr key={product.id}>
 
-            </tr>
+                    <td style={tableCell}>
 
-          </thead>
+                      <img
+                        src={pistonImg}
+                        alt="Product"
+                        style={{
+                          width: "70px",
+                          height: "70px",
+                          borderRadius: "12px",
+                          objectFit: "cover"
+                        }}
+                      />
 
-          <tbody>
+                    </td>
 
-            {filteredProducts.map(
-              (product) => (
+                    <td style={tableCell}>
+                      {product.productName}
+                    </td>
 
-                <tr key={product.id}>
+                    <td style={tableCell}>
+                      {product.category}
+                    </td>
 
-                  <td style={tableCell}>
-                    {product.productName}
-                  </td>
+                    <td style={tableCell}>
+                      ₹{product.price}
+                    </td>
 
-                  <td style={tableCell}>
-                    {product.category}
-                  </td>
+                    <td style={tableCell}>
+                      {product.stock}
+                    </td>
 
-                  <td style={tableCell}>
-                    ₹{product.price}
-                  </td>
+                    <td style={tableCell}>
+                      {
+                        product.defaultPercentage
+                      }%
+                    </td>
 
-                  <td style={tableCell}>
-                    {product.stock}
-                  </td>
+                    <td style={tableCell}>
 
-                  <td style={tableCell}>
-                    {
-                      product.defaultPercentage
-                    }%
-                  </td>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          flexWrap: "wrap"
+                        }}
+                      >
 
-                  <td style={tableCell}>
+                        <button
+                          onClick={() =>
+                            editProduct(
+                              product
+                            )
+                          }
+                          style={editButton}
+                        >
+                          Edit
+                        </button>
 
-                    <button
-                      onClick={() =>
-                        editProduct(product)
-                      }
-                      style={editButton}
-                    >
-                      Edit
-                    </button>
+                        <button
+                          onClick={() =>
+                            deleteProduct(
+                              product.id
+                            )
+                          }
+                          style={deleteButton}
+                        >
+                          Delete
+                        </button>
 
-                    <button
-                      onClick={() =>
-                        deleteProduct(
-                          product.id
-                        )
-                      }
-                      style={deleteButton}
-                    >
-                      Delete
-                    </button>
+                      </div>
 
-                  </td>
+                    </td>
 
-                </tr>
+                  </tr>
 
-              )
-            )}
+                )
+              )}
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
+
+        </div>
 
       </div>
 
@@ -377,94 +478,78 @@ function ProductPage() {
 
 /* STYLES */
 
-const containerStyle = {
-  backgroundColor: "white",
-  padding: "25px",
-  borderRadius: "18px",
-  boxShadow:
-    "0px 4px 15px rgba(0,0,0,0.1)"
-};
-
-const titleStyle = {
-  color: "#0d47a1",
-  textAlign: "center",
-  marginBottom: "30px",
-  fontSize: "50px"
-};
-
-const formGrid = {
-  display: "grid",
-  gridTemplateColumns:
-    "repeat(auto-fit,minmax(220px,1fr))",
-  gap: "15px",
-  marginBottom: "20px"
-};
-
 const inputStyle = {
+
   width: "100%",
   padding: "14px",
-  borderRadius: "10px",
+  borderRadius: "12px",
   border: "1px solid #ccc",
   fontSize: "16px",
   boxSizing: "border-box"
+
 };
 
 const buttonStyle = {
-  backgroundColor: "#0d47a1",
+
+  backgroundColor: "#1565c0",
   color: "white",
   border: "none",
-  padding: "12px 20px",
-  borderRadius: "10px",
-  cursor: "pointer"
+  padding: "14px 24px",
+  borderRadius: "12px",
+  fontSize: "16px",
+  cursor: "pointer",
+  fontWeight: "600"
+
 };
 
 const clearButton = {
+
   backgroundColor: "gray",
   color: "white",
   border: "none",
-  padding: "12px 20px",
-  borderRadius: "10px",
+  padding: "14px 24px",
+  borderRadius: "12px",
+  fontSize: "16px",
   cursor: "pointer"
+
 };
 
 const editButton = {
-  backgroundColor: "#1976d2",
+
+  backgroundColor: "#1565c0",
   color: "white",
   border: "none",
-  padding: "8px 14px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  marginRight: "10px"
+  padding: "10px 16px",
+  borderRadius: "10px",
+  cursor: "pointer"
+
 };
 
 const deleteButton = {
+
   backgroundColor: "red",
   color: "white",
   border: "none",
-  padding: "8px 14px",
-  borderRadius: "8px",
+  padding: "10px 16px",
+  borderRadius: "10px",
   cursor: "pointer"
-};
 
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginTop: "20px"
-};
-
-const tableHeaderRow = {
-  backgroundColor: "#0d47a1",
-  color: "white"
 };
 
 const tableHeader = {
-  padding: "14px",
-  textAlign: "left"
+
+  padding: "16px",
+  textAlign: "left",
+  fontSize: "16px"
+
 };
 
 const tableCell = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd"
+
+  padding: "14px",
+  borderBottom: "1px solid #ddd",
+  fontSize: "15px"
+
 };
 
 export default ProductPage;

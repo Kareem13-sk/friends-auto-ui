@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+import engineBanner from "../assets/engine-banner.jpg";
+
 function CustomerDetails() {
 
   const [customerName, setCustomerName] =
@@ -9,19 +11,12 @@ function CustomerDetails() {
   const [customers, setCustomers] =
     useState([]);
 
-  const [filteredCustomers, setFilteredCustomers] =
+  const [selectedCustomer,
+    setSelectedCustomer] =
+    useState(null);
+
+  const [bills, setBills] =
     useState([]);
-
-  const [bills, setBills] = useState([]);
-
-  const [totalPurchase, setTotalPurchase] =
-    useState(0);
-
-  const [totalPaid, setTotalPaid] =
-    useState(0);
-
-  const [pendingBalance, setPendingBalance] =
-    useState(0);
 
   useEffect(() => {
 
@@ -43,352 +38,407 @@ function CustomerDetails() {
     } catch (error) {
 
       console.log(error);
+
     }
-  };
-
-  const handleCustomerInput = (value) => {
-
-    setCustomerName(value);
-
-    if (value.length > 0) {
-
-      const filtered =
-        customers.filter((customer) =>
-          customer.customerName
-            ?.toLowerCase()
-            .includes(value.toLowerCase())
-        );
-
-      setFilteredCustomers(filtered);
-
-    } else {
-
-      setFilteredCustomers([]);
-    }
-  };
-
-  const selectCustomer = (name) => {
-
-    setCustomerName(name);
-
-    setFilteredCustomers([]);
   };
 
   const searchCustomer = async () => {
 
     try {
 
-      const response =
-        await axios.get(
-          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
+      const customer =
+        customers.find(
+          (c) =>
+            c.customerName
+              .toLowerCase()
+              .includes(
+                customerName.toLowerCase()
+              )
         );
 
-      const data = response.data;
+      if (!customer) {
 
-      setBills(data);
+        alert("Customer Not Found");
 
-      let purchase = 0;
+        return;
+      }
 
-      let paid = 0;
+      setSelectedCustomer(customer);
 
-      let balance = 0;
+      const response =
+        await axios.get(
+          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customer.customerName}`
+        );
 
-      data.forEach((bill) => {
-
-        purchase += bill.finalAmount || 0;
-
-        paid += bill.paidAmount || 0;
-
-        balance += bill.balanceAmount || 0;
-      });
-
-      setTotalPurchase(purchase);
-
-      setTotalPaid(paid);
-
-      setPendingBalance(balance);
+      setBills(response.data);
 
     } catch (error) {
 
       console.log(error);
 
-      alert("Customer Not Found");
     }
   };
 
+  const totalPurchase =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.finalAmount,
+      0
+    );
+
+  const totalPaid =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.paidAmount,
+      0
+    );
+
+  const pendingBalance =
+    bills.reduce(
+      (acc, bill) =>
+        acc + bill.balanceAmount,
+      0
+    );
+
   return (
 
-    <div style={{
-      padding: "20px",
-      backgroundColor: "#f4f7fb",
-      minHeight: "100vh"
-    }}>
-
-      {/* HEADER */}
-
-      <div style={{
-        backgroundColor: "#0d47a1",
-        color: "white",
+    <div
+      style={{
+        backgroundColor: "#eef3f9",
+        minHeight: "100vh",
         padding: "20px",
-        borderRadius: "15px",
-        marginBottom: "25px",
-        textAlign: "center",
-        boxShadow:
-          "0px 4px 12px rgba(0,0,0,0.15)"
-      }}>
+        overflowX: "hidden",
+        boxSizing: "border-box"
+      }}
+    >
 
-        <h1 style={{
-          margin: 0,
-          fontSize: "34px"
-        }}>
-          Customer Details
-        </h1>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          margin: "0 auto",
+          backgroundColor: "white",
+          borderRadius: "25px",
+          padding: "25px",
+          boxSizing: "border-box",
+          boxShadow:
+            "0 5px 20px rgba(0,0,0,0.08)"
+        }}
+      >
 
-      </div>
+        {/* HERO IMAGE */}
 
-      {/* SEARCH SECTION */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            marginBottom: "30px",
+            borderRadius: "20px",
+            overflow: "hidden"
+          }}
+        >
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        marginBottom: "25px",
-        position: "relative",
-        boxShadow:
-          "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
+          <img
+            src={engineBanner}
+            alt="Engine Banner"
+            style={{
+              width: "100%",
+              height: "300px",
+              objectFit: "cover",
+              display: "block"
+            }}
+          />
 
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px",
-          textAlign: "center"
-        }}>
-          Search Customer
-        </h2>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background:
+                "rgba(0,0,0,0.45)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "20px",
+              boxSizing: "border-box"
+            }}
+          >
 
-        <div style={{
-          display: "flex",
-          gap: "15px",
-          flexWrap: "wrap"
-        }}>
+            <h1
+              style={{
+                color: "white",
+                fontSize:
+                  "clamp(32px,5vw,60px)",
+                marginBottom: "15px"
+              }}
+            >
+              Customer Details
+            </h1>
 
-          <div style={{
-            flex: 1,
-            position: "relative"
-          }}>
-
-            <input
-              type="text"
-              placeholder="Enter Customer Name"
-              value={customerName}
-              onChange={(e) =>
-                handleCustomerInput(
-                  e.target.value
-                )
-              }
-              style={inputStyle}
-            />
-
-            {/* DROPDOWN */}
-
-            {filteredCustomers.length > 0 && (
-
-              <div style={{
-                position: "absolute",
-                top: "55px",
-                left: 0,
-                right: 0,
-                backgroundColor: "white",
-                border: "1px solid #ddd",
-                borderRadius: "10px",
-                zIndex: 1000,
-                maxHeight: "200px",
-                overflowY: "auto",
-                boxShadow:
-                  "0px 4px 10px rgba(0,0,0,0.15)"
-              }}>
-
-                {filteredCustomers.map((customer) => (
-
-                  <div
-                    key={customer.id}
-                    onClick={() =>
-                      selectCustomer(
-                        customer.customerName
-                      )
-                    }
-                    style={{
-                      padding: "12px",
-                      cursor: "pointer",
-                      borderBottom:
-                        "1px solid #eee"
-                    }}
-                  >
-                    {customer.customerName}
-                  </div>
-
-                ))}
-
-              </div>
-
-            )}
+            <p
+              style={{
+                color: "white",
+                fontSize:
+                  "clamp(16px,2vw,28px)"
+              }}
+            >
+              Engine Spare Parts Purchase
+              History
+            </p>
 
           </div>
 
-          <button
-            onClick={searchCustomer}
-            style={buttonStyle}
+        </div>
+
+        {/* SEARCH SECTION */}
+
+        <div
+          style={{
+            backgroundColor: "white",
+            borderRadius: "25px",
+            padding: "25px",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,0.08)"
+          }}
+        >
+
+          <h1
+            style={{
+              textAlign: "center",
+              color: "#0d47a1",
+              marginBottom: "30px",
+              fontSize:
+                "clamp(32px,5vw,55px)"
+            }}
           >
-            Search
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* SUMMARY CARDS */}
-
-      <div style={{
-        display: "grid",
-        gridTemplateColumns:
-          "repeat(auto-fit,minmax(250px,1fr))",
-        gap: "20px",
-        marginBottom: "25px"
-      }}>
-
-        <div style={cardStyle}>
-
-          <h2>Total Purchase</h2>
-
-          <h1>
-            ₹{totalPurchase.toFixed(0)}
+            Customer Details
           </h1>
 
-        </div>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "15px",
+              marginBottom: "25px"
+            }}
+          >
 
-        <div style={cardStyle}>
+            <input
+              type="text"
+              placeholder="Search Customer"
+              value={customerName}
+              onChange={(e) =>
+                setCustomerName(
+                  e.target.value
+                )
+              }
+              style={{
+                flex: 1,
+                minWidth: "220px",
+                padding: "14px",
+                borderRadius: "12px",
+                border:
+                  "1px solid #ccc",
+                fontSize: "16px",
+                boxSizing:
+                  "border-box"
+              }}
+            />
 
-          <h2>Total Paid</h2>
+            <button
+              onClick={searchCustomer}
+              style={{
+                backgroundColor:
+                  "#1565c0",
+                color: "white",
+                border: "none",
+                padding:
+                  "14px 24px",
+                borderRadius:
+                  "12px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+            >
+              Search
+            </button>
 
-          <h1>
-            ₹{totalPaid.toFixed(0)}
-          </h1>
+          </div>
 
-        </div>
+          {/* SUMMARY CARDS */}
 
-        <div style={cardStyle}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit,minmax(250px,1fr))",
+              gap: "20px",
+              marginBottom: "30px"
+            }}
+          >
 
-          <h2>Pending Balance</h2>
+            <div style={cardStyle}>
 
-          <h1>
-            ₹{pendingBalance.toFixed(0)}
-          </h1>
+              <h2>Total Purchase</h2>
 
-        </div>
+              <h1>
+                ₹
+                {totalPurchase.toFixed(
+                  0
+                )}
+              </h1>
 
-      </div>
+            </div>
 
-      {/* BILL HISTORY */}
+            <div style={cardStyle}>
 
-      <div style={{
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "18px",
-        boxShadow:
-          "0px 4px 15px rgba(0,0,0,0.08)"
-      }}>
+              <h2>Total Paid</h2>
 
-        <h2 style={{
-          color: "#0d47a1",
-          marginBottom: "20px",
-          textAlign: "center"
-        }}>
-          Bill History
-        </h2>
+              <h1>
+                ₹
+                {totalPaid.toFixed(0)}
+              </h1>
 
-        <div style={{
-          overflowX: "auto"
-        }}>
+            </div>
 
-          <table style={{
-            width: "100%",
-            borderCollapse: "collapse"
-          }}>
+            <div style={cardStyle}>
 
-            <thead>
+              <h2>Pending Balance</h2>
 
-              <tr style={{
-                backgroundColor: "#0d47a1",
-                color: "white"
-              }}>
+              <h1>
+                ₹
+                {pendingBalance.toFixed(
+                  0
+                )}
+              </h1>
 
-                <th style={tableHeader}>
-                  Total
-                </th>
+            </div>
 
-                <th style={tableHeader}>
-                  Paid
-                </th>
+          </div>
 
-                <th style={tableHeader}>
-                  Balance
-                </th>
+          {/* BILL HISTORY */}
 
-                <th style={tableHeader}>
-                  Invoice
-                </th>
+          <div
+            style={{
+              marginTop: "20px",
+              overflowX: "auto"
+            }}
+          >
 
-              </tr>
+            <h2
+              style={{
+                color: "#0d47a1",
+                marginBottom: "20px"
+              }}
+            >
+              Bill History
+            </h2>
 
-            </thead>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse:
+                  "collapse",
+                minWidth: "700px"
+              }}
+            >
 
-            <tbody>
+              <thead>
 
-              {bills.map((bill) => (
+                <tr
+                  style={{
+                    backgroundColor:
+                      "#0d47a1",
+                    color: "white"
+                  }}
+                >
 
-                <tr key={bill.id}>
+                  <th style={tableHeader}>
+                    Total
+                  </th>
 
-                  <td style={tableCell}>
-                    ₹{bill.finalAmount?.toFixed(0)}
-                  </td>
+                  <th style={tableHeader}>
+                    Paid
+                  </th>
 
-                  <td style={tableCell}>
-                    ₹{bill.paidAmount?.toFixed(0)}
-                  </td>
+                  <th style={tableHeader}>
+                    Balance
+                  </th>
 
-                  <td style={tableCell}>
-                    ₹{bill.balanceAmount?.toFixed(0)}
-                  </td>
-
-                  <td style={tableCell}>
-
-                    <a
-                      href={`https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}/invoice`}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        backgroundColor:
-                          "#0d47a1",
-                        color: "white",
-                        padding:
-                          "10px 15px",
-                        borderRadius: "8px",
-                        textDecoration:
-                          "none"
-                      }}
-                    >
-                      View Invoice
-                    </a>
-
-                  </td>
+                  <th style={tableHeader}>
+                    Invoice
+                  </th>
 
                 </tr>
 
-              ))}
+              </thead>
 
-            </tbody>
+              <tbody>
 
-          </table>
+                {bills.map((bill) => (
+
+                  <tr key={bill.id}>
+
+                    <td style={tableCell}>
+                      ₹
+                      {bill.finalAmount.toFixed(
+                        0
+                      )}
+                    </td>
+
+                    <td style={tableCell}>
+                      ₹
+                      {bill.paidAmount.toFixed(
+                        0
+                      )}
+                    </td>
+
+                    <td style={tableCell}>
+                      ₹
+                      {bill.balanceAmount.toFixed(
+                        0
+                      )}
+                    </td>
+
+                    <td style={tableCell}>
+
+                      <a
+                        href={`https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}/invoice`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          textDecoration:
+                            "none",
+                          backgroundColor:
+                            "#1565c0",
+                          color: "white",
+                          padding:
+                            "10px 18px",
+                          borderRadius:
+                            "10px",
+                          fontWeight:
+                            "600"
+                        }}
+                      >
+                        View Invoice
+                      </a>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
 
         </div>
 
@@ -398,46 +448,32 @@ function CustomerDetails() {
   );
 }
 
-const inputStyle = {
-  width: "100%",
-  padding: "14px",
-  borderRadius: "10px",
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  boxSizing: "border-box"
-};
-
-const buttonStyle = {
-  backgroundColor: "#0d47a1",
-  color: "white",
-  border: "none",
-  padding: "14px 20px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontSize: "16px",
-  fontWeight: "600"
-};
-
 const cardStyle = {
+
   backgroundColor: "#0d47a1",
   color: "white",
   padding: "30px",
   borderRadius: "20px",
   textAlign: "center",
   boxShadow:
-    "0px 4px 15px rgba(0,0,0,0.15)"
+    "0 5px 15px rgba(0,0,0,0.1)"
+
 };
 
 const tableHeader = {
+
   padding: "16px",
   textAlign: "left",
   fontSize: "16px"
+
 };
 
 const tableCell = {
-  padding: "14px",
+
+  padding: "16px",
   borderBottom: "1px solid #ddd",
   fontSize: "15px"
+
 };
 
 export default CustomerDetails;
