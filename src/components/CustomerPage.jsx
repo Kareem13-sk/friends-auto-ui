@@ -3,7 +3,7 @@ import axios from "axios";
 
 function Customers() {
 
-  const [customerName, setCustomerName] =
+  const [customerNaMe, setCustomerName] =
     useState("");
 
   const [phoneNumber, setPhoneNumber] =
