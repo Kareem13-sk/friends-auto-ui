@@ -5,6 +5,9 @@ import sparepartsImg from "../assets/spareparts.jpg";
 
 function BillPage() {
 
+  const [customers, setCustomers] =
+    useState([]);
+
   const [products, setProducts] =
     useState([]);
 
@@ -34,9 +37,28 @@ function BillPage() {
 
   useEffect(() => {
 
+    fetchCustomers();
     fetchProducts();
 
   }, []);
+
+  const fetchCustomers = async () => {
+
+    try {
+
+      const response =
+        await axios.get(
+          "https://friends-auto-backend-1utc.onrender.com/customers"
+        );
+
+      setCustomers(response.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
 
   const fetchProducts = async () => {
 
@@ -56,7 +78,33 @@ function BillPage() {
     }
   };
 
+  const handleProductChange =
+    (productName) => {
+
+      setSelectedProduct(productName);
+
+      const product =
+        products.find(
+          (p) =>
+            p.productName === productName
+        );
+
+      if (product) {
+
+        setPercentage(
+          product.defaultPercentage || 0
+        );
+      }
+    };
+
   const addItem = () => {
+
+    if (!selectedProduct || !quantity) {
+
+      alert("Select product");
+
+      return;
+    }
 
     const product =
       products.find(
@@ -64,27 +112,18 @@ function BillPage() {
           p.productName === selectedProduct
       );
 
-    if (!product) {
+    if (!product) return;
 
-      alert("Select Product");
+    const basePrice =
+      product.price * quantity;
 
-      return;
-    }
+    // DISCOUNT CALCULATION
 
-    const percent =
-      percentage ||
-      product.defaultPercentage ||
-      0;
-
-    const finalPrice =
-      product.price +
-      (
-        product.price *
-        percent
-      ) / 100;
+    const discountAmount =
+      (basePrice * percentage) / 100;
 
     const total =
-      finalPrice * quantity;
+      basePrice - discountAmount;
 
     const newItem = {
 
@@ -93,9 +132,9 @@ function BillPage() {
 
       quantity,
 
-      percentage: percent,
+      percentage,
 
-      price: finalPrice,
+      price: product.price,
 
       total
 
@@ -107,9 +146,7 @@ function BillPage() {
     ]);
 
     setSelectedProduct("");
-
     setQuantity(1);
-
     setPercentage("");
   };
 
@@ -120,25 +157,30 @@ function BillPage() {
       0
     );
 
-  const balance =
-    subtotal -
-    (paidAmount || 0);
+  const balanceAmount =
+    subtotal - (paidAmount || 0);
 
   const saveBill = async () => {
+
+    if (!customerName) {
+
+      alert("Enter customer name");
+
+      return;
+    }
 
     const billData = {
 
       customerName,
 
-      subtotal,
+      items: billItems,
 
       finalAmount: subtotal,
 
-      paidAmount,
+      paidAmount:
+        Number(paidAmount),
 
-      balanceAmount: balance,
-
-      billItems
+      balanceAmount
 
     };
 
@@ -152,9 +194,7 @@ function BillPage() {
       alert("Bill Saved");
 
       setCustomerName("");
-
       setBillItems([]);
-
       setPaidAmount("");
 
     } catch (error) {
@@ -171,22 +211,15 @@ function BillPage() {
         backgroundColor: "#eef3f9",
         minHeight: "100vh",
         padding: "20px",
-        overflowX: "hidden",
-        boxSizing: "border-box"
+        overflowX: "hidden"
       }}
     >
 
       <div
         style={{
           width: "100%",
-          maxWidth: "100%",
-          margin: "0 auto",
-          backgroundColor: "white",
-          borderRadius: "25px",
-          padding: "25px",
-          boxSizing: "border-box",
-          boxShadow:
-            "0 5px 20px rgba(0,0,0,0.08)"
+          maxWidth: "1400px",
+          margin: "0 auto"
         }}
       >
 
@@ -196,9 +229,12 @@ function BillPage() {
           style={{
             position: "relative",
             width: "100%",
+            height: "320px",
+            borderRadius: "25px",
+            overflow: "hidden",
             marginBottom: "30px",
-            borderRadius: "20px",
-            overflow: "hidden"
+            boxShadow:
+              "0 5px 20px rgba(0,0,0,0.15)"
           }}
         >
 
@@ -207,19 +243,15 @@ function BillPage() {
             alt="Spare Parts"
             style={{
               width: "100%",
-              height: "300px",
-              objectFit: "cover",
-              display: "block"
+              height: "100%",
+              objectFit: "cover"
             }}
           />
 
           <div
             style={{
               position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
+              inset: 0,
               background:
                 "rgba(0,0,0,0.45)",
               display: "flex",
@@ -227,8 +259,7 @@ function BillPage() {
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
-              padding: "20px",
-              boxSizing: "border-box"
+              padding: "20px"
             }}
           >
 
@@ -236,8 +267,8 @@ function BillPage() {
               style={{
                 color: "white",
                 fontSize:
-                  "clamp(32px,5vw,60px)",
-                marginBottom: "15px"
+                  "clamp(35px,5vw,65px)",
+                marginBottom: "10px"
               }}
             >
               Friends Auto Mobile
@@ -247,26 +278,25 @@ function BillPage() {
               style={{
                 color: "white",
                 fontSize:
-                  "clamp(16px,2vw,28px)"
+                  "clamp(18px,2vw,28px)"
               }}
             >
-              Engine Spare Parts Billing
-              System
+              Engine Spare Parts Billing System
             </p>
 
           </div>
 
         </div>
 
-        {/* BILL SECTION */}
+        {/* BILL CARD */}
 
         <div
           style={{
             backgroundColor: "white",
             borderRadius: "25px",
-            padding: "25px",
+            padding: "30px",
             boxShadow:
-              "0 5px 15px rgba(0,0,0,0.08)"
+              "0 5px 20px rgba(0,0,0,0.08)"
           }}
         >
 
@@ -276,7 +306,7 @@ function BillPage() {
               color: "#0d47a1",
               marginBottom: "30px",
               fontSize:
-                "clamp(32px,5vw,55px)"
+                "clamp(35px,5vw,55px)"
             }}
           >
             Billing Management
@@ -288,9 +318,9 @@ function BillPage() {
             style={{
               display: "grid",
               gridTemplateColumns:
-                "repeat(auto-fit,minmax(220px,1fr))",
+                "repeat(auto-fit,minmax(250px,1fr))",
               gap: "20px",
-              marginBottom: "25px"
+              marginBottom: "20px"
             }}
           >
 
@@ -308,27 +338,11 @@ function BillPage() {
 
             <select
               value={selectedProduct}
-              onChange={(e) => {
-
-                setSelectedProduct(
+              onChange={(e) =>
+                handleProductChange(
                   e.target.value
-                );
-
-                const product =
-                  products.find(
-                    (p) =>
-                      p.productName ===
-                      e.target.value
-                  );
-
-                if (product) {
-
-                  setPercentage(
-                    product.defaultPercentage
-                  );
-                }
-
-              }}
+                )
+              }
               style={inputStyle}
             >
 
@@ -357,7 +371,7 @@ function BillPage() {
               value={quantity}
               onChange={(e) =>
                 setQuantity(
-                  e.target.value
+                  Number(e.target.value)
                 )
               }
               style={inputStyle}
@@ -396,7 +410,8 @@ function BillPage() {
             <table
               style={{
                 width: "100%",
-                borderCollapse: "collapse",
+                borderCollapse:
+                  "collapse",
                 minWidth: "700px"
               }}
             >
@@ -457,20 +472,21 @@ function BillPage() {
                       <td style={tableCell}>
                         {
                           item.percentage
-                        }%
+                        }
+                        %
                       </td>
 
                       <td style={tableCell}>
                         ₹
-                        {item.price.toFixed(
-                          0
+                        {Math.round(
+                          item.price
                         )}
                       </td>
 
                       <td style={tableCell}>
                         ₹
-                        {item.total.toFixed(
-                          0
+                        {Math.round(
+                          item.total
                         )}
                       </td>
 
@@ -489,9 +505,9 @@ function BillPage() {
 
           <div
             style={{
-              marginTop: "30px",
+              marginTop: "40px",
               backgroundColor:
-                "#f4f7fb",
+                "#eef3f9",
               padding: "25px",
               borderRadius: "20px"
             }}
@@ -521,29 +537,23 @@ function BillPage() {
               }}
             />
 
-            <h3>
-              Subtotal :
-              ₹
-              {subtotal.toFixed(0)}
-            </h3>
+            <h2>
+              Subtotal : ₹
+              {Math.round(subtotal)}
+            </h2>
 
-            <h3>
-              Final Amount :
-              ₹
-              {subtotal.toFixed(0)}
-            </h3>
-
-            <h3>
-              Balance :
-              ₹
-              {balance.toFixed(0)}
-            </h3>
+            <h2>
+              Balance : ₹
+              {Math.round(
+                balanceAmount
+              )}
+            </h2>
 
             <button
               onClick={saveBill}
               style={{
                 ...buttonStyle,
-                marginTop: "15px"
+                marginTop: "20px"
               }}
             >
               Save Bill
@@ -559,12 +569,10 @@ function BillPage() {
   );
 }
 
-/* STYLES */
-
 const inputStyle = {
 
   width: "100%",
-  padding: "14px",
+  padding: "15px",
   borderRadius: "12px",
   border: "1px solid #ccc",
   fontSize: "16px",
@@ -580,24 +588,22 @@ const buttonStyle = {
   padding: "14px 24px",
   borderRadius: "12px",
   fontSize: "16px",
-  cursor: "pointer",
-  fontWeight: "600"
+  fontWeight: "bold",
+  cursor: "pointer"
 
 };
 
 const tableHeader = {
 
   padding: "16px",
-  textAlign: "left",
-  fontSize: "16px"
+  textAlign: "left"
 
 };
 
 const tableCell = {
 
-  padding: "14px",
-  borderBottom: "1px solid #ddd",
-  fontSize: "15px"
+  padding: "16px",
+  borderBottom: "1px solid #ddd"
 
 };
 
