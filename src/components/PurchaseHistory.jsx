@@ -14,7 +14,7 @@ function PurchaseHistory() {
     try {
 
       const response = await axios.get(
-        "http://localhost:8080/bills"
+        "https://friends-auto-backend-1utc.onrender.com/Bills"
       );
 
       setBills(response.data);

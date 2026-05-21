@@ -28,9 +28,7 @@ function BillPage() {
   useEffect(() => {
 
     // CUSTOMERS
-    fetch(
-      "https://friends-auto-backend.onrender.com/customers"
-    )
+    fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
         setCustomers(data);
@@ -38,9 +36,7 @@ function BillPage() {
       .catch((err) => console.log(err));
 
     // PRODUCTS
-    fetch(
-      "https://friends-auto-backend.onrender.com/products"
-    )
+    fetch("https://friends-auto-backend-1utc.onrender.com/products")
       .then((res) => res.json())
       .then((data) => {
         console.log("PRODUCTS:", data);
