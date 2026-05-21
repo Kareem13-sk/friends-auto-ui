@@ -1,10 +1,19 @@
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
+  const location = useLocation();
 
-  const menuStyle = ({ isActive }) => ({
-    background: isActive ? "white" : "#2d5fb7",
-    color: isActive ? "#0d47a1" : "white",
+  const menuStyle = (path) => ({
+    background:
+      location.pathname === path
+        ? "white"
+        : "#2d5fb7",
+
+    color:
+      location.pathname === path
+        ? "#0d47a1"
+        : "white",
+
     padding: "18px",
     borderRadius: "18px",
     textDecoration: "none",
@@ -12,82 +21,78 @@ function Sidebar() {
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: "18px",
-    transition: "0.3s"
+    display: "block",
+    transition: "0.3s ease",
   });
 
   return (
     <div
       style={{
         width: "280px",
+        height: "100vh",
+        overflowY: "auto",
+        position: "fixed",
+        left: 0,
+        top: 0,
         background:
-          "linear-gradient(to bottom,#0d47a1,#003380)",
-        minHeight: "100vh",
+          "linear-gradient(to bottom,#0d47a1,#003b8e)",
         padding: "30px 20px",
         boxSizing: "border-box",
-        position: "sticky",
-        top: 0
       }}
     >
-
       <h1
         style={{
           color: "white",
           textAlign: "center",
-          marginBottom: "40px",
-          fontSize: "38px"
+          fontSize: "58px",
+          lineHeight: "1.1",
+          marginBottom: "50px",
+          fontWeight: "bold",
         }}
       >
-        Friends Auto
+        Friends
+        <br />
+        Auto
       </h1>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column"
-        }}
+      <Link to="/" style={menuStyle("/")}>
+        Dashboard
+      </Link>
+
+      <Link
+        to="/customers"
+        style={menuStyle("/customers")}
       >
+        Customers
+      </Link>
 
-        <NavLink to="/" style={menuStyle}>
-          Dashboard
-        </NavLink>
+      <Link
+        to="/products"
+        style={menuStyle("/products")}
+      >
+        Products
+      </Link>
 
-        <NavLink
-          to="/customers"
-          style={menuStyle}
-        >
-          Customers
-        </NavLink>
+      <Link
+        to="/billing"
+        style={menuStyle("/billing")}
+      >
+        Billing
+      </Link>
 
-        <NavLink
-          to="/products"
-          style={menuStyle}
-        >
-          Products
-        </NavLink>
+      <Link
+        to="/history"
+        style={menuStyle("/history")}
+      >
+        Purchase History
+      </Link>
 
-        <NavLink
-          to="/billing"
-          style={menuStyle}
-        >
-          Billing
-        </NavLink>
-
-        <NavLink
-          to="/history"
-          style={menuStyle}
-        >
-          Purchase History
-        </NavLink>
-
-        <NavLink
-          to="/customer-details"
-          style={menuStyle}
-        >
-          Customer Details
-        </NavLink>
-
-      </div>
-
+      <Link
+        to="/customer-details"
+        style={menuStyle("/customer-details")}
+      >
+        Customer Details
+      </Link>
     </div>
   );
 }

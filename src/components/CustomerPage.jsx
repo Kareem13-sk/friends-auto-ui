@@ -1,383 +1,302 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-import pistonImg from "../assets/piston.jpg";
 
 function CustomerPage() {
-
   const [customers, setCustomers] = useState([]);
 
-  const [customerName, setCustomerName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [search, setSearch] = useState("");
+
+  const [editIndex, setEditIndex] = useState(null);
 
   useEffect(() => {
-    fetchCustomers();
+    const savedCustomers =
+      JSON.parse(localStorage.getItem("customers")) || [];
+
+    setCustomers(savedCustomers);
   }, []);
 
-  const fetchCustomers = async () => {
+  const saveCustomers = (updatedCustomers) => {
+    setCustomers(updatedCustomers);
 
-    try {
-
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/customers"
-      );
-
-      setCustomers(response.data);
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
+    localStorage.setItem(
+      "customers",
+      JSON.stringify(updatedCustomers)
+    );
   };
 
-  const addCustomer = async () => {
-
-    if (!customerName || !phoneNumber) {
-
+  // ADD OR UPDATE CUSTOMER
+  const handleSubmit = () => {
+    if (!name || !phone || !address) {
       alert("Please fill all fields");
       return;
     }
 
-    const customerData = {
-      customerName,
-      phoneNumber,
-      address,
-    };
+    // UPDATE
+    if (editIndex !== null) {
+      const updatedCustomers = [...customers];
 
-    try {
+      updatedCustomers[editIndex] = {
+        name,
+        phone,
+        address
+      };
 
-      await axios.post(
-        "https://friends-auto-backend-1utc.onrender.com/customers",
-        customerData
-      );
+      saveCustomers(updatedCustomers);
 
-      alert("Customer Added");
+      setEditIndex(null);
+    } else {
+      // ADD
+      const newCustomer = {
+        name,
+        phone,
+        address
+      };
 
-      setCustomerName("");
-      setPhoneNumber("");
-      setAddress("");
+      const updatedCustomers = [
+        ...customers,
+        newCustomer
+      ];
 
-      fetchCustomers();
-
-    } catch (error) {
-
-      console.log(error);
-
+      saveCustomers(updatedCustomers);
     }
+
+    setName("");
+    setPhone("");
+    setAddress("");
   };
 
-  const deleteCustomer = async (id) => {
+  // EDIT CUSTOMER
+  const handleEdit = (customer, index) => {
+    setName(customer.name);
+    setPhone(customer.phone);
+    setAddress(customer.address);
 
-    try {
-
-      await axios.delete(
-        `https://friends-auto-backend-1utc.onrender.com/customers/${id}`
-      );
-
-      fetchCustomers();
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
+    setEditIndex(index);
   };
 
-  const filteredCustomers = customers.filter((customer) =>
-    customer.customerName
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // DELETE CUSTOMER
+  const handleDelete = (index) => {
+    const updatedCustomers =
+      customers.filter((_, i) => i !== index);
+
+    saveCustomers(updatedCustomers);
+  };
 
   return (
-
     <div
       style={{
         background: "#eef3f9",
-        minHeight: "100vh",
         padding: "20px",
-        overflowX: "hidden",
+        borderRadius: "10px",
+        minHeight: "100vh"
       }}
     >
-
-      <div
+      {/* TITLE */}
+      <h1
         style={{
-          maxWidth: "1400px",
-          margin: "0 auto",
+          textAlign: "center",
+          color: "#0d47a1",
+          fontSize: "50px",
+          marginBottom: "30px"
         }}
       >
+        Customers
+      </h1>
 
-        {/* HERO IMAGE */}
-
+      {/* FORM */}
+      <div
+        style={{
+          background: "white",
+          padding: "30px",
+          borderRadius: "20px",
+          marginBottom: "30px"
+        }}
+      >
         <div
           style={{
-            position: "relative",
-            width: "100%",
-            height: "320px",
-            borderRadius: "25px",
-            overflow: "hidden",
-            marginBottom: "30px",
-            boxShadow: "0 5px 20px rgba(0,0,0,0.15)",
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(3, 1fr)",
+            gap: "20px"
           }}
         >
-
-          <img
-            src={pistonImg}
-            alt="customer"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+          <input
+            type="text"
+            placeholder="Customer Name"
+            value={name}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
+            style={inputStyle}
           />
 
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(0,0,0,0.45)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-              padding: "20px",
-            }}
-          >
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={phone}
+            onChange={(e) =>
+              setPhone(e.target.value)
+            }
+            style={inputStyle}
+          />
 
-            <h1
-              style={{
-                color: "white",
-                fontSize: "60px",
-                marginBottom: "10px",
-              }}
-            >
-              Customer Management
-            </h1>
-
-            <p
-              style={{
-                color: "white",
-                fontSize: "24px",
-              }}
-            >
-              Engine Spare Parts Customers
-            </p>
-
-          </div>
-
+          <input
+            type="text"
+            placeholder="Address"
+            value={address}
+            onChange={(e) =>
+              setAddress(e.target.value)
+            }
+            style={inputStyle}
+          />
         </div>
 
-        {/* MAIN CARD */}
-
-        <div
-          style={{
-            background: "white",
-            borderRadius: "25px",
-            padding: "30px",
-            boxShadow: "0 5px 20px rgba(0,0,0,0.08)",
-          }}
+        <button
+          onClick={handleSubmit}
+          style={buttonStyle}
         >
-
-          <h2
-            style={{
-              textAlign: "center",
-              color: "#0d47a1",
-              fontSize: "45px",
-              marginBottom: "30px",
-            }}
-          >
-            Customers
-          </h2>
-
-          {/* FORM */}
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit,minmax(250px,1fr))",
-              gap: "20px",
-              marginBottom: "20px",
-            }}
-          >
-
-            <input
-              type="text"
-              placeholder="Customer Name"
-              value={customerName}
-              onChange={(e) =>
-                setCustomerName(e.target.value)
-              }
-              style={inputStyle}
-            />
-
-            <input
-              type="text"
-              placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) =>
-                setPhoneNumber(e.target.value)
-              }
-              style={inputStyle}
-            />
-
-            <input
-              type="text"
-              placeholder="Address"
-              value={address}
-              onChange={(e) =>
-                setAddress(e.target.value)
-              }
-              style={inputStyle}
-            />
-
-          </div>
-
-          <button
-            onClick={addCustomer}
-            style={buttonStyle}
-          >
-            Add Customer
-          </button>
-
-          {/* SEARCH */}
-
-          <div style={{ marginTop: "30px" }}>
-
-            <input
-              type="text"
-              placeholder="Search Customer"
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              style={inputStyle}
-            />
-
-          </div>
-
-          {/* TABLE */}
-
-          <div
-            style={{
-              overflowX: "auto",
-              marginTop: "30px",
-            }}
-          >
-
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-              }}
-            >
-
-              <thead>
-
-                <tr
-                  style={{
-                    background: "#0d47a1",
-                    color: "white",
-                  }}
-                >
-
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Phone</th>
-                  <th style={thStyle}>Address</th>
-                  <th style={thStyle}>Action</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {filteredCustomers.map((customer) => (
-
-                  <tr key={customer.id}>
-
-                    <td style={tdStyle}>
-                      {customer.customerName}
-                    </td>
-
-                    <td style={tdStyle}>
-                      {customer.phoneNumber}
-                    </td>
-
-                    <td style={tdStyle}>
-                      {customer.address}
-                    </td>
-
-                    <td style={tdStyle}>
-
-                      <button
-                        onClick={() =>
-                          deleteCustomer(customer.id)
-                        }
-                        style={{
-                          background: "red",
-                          color: "white",
-                          border: "none",
-                          padding: "10px 18px",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Delete
-                      </button>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
+          {editIndex !== null
+            ? "Update Customer"
+            : "Add Customer"}
+        </button>
       </div>
 
+      {/* TABLE */}
+      <div
+        style={{
+          background: "white",
+          padding: "30px",
+          borderRadius: "20px"
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse"
+          }}
+        >
+          <thead>
+            <tr
+              style={{
+                background: "#0d47a1",
+                color: "white"
+              }}
+            >
+              <th style={thStyle}>Name</th>
+              <th style={thStyle}>Phone</th>
+              <th style={thStyle}>Address</th>
+              <th style={thStyle}>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {customers.map((customer, index) => (
+              <tr key={index}>
+                <td style={tdStyle}>
+                  {customer.name}
+                </td>
+
+                <td style={tdStyle}>
+                  {customer.phone}
+                </td>
+
+                <td style={tdStyle}>
+                  {customer.address}
+                </td>
+
+                <td style={tdStyle}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        handleEdit(customer, index)
+                      }
+                      style={{
+                        background: "#1565c0",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "6px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDelete(index)
+                      }
+                      style={{
+                        background: "#d32f2f",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "6px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* FOOTER */}
+      <div
+        style={{
+          background: "#0d47a1",
+          color: "white",
+          textAlign: "center",
+          padding: "15px",
+          marginTop: "30px",
+          borderRadius: "10px"
+        }}
+      >
+        © 2026 Friends Auto Mobile | All Rights Reserved
+      </div>
     </div>
   );
 }
 
 const inputStyle = {
-  width: "100%",
   padding: "15px",
-  borderRadius: "12px",
+  borderRadius: "10px",
   border: "1px solid #ccc",
-  fontSize: "16px",
-  boxSizing: "border-box",
+  fontSize: "18px"
 };
 
 const buttonStyle = {
+  marginTop: "20px",
   background: "#1565c0",
   color: "white",
   border: "none",
-  padding: "14px 25px",
-  borderRadius: "12px",
-  fontSize: "16px",
-  cursor: "pointer",
-  fontWeight: "bold",
+  padding: "12px 20px",
+  borderRadius: "10px",
+  fontSize: "18px",
+  cursor: "pointer"
 };
 
 const thStyle = {
-  padding: "16px",
-  textAlign: "left",
+  padding: "15px",
+  fontSize: "20px"
 };
 
 const tdStyle = {
-  padding: "16px",
+  padding: "15px",
+  textAlign: "center",
   borderBottom: "1px solid #ddd",
+  fontSize: "18px"
 };
 
 export default CustomerPage;
