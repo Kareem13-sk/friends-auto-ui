@@ -37,10 +37,10 @@ function CustomerPage() {
       const updatedCustomers = [...customers];
 
       updatedCustomers[editIndex] = {
-        name,
-        phone,
-        address
-      };
+  customerName: name,
+  phone,
+  address
+};
 
       saveCustomers(updatedCustomers);
 
@@ -48,11 +48,10 @@ function CustomerPage() {
     } else {
       // ADD
       const newCustomer = {
-        name,
-        phone,
-        address
-      };
-
+  customerName: name,
+  phone,
+  address
+};
       const updatedCustomers = [
         ...customers,
         newCustomer
@@ -68,7 +67,7 @@ function CustomerPage() {
 
   // EDIT CUSTOMER
   const handleEdit = (customer, index) => {
-    setName(customer.name);
+    setName(customer.customerName);
     setPhone(customer.phone);
     setAddress(customer.address);
 
@@ -194,7 +193,7 @@ function CustomerPage() {
             {customers.map((customer, index) => (
               <tr key={index}>
                 <td style={tdStyle}>
-                  {customer.name}
+                  {customer.customerName}
                 </td>
 
                 <td style={tdStyle}>
