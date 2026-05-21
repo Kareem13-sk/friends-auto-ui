@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 function BillPage() {
+
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -20,35 +21,38 @@ function BillPage() {
 
   const [billItems, setBillItems] = useState([]);
 
-  const [paidAmount, setPaidAmount] = useState("");
+  const [paidAmount, setPaidAmount] =
+    useState("");
 
-  // LOAD DATA
+  // LOAD CUSTOMERS + PRODUCTS
   useEffect(() => {
-    const savedCustomers =
-      JSON.parse(localStorage.getItem("customers")) ||
-      [];
 
-    setCustomers(savedCustomers);
-
-    const savedProducts =
-      JSON.parse(localStorage.getItem("products")) ||
-      [];
-
-    setProducts(savedProducts);
-    console.log(savedProducts);
-
-    fetch("https://friends-auto-backend.onrender.com/products")
+    // CUSTOMERS
+    fetch(
+      "https://friends-auto-backend.onrender.com/customers"
+    )
       .then((res) => res.json())
       .then((data) => {
-        if (data && data.length > 0) {
-          setProducts(data);
-        }
+        setCustomers(data);
       })
       .catch((err) => console.log(err));
+
+    // PRODUCTS
+    fetch(
+      "https://friends-auto-backend.onrender.com/products"
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("PRODUCTS:", data);
+        setProducts(data);
+      })
+      .catch((err) => console.log(err));
+
   }, []);
 
   // CUSTOMER AUTO SUGGESTION
   const handleCustomerChange = (e) => {
+
     const value = e.target.value;
 
     setCustomerName(value);
@@ -58,10 +62,15 @@ function BillPage() {
       return;
     }
 
-    const filtered = customers.filter((customer) =>
-      customer.customerName
-        ?.toLowerCase()
-        .includes(value.toLowerCase())
+    const filtered = customers.filter(
+      (customer) =>
+        (
+          customer.customerName ||
+          customer.name ||
+          ""
+        )
+          .toLowerCase()
+          .includes(value.toLowerCase())
     );
 
     setFilteredCustomers(filtered);
@@ -69,6 +78,7 @@ function BillPage() {
 
   // ADD BILL ITEM
   const addItem = () => {
+
     if (!customerName) {
       alert("Enter Customer Name");
       return;
@@ -80,14 +90,13 @@ function BillPage() {
     }
 
     const product = products.find(
-  (p) =>
-    (
-      p.productName ||
-      p.name ||
-      p.product ||
-      ""
-    ) === selectedProduct
-);
+      (p) =>
+        (
+          p.productName ||
+          p.name ||
+          ""
+        ) === selectedProduct
+    );
 
     if (!product) {
       alert("Product not found");
@@ -101,7 +110,6 @@ function BillPage() {
     const productPrice =
       Number(product.price) || 0;
 
-    // DISCOUNT
     const discountAmount =
       productPrice * (percent / 100);
 
@@ -112,15 +120,21 @@ function BillPage() {
 
     const newItem = {
       product:
-        product.productName || product.name,
+        product.productName ||
+        product.name,
+
       qty,
+
       percentage: percent,
+
       price: finalPrice,
+
       total
     };
 
     setBillItems([...billItems, newItem]);
 
+    // RESET
     setSelectedProduct("");
     setQuantity(1);
     setPercentage("");
@@ -143,7 +157,7 @@ function BillPage() {
         padding: "20px"
       }}
     >
-      {/* PAGE TITLE */}
+
       <h1
         style={{
           textAlign: "center",
@@ -165,6 +179,7 @@ function BillPage() {
           position: "relative"
         }}
       >
+
         <div
           style={{
             display: "grid",
@@ -173,8 +188,10 @@ function BillPage() {
             gap: "15px"
           }}
         >
-          {/* CUSTOMER NAME */}
+
+          {/* CUSTOMER */}
           <div style={{ position: "relative" }}>
+
             <input
               type="text"
               placeholder="Customer Name"
@@ -183,7 +200,7 @@ function BillPage() {
               style={inputStyle}
             />
 
-            {/* AUTOSUGGESTION */}
+            {/* SUGGESTION */}
             {filteredCustomers.length > 0 && (
               <div
                 style={{
@@ -198,13 +215,17 @@ function BillPage() {
                   zIndex: 1000
                 }}
               >
+
                 {filteredCustomers.map(
                   (customer, index) => (
+
                     <div
                       key={index}
                       onClick={() => {
+
                         setCustomerName(
-                          customer.customerName
+                          customer.customerName ||
+                          customer.name
                         );
 
                         setFilteredCustomers([]);
@@ -216,12 +237,15 @@ function BillPage() {
                           "1px solid #eee"
                       }}
                     >
-                      {customer.customerName}
+                      {customer.customerName ||
+                        customer.name}
                     </div>
                   )
                 )}
+
               </div>
             )}
+
           </div>
 
           {/* PRODUCT DROPDOWN */}
@@ -234,30 +258,29 @@ function BillPage() {
             }
             style={inputStyle}
           >
+
             <option value="">
               Select Product
             </option>
 
-           {products.map((product, index) => {
+            {products.map((product, index) => (
 
-  const productValue =
-    product.productName ||
-    product.name ||
-    product.product ||
-    "";
+              <option
+                key={index}
+                value={
+                  product.productName ||
+                  product.name
+                }
+              >
+                {product.productName ||
+                  product.name}
+              </option>
 
-  return (
-    <option
-      key={index}
-      value={productValue}
-    >
-      {productValue}
-    </option>
-  );
-})}
+            ))}
+
           </select>
 
-          {/* QUANTITY */}
+          {/* QTY */}
           <input
             type="number"
             value={quantity}
@@ -277,15 +300,16 @@ function BillPage() {
             }
             style={inputStyle}
           />
+
         </div>
 
-        {/* BUTTON */}
         <button
           onClick={addItem}
           style={buttonStyle}
         >
           Add Item
         </button>
+
       </div>
 
       {/* TABLE */}
@@ -297,12 +321,14 @@ function BillPage() {
           marginBottom: "25px"
         }}
       >
+
         <table
           style={{
             width: "100%",
             borderCollapse: "collapse"
           }}
         >
+
           <thead>
             <tr
               style={{
@@ -319,8 +345,10 @@ function BillPage() {
           </thead>
 
           <tbody>
+
             {billItems.map((item, index) => (
               <tr key={index}>
+
                 <td style={tdStyle}>
                   {item.product}
                 </td>
@@ -340,13 +368,17 @@ function BillPage() {
                 <td style={tdStyle}>
                   ₹{item.total}
                 </td>
+
               </tr>
             ))}
+
           </tbody>
+
         </table>
+
       </div>
 
-      {/* BILL SUMMARY */}
+      {/* SUMMARY */}
       <div
         style={{
           background: "white",
@@ -354,6 +386,7 @@ function BillPage() {
           borderRadius: "20px"
         }}
       >
+
         <h2
           style={{
             color: "#0d47a1",
@@ -380,7 +413,9 @@ function BillPage() {
         <h2>Subtotal : ₹{subtotal}</h2>
 
         <h2>Balance : ₹{balance}</h2>
+
       </div>
+
     </div>
   );
 }
