@@ -35,6 +35,10 @@ function BillPage() {
       [];
 
     setProducts(savedProducts);
+    fetch("https://friends-auto-backend.onrender.com/products")
+  .then((res) => res.json())
+  .then((data) => setProducts(data))
+  .catch((err) => console.log(err));
   }, []);
 
   // CUSTOMER AUTO SUGGESTION
@@ -70,8 +74,8 @@ function BillPage() {
     }
 
     const product = products.find(
-      (p) => p.name === selectedProduct
-    );
+  (p) => p.productName === selectedProduct
+);
 
     if (!product) {
       alert("Product not found");
@@ -184,7 +188,7 @@ function BillPage() {
                       key={index}
                       onClick={() => {
                         setCustomerName(
-                          customer.name
+                          customer.customerName
                         );
 
                         setFilteredCustomers([]);
@@ -217,15 +221,15 @@ function BillPage() {
             <option value="">
               Select Product
             </option>
+            {products.map((product) => (
+  <option
+    key={product.id}
+    value={product.productName}
+  >
+    {product.productName}
+  </option>
+))}
 
-            {products.map((product, index) => (
-              <option
-                key={index}
-                value={product.name}
-              >
-                {product.name}
-              </option>
-            ))}
           </select>
 
           {/* QUANTITY */}

@@ -1,9 +1,32 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import engineBanner from "../assets/engine-banner.jpg";
 
 function Dashboard() {
 
+  const [customers, setCustomers] = useState([]);
+const [products, setProducts] = useState([]);
+const [bills, setBills] = useState([]);
+
   const navigate = useNavigate();
+  useEffect(() => {
+
+  fetch("https://friends-auto-backend.onrender.com/customers")
+    .then((res) => res.json())
+    .then((data) => setCustomers(data))
+    .catch((err) => console.log(err));
+
+  fetch("https://friends-auto-backend.onrender.com/products")
+    .then((res) => res.json())
+    .then((data) => setProducts(data))
+    .catch((err) => console.log(err));
+
+  fetch("https://friends-auto-backend.onrender.com/bills")
+    .then((res) => res.json())
+    .then((data) => setBills(data))
+    .catch((err) => console.log(err));
+
+}, []);
 
   return (
     <div>
@@ -82,7 +105,7 @@ function Dashboard() {
         >
           <h2>Total Customers</h2>
 
-          <h1>0</h1>
+          <h1>{customers.length}</h1>
 
           <p>Click to view customers list</p>
         </div>
@@ -95,7 +118,7 @@ function Dashboard() {
         >
           <h2>Total Products</h2>
 
-          <h1>4</h1>
+          <h1>{products.length}</h1>
 
           <p>Click to view products</p>
         </div>
@@ -108,7 +131,7 @@ function Dashboard() {
         >
           <h2>Total Bills</h2>
 
-          <h1>8</h1>
+          <h1>{bills.length}</h1>
 
           <p>Click to view bills history</p>
         </div>
