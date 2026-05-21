@@ -35,10 +35,15 @@ function BillPage() {
       [];
 
     setProducts(savedProducts);
+
     fetch("https://friends-auto-backend.onrender.com/products")
-  .then((res) => res.json())
-  .then((data) => setProducts(data))
-  .catch((err) => console.log(err));
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   // CUSTOMER AUTO SUGGESTION
@@ -53,8 +58,8 @@ function BillPage() {
     }
 
     const filtered = customers.filter((customer) =>
-      customer.name
-        .toLowerCase()
+      customer.customerName
+        ?.toLowerCase()
         .includes(value.toLowerCase())
     );
 
@@ -74,8 +79,10 @@ function BillPage() {
     }
 
     const product = products.find(
-  (p) => p.productName === selectedProduct
-);
+      (p) =>
+        (p.productName || p.name) ===
+        selectedProduct
+    );
 
     if (!product) {
       alert("Product not found");
@@ -86,17 +93,21 @@ function BillPage() {
 
     const percent = Number(percentage || 0);
 
+    const productPrice =
+      Number(product.price) || 0;
+
     // DISCOUNT
     const discountAmount =
-      product.price * (percent / 100);
+      productPrice * (percent / 100);
 
     const finalPrice =
-      product.price - discountAmount;
+      productPrice - discountAmount;
 
     const total = finalPrice * qty;
 
     const newItem = {
-      product: product.name,
+      product:
+        product.productName || product.name,
       qty,
       percentage: percent,
       price: finalPrice,
@@ -200,7 +211,7 @@ function BillPage() {
                           "1px solid #eee"
                       }}
                     >
-                      {customer.name}
+                      {customer.customerName}
                     </div>
                   )
                 )}
@@ -221,15 +232,19 @@ function BillPage() {
             <option value="">
               Select Product
             </option>
-            {products.map((product) => (
-  <option
-    key={product.id}
-    value={product.productName}
-  >
-    {product.productName}
-  </option>
-))}
 
+            {products.map((product, index) => (
+              <option
+                key={index}
+                value={
+                  product.productName ||
+                  product.name
+                }
+              >
+                {product.productName ||
+                  product.name}
+              </option>
+            ))}
           </select>
 
           {/* QUANTITY */}
