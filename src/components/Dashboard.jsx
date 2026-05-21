@@ -1,141 +1,130 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import engineBanner from "../assets/engine-banner.jpg";
 
 function Dashboard() {
-
   const navigate = useNavigate();
+
+  const [customers, setCustomers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [bills, setBills] = useState([]);
+
+  useEffect(() => {
+    fetch("https://friends-auto-backend.onrender.com/customers")
+      .then((res) => res.json())
+      .then((data) => setCustomers(data))
+      .catch((err) => console.log(err));
+
+    fetch("https://friends-auto-backend.onrender.com/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => console.log(err));
+
+    fetch("https://friends-auto-backend.onrender.com/bills")
+      .then((res) => res.json())
+      .then((data) => setBills(data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  const cardStyle = {
+    background: "linear-gradient(135deg,#1565c0,#0d47a1)",
+    borderRadius: "24px",
+    padding: "30px",
+    color: "white",
+    width: "320px",
+    cursor: "pointer",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+    textAlign: "center"
+  };
 
   return (
     <div>
-
-      {/* HERO SECTION */}
+      <div
+        style={{
+          background: "white",
+          padding: "20px",
+          textAlign: "center",
+          fontSize: "60px",
+          fontWeight: "bold",
+          color: "#0d47a1"
+        }}
+      >
+        Friends Auto Mobile
+      </div>
 
       <div
         style={{
-          position: "relative",
-          borderRadius: "25px",
-          overflow: "hidden",
-          marginBottom: "35px",
-          boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+          marginTop: "20px",
+          borderRadius: "30px",
+          overflow: "hidden"
         }}
       >
         <img
-          src={engineBanner}
-          alt="Engine"
+          src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?q=80&w=1600&auto=format&fit=crop"
+          alt=""
           style={{
             width: "100%",
-            height: "320px",
-            objectFit: "cover",
+            height: "420px",
+            objectFit: "cover"
           }}
         />
-
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            color: "white",
-            textAlign: "center",
-            padding: "20px",
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "60px",
-              fontWeight: "bold",
-              marginBottom: "10px",
-            }}
-          >
-            Friends Auto Mobile
-          </h1>
-
-          <p
-            style={{
-              fontSize: "28px",
-            }}
-          >
-            Engine Spare Parts Billing & Inventory Management
-          </p>
-        </div>
       </div>
-
-      {/* DASHBOARD CARDS */}
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(280px,1fr))",
+          display: "flex",
           gap: "30px",
+          marginTop: "40px",
+          flexWrap: "wrap"
         }}
       >
-
-        {/* CUSTOMERS */}
-
         <div
-          onClick={() => navigate("/customers")}
           style={cardStyle}
+          onClick={() => navigate("/customers")}
         >
           <h2>Total Customers</h2>
 
-          <h1>0</h1>
+          <h1>{customers.length}</h1>
 
           <p>Click to view customers list</p>
         </div>
 
-        {/* PRODUCTS */}
-
         <div
-          onClick={() => navigate("/products")}
           style={cardStyle}
+          onClick={() => navigate("/products")}
         >
           <h2>Total Products</h2>
 
-          <h1>4</h1>
+          <h1>{products.length}</h1>
 
           <p>Click to view products</p>
         </div>
 
-        {/* BILLS */}
-
         <div
-          onClick={() => navigate("/history")}
           style={cardStyle}
+          onClick={() => navigate("/history")}
         >
           <h2>Total Bills</h2>
 
-          <h1>8</h1>
+          <h1>{bills.length}</h1>
 
           <p>Click to view bills history</p>
         </div>
-
       </div>
 
+      <div
+        style={{
+          marginTop: "40px",
+          background: "#0d47a1",
+          color: "white",
+          textAlign: "center",
+          padding: "20px",
+          borderRadius: "10px"
+        }}
+      >
+        © 2026 Friends Auto Mobile | All Rights Reserved
+      </div>
     </div>
   );
 }
-
-const cardStyle = {
-  background:
-    "linear-gradient(to right,#1565c0,#0d47a1)",
-
-  borderRadius: "25px",
-
-  padding: "40px",
-
-  color: "white",
-
-  textAlign: "center",
-
-  cursor: "pointer",
-
-  transition: "0.3s",
-
-  boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-};
 
 export default Dashboard;
