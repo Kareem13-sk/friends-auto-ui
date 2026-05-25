@@ -4,7 +4,7 @@ function PurchaseHistory() {
 
   const [bills, setBills] = useState([]);
 
-  // LOAD BILLS FROM LOCAL STORAGE
+  // LOAD BILLS
   useEffect(() => {
 
     const savedBills =
@@ -64,107 +64,286 @@ function PurchaseHistory() {
     setBills(updatedBills);
   };
 
-  // DOWNLOAD BILL
- const downloadBill = (bill) => {
+  // DOWNLOAD / PRINT BILL
+  const downloadBill = (bill) => {
 
-  let rows = "";
+    let rows = "";
 
-  bill.items?.forEach((item) => {
+    bill.items?.forEach((item) => {
 
-    rows += `
-      <tr>
-        <td>${item.product}</td>
-        <td>${item.qty}</td>
-        <td>₹${item.actualPrice}</td>
-        <td>₹${item.price}</td>
-        <td>₹${item.total}</td>
-      </tr>
-    `;
-  });
+      rows += `
+        <tr>
+          <td>${item.product}</td>
+          <td>${item.qty}</td>
+          <td>₹${item.actualPrice}</td>
+          <td>₹${item.price}</td>
+          <td>₹${item.total}</td>
+        </tr>
+      `;
+    });
 
-  const billWindow = window.open("", "_blank");
+    const billWindow = window.open("", "_blank");
 
-  billWindow.document.write(`
+    billWindow.document.write(`
+
     <html>
-      <head>
-        <title>Invoice</title>
 
-        <style>
+    <head>
 
-          body{
-            font-family: Arial;
-            padding: 30px;
-          }
+      <title>Invoice</title>
 
-          h1{
-            text-align:center;
-            color:#0d47a1;
-          }
+      <style>
 
-          table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:20px;
-          }
+        body{
+          background:#f3f6fb;
+          padding:30px;
+          font-family:Arial,sans-serif;
+        }
 
-          th, td{
-            border:1px solid #ddd;
-            padding:12px;
-            text-align:center;
-          }
+        .invoice{
+          max-width:900px;
+          margin:auto;
+          background:white;
+          border-radius:25px;
+          padding:50px;
+          position:relative;
+          overflow:hidden;
+          border:4px solid #0d47a1;
+          box-shadow:0 10px 30px rgba(0,0,0,0.15);
+        }
 
-          th{
-            background:#0d47a1;
-            color:white;
-          }
+        .invoice::before{
+          content:"";
+          position:absolute;
+          top:50%;
+          left:50%;
+          transform:translate(-50%,-50%);
+          width:450px;
+          height:450px;
 
-        </style>
+          background-image:url('https://cdn-icons-png.flaticon.com/512/741/741407.png');
 
-      </head>
+          background-repeat:no-repeat;
+          background-size:contain;
 
-      <body>
+          opacity:0.05;
 
-        <h1>Friends Auto Mobile</h1>
+          z-index:0;
+        }
 
-        <h2>Customer : ${bill.customerName}</h2>
+        .flower1,
+        .flower2,
+        .flower3,
+        .flower4{
+          position:absolute;
+          width:170px;
+          z-index:1;
+        }
 
-        <h3>Total : ₹${bill.totalAmount}</h3>
-        <h3>Paid : ₹${bill.paidAmount}</h3>
-        <h3>Balance : ₹${bill.balanceAmount}</h3>
+        .flower1{
+          top:-10px;
+          left:-10px;
+        }
 
-        <table>
+        .flower2{
+          top:-10px;
+          right:-10px;
+          transform:scaleX(-1);
+        }
 
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Actual Price</th>
-              <th>Final Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
+        .flower3{
+          bottom:-10px;
+          left:-10px;
+          transform:scaleY(-1);
+        }
 
-          <tbody>
-            ${rows}
-          </tbody>
+        .flower4{
+          bottom:-10px;
+          right:-10px;
+          transform:scale(-1);
+        }
 
-        </table>
+        .content{
+          position:relative;
+          z-index:2;
+        }
 
-        <br/>
+        h1{
+          text-align:center;
+          color:#0d47a1;
+          font-size:52px;
+          margin-bottom:5px;
+        }
 
-        <h2 style="text-align:right">
-          Grand Total : ₹${bill.totalAmount}
-        </h2>
+        .owner{
+          text-align:center;
+          font-size:22px;
+          font-weight:bold;
+          margin-top:15px;
+        }
 
-      </body>
+        .phone{
+          text-align:center;
+          font-size:18px;
+          margin-bottom:35px;
+          color:#555;
+        }
+
+        .customer{
+          font-size:30px;
+          color:#0d47a1;
+          margin-bottom:25px;
+          font-weight:bold;
+        }
+
+        .summary{
+          font-size:24px;
+          margin-bottom:10px;
+          font-weight:bold;
+        }
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+          margin-top:35px;
+          background:white;
+        }
+
+        th{
+          background:#0d47a1;
+          color:white;
+          padding:18px;
+          font-size:18px;
+        }
+
+        td{
+          border:1px solid #ddd;
+          padding:16px;
+          text-align:center;
+          font-size:17px;
+        }
+
+        tr:nth-child(even){
+          background:#f8f8f8;
+        }
+
+        .grand-total{
+          text-align:right;
+          margin-top:40px;
+          font-size:34px;
+          color:#0d47a1;
+          font-weight:bold;
+        }
+
+        .thankyou{
+          text-align:center;
+          margin-top:80px;
+          font-size:38px;
+          color:#0d47a1;
+          font-family:cursive;
+          font-weight:bold;
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <div class="invoice">
+
+        <img
+          class="flower1"
+          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
+        />
+
+        <img
+          class="flower2"
+          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
+        />
+
+        <img
+          class="flower3"
+          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
+        />
+
+        <img
+          class="flower4"
+          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
+        />
+
+        <div class="content">
+
+          <h1>Friends Auto Mobile</h1>
+
+          <div class="owner">
+            Owner : Naimulla
+          </div>
+
+          <div class="phone">
+            Phone : 9700433876
+          </div>
+
+          <div class="customer">
+            Customer : ${bill.customerName}
+          </div>
+
+          <div class="summary">
+            Total : ₹${bill.totalAmount}
+          </div>
+
+          <div class="summary">
+            Paid : ₹${bill.paidAmount}
+          </div>
+
+          <div class="summary">
+            Balance : ₹${bill.balanceAmount}
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Actual Price</th>
+                <th>Final Price</th>
+                <th>Total</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              ${rows}
+
+            </tbody>
+
+          </table>
+
+          <div class="grand-total">
+            Grand Total : ₹${bill.totalAmount}
+          </div>
+
+          <div class="thankyou">
+            Thank You Visit Again
+          </div>
+
+        </div>
+
+      </div>
+
+    </body>
 
     </html>
-  `);
 
-  billWindow.document.close();
+    `);
 
-  billWindow.print();
-};
+    billWindow.document.close();
+
+    billWindow.print();
+  };
 
   return (
 
@@ -208,8 +387,6 @@ function PurchaseHistory() {
           }}
         >
 
-          {/* CUSTOMER DETAILS */}
-
           <div
             style={{
               marginBottom: "20px",
@@ -236,8 +413,6 @@ function PurchaseHistory() {
             <h3>
               Balance : ₹{bill.balanceAmount}
             </h3>
-
-            {/* BUTTONS */}
 
             <div
               style={{
@@ -302,8 +477,6 @@ function PurchaseHistory() {
             </div>
 
           </div>
-
-          {/* PRODUCTS TABLE */}
 
           <table
             style={{
