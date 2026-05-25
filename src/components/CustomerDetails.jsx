@@ -2,611 +2,533 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function CustomerDetails() {
-
   const [customers, setCustomers] = useState([]);
   const [bills, setBills] = useState([]);
 
   const [search, setSearch] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [filteredBills, setFilteredBills] = useState([]);
-
+  const [selectedCustomer, setSelectedCustomer] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
-  // FETCH CUSTOMERS
-
   useEffect(() => {
-
     fetchCustomers();
     fetchBills();
-
   }, []);
 
-  // FETCH CUSTOMERS
-
   const fetchCustomers = async () => {
-
     try {
-
       const response = await axios.get(
         "https://friends-auto-backend-1utc.onrender.com/customers"
       );
 
-      setCustomers(response.data);
-
+      setCustomers(response.data || []);
     } catch (error) {
-
       console.log(error);
     }
   };
 
-  // FETCH BILLS
-
   const fetchBills = async () => {
-
     try {
-
       const response = await axios.get(
         "https://friends-auto-backend-1utc.onrender.com/bills"
       );
 
-      setBills(response.data);
-
+      setBills(response.data || []);
     } catch (error) {
-
       console.log(error);
     }
   };
 
-  // SEARCH CUSTOMER
+  const filteredCustomers = customers.filter((customer) =>
+    customer.customerName
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
-  const handleSearch = (value) => {
+  const filteredBills = bills.filter((bill) => {
+    const matchesCustomer =
+      selectedCustomer &&
+      bill.customerName?.toLowerCase() ===
+        selectedCustomer.toLowerCase();
 
-    setSearch(value);
-
-    if (value.trim() === "") {
-
-      setFilteredCustomers([]);
-      return;
+    if (!selectedDate) {
+      return matchesCustomer;
     }
 
-    const filtered = customers.filter((customer) =>
-      customer.customerName
-        .toLowerCase()
-        .includes(value.toLowerCase())
-    );
+    const billDateRaw =
+      bill.createdAt || bill.date || bill.billDate;
 
-    setFilteredCustomers(filtered);
-  };
+    if (!billDateRaw) {
+      return false;
+    }
 
-  // SELECT CUSTOMER
-
-  const selectCustomer = (customer) => {
-
-    setSelectedCustomer(customer);
-
-    setSearch(customer.customerName);
-
-    setFilteredCustomers([]);
-
-    const customerBills = bills.filter(
-      (bill) =>
-        bill.customerName?.toLowerCase() ===
-        customer.customerName?.toLowerCase()
-    );
-
-    setFilteredBills(customerBills);
-  };
-
-  // FILTER BILLS BY DATE
-
-  const filteredBillsByDate = filteredBills.filter((bill) => {
-
-    if (!selectedDate) return true;
-
-    if (!bill.date) return false;
-
-    const billDate = new Date(bill.date)
+    const billDate = new Date(billDateRaw)
       .toISOString()
       .split("T")[0];
 
-    return billDate === selectedDate;
+    return matchesCustomer && billDate === selectedDate;
   });
 
-  // TOTAL PURCHASE
-
-  const totalPurchase = filteredBillsByDate.reduce(
+  const totalPurchase = filteredBills.reduce(
     (sum, bill) => sum + (bill.totalAmount || 0),
     0
   );
 
-  // TOTAL BALANCE
-
-  const pendingBalance = filteredBillsByDate.reduce(
+  const pendingBalance = filteredBills.reduce(
     (sum, bill) => sum + (bill.balanceAmount || 0),
     0
   );
 
-  // DOWNLOAD BILL
-
   const downloadBill = (bill) => {
-
     const invoiceWindow = window.open("", "_blank");
 
+    const rows = (bill.items || [])
+      .map(
+        (item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.product || item.productName || "N/A"}</td>
+          <td>${item.qty || item.quantity || 0}</td>
+          <td>₹${item.actualPrice || item.price || 0}</td>
+          <td>₹${item.finalPrice || item.price || 0}</td>
+          <td>₹${item.total || 0}</td>
+        </tr>
+      `
+      )
+      .join("");
+
     invoiceWindow.document.write(`
-
       <html>
+        <head>
+          <title>Invoice</title>
 
-      <head>
+          <style>
 
-        <title>Invoice</title>
+            body{
+              font-family: Arial;
+              background:#f5f7ff;
+              padding:20px;
+            }
 
-        <style>
+            .invoice{
+              max-width:1000px;
+              margin:auto;
+              background:white;
+              border-radius:20px;
+              padding:30px;
+              border:4px solid #1748a5;
+            }
 
-          body{
-            font-family: Arial;
-            padding:30px;
-            background:#f4f7ff;
-          }
+            .header{
+              text-align:center;
+              color:#1748a5;
+              margin-bottom:20px;
+            }
 
-          .invoice{
-            max-width:900px;
-            margin:auto;
-            background:white;
-            padding:30px;
-            border-radius:20px;
-            border:3px solid #0d47a1;
-          }
+            .header h1{
+              font-size:45px;
+              margin:0;
+            }
 
-          .header{
-            text-align:center;
-            color:#0d47a1;
-          }
+            .top{
+              display:flex;
+              justify-content:space-between;
+              margin-top:20px;
+              margin-bottom:20px;
+              font-weight:bold;
+            }
 
-          .owner{
-            display:flex;
-            justify-content:space-between;
-            margin-top:20px;
-            font-size:18px;
-            font-weight:bold;
-          }
+            .customer-box{
+              border:2px solid #1748a5;
+              border-radius:15px;
+              padding:20px;
+              margin-bottom:20px;
+            }
 
-          .customer-box{
-            margin-top:30px;
-            padding:20px;
-            border:2px solid #0d47a1;
-            border-radius:15px;
-          }
+            table{
+              width:100%;
+              border-collapse:collapse;
+              margin-top:20px;
+            }
 
-          table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:30px;
-          }
+            table th{
+              background:#1748a5;
+              color:white;
+              padding:12px;
+            }
 
-          th{
-            background:#0d47a1;
-            color:white;
-            padding:12px;
-          }
+            table td{
+              border:1px solid #ddd;
+              padding:10px;
+              text-align:center;
+            }
 
-          td{
-            padding:12px;
-            border:1px solid #ddd;
-            text-align:center;
-          }
+            .grand-total{
+              margin-top:20px;
+              text-align:right;
+              font-size:30px;
+              color:#1748a5;
+              font-weight:bold;
+            }
 
-          .grand-total{
-            text-align:right;
-            margin-top:25px;
-            font-size:30px;
-            font-weight:bold;
-            color:#0d47a1;
-          }
+            .footer{
+              margin-top:40px;
+              text-align:center;
+              color:#1748a5;
+            }
 
-          .footer{
-            margin-top:50px;
-            text-align:center;
-            color:#0d47a1;
-          }
+            .footer h2{
+              font-size:40px;
+              margin-bottom:10px;
+            }
 
-        </style>
+          </style>
 
-      </head>
+        </head>
 
-      <body>
+        <body>
 
-        <div class="invoice">
+          <div class="invoice">
 
-          <div class="header">
-
-            <h1>FRIENDS AUTO MOBILE</h1>
-
-            <h3>Professional Auto Parts & Service</h3>
-
-          </div>
-
-          <div class="owner">
-
-            <div>
-              Owner : Naimulla
+            <div class="header">
+              <h1>Friends Auto Mobile</h1>
+              <p>Professional Auto Parts & Service</p>
             </div>
 
-            <div>
-              Phone : 9700433876 / 7032627488
+            <div class="top">
+              <div>
+                Owner : Naimulla
+              </div>
+
+              <div>
+                Phone : 9700433876 / 7032627488
+              </div>
+            </div>
+
+            <div class="customer-box">
+
+              <h2 style="color:#1748a5;">
+                Customer : ${bill.customerName}
+              </h2>
+
+              <h3>Total Amount : ₹${bill.totalAmount}</h3>
+
+              <h3>Paid Amount : ₹${bill.paidAmount}</h3>
+
+              <h3 style="color:red;">
+                Balance Amount : ₹${bill.balanceAmount}
+              </h3>
+
+              <h3>
+                Date :
+                ${
+                  bill.createdAt
+                    ? new Date(
+                        bill.createdAt
+                      ).toLocaleDateString()
+                    : "N/A"
+                }
+              </h3>
+
+            </div>
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Sl.No</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Actual Price</th>
+                  <th>Final Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                ${rows}
+              </tbody>
+
+            </table>
+
+            <div class="grand-total">
+              Grand Total : ₹${bill.totalAmount}
+            </div>
+
+            <div class="footer">
+              <h2>Thank You! Visit Again</h2>
+
+              <p>
+                Friends Auto Mobile <br/>
+                We Deal in All Types of Auto Parts
+              </p>
             </div>
 
           </div>
 
-          <div class="customer-box">
-
-            <h2>
-              Customer : ${bill.customerName}
-            </h2>
-
-            <h3>
-              Total : ₹${bill.totalAmount}
-            </h3>
-
-            <h3>
-              Paid : ₹${bill.paidAmount}
-            </h3>
-
-            <h3>
-              Balance : ₹${bill.balanceAmount}
-            </h3>
-
-          </div>
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              ${bill.items
-                ?.map(
-                  (item) => `
-
-                    <tr>
-
-                      <td>${item.productName || ""}</td>
-
-                      <td>${item.quantity || ""}</td>
-
-                      <td>₹${item.price || 0}</td>
-
-                      <td>₹${item.total || 0}</td>
-
-                    </tr>
-
-                  `
-                )
-                .join("")}
-
-            </tbody>
-
-          </table>
-
-          <div class="grand-total">
-
-            Grand Total : ₹${bill.totalAmount}
-
-          </div>
-
-          <div class="footer">
-
-            <h1>Thank You Visit Again</h1>
-
-            <h3>
-              Friends Auto Mobile
-            </h3>
-
-          </div>
-
-        </div>
-
-      </body>
-
+        </body>
       </html>
-
     `);
 
     invoiceWindow.document.close();
-
     invoiceWindow.print();
   };
 
   return (
-
     <div
       style={{
         padding: "30px",
-        background: "#eef3fb",
-        minHeight: "100vh"
+        background: "#eaf0f9",
+        minHeight: "100vh",
       }}
     >
-
       <h1
         style={{
           textAlign: "center",
-          color: "#0d47a1",
-          marginBottom: "30px"
+          color: "#1748a5",
+          marginBottom: "30px",
         }}
       >
         Customer Details
       </h1>
 
-      {/* SEARCH BOX */}
-
       <div
         style={{
-          position: "relative",
-          marginBottom: "20px"
+          maxWidth: "900px",
+          margin: "auto",
+          background: "white",
+          padding: "20px",
+          borderRadius: "15px",
         }}
       >
-
         <input
           type="text"
           placeholder="Search Customer"
           value={search}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setSelectedCustomer(e.target.value);
+          }}
           style={{
             width: "100%",
-            padding: "15px",
+            padding: "12px",
             borderRadius: "10px",
             border: "1px solid #ccc",
-            fontSize: "16px"
+            marginBottom: "15px",
           }}
         />
 
-        {/* AUTO SUGGESTION */}
-
-        {filteredCustomers.length > 0 && (
-
+        {search && (
           <div
             style={{
-              position: "absolute",
-              width: "100%",
               background: "white",
-              border: "1px solid #ddd",
+              border: "1px solid #ccc",
               borderRadius: "10px",
-              marginTop: "5px",
-              zIndex: 1000,
-              maxHeight: "200px",
-              overflowY: "auto",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+              marginBottom: "20px",
             }}
           >
-
             {filteredCustomers.map((customer) => (
-
               <div
                 key={customer.id}
-                onClick={() => selectCustomer(customer)}
+                onClick={() => {
+                  setSelectedCustomer(
+                    customer.customerName
+                  );
+
+                  setSearch(customer.customerName);
+                }}
                 style={{
-                  padding: "12px",
+                  padding: "10px",
                   cursor: "pointer",
-                  borderBottom: "1px solid #eee"
+                  borderBottom: "1px solid #eee",
                 }}
               >
                 {customer.customerName}
               </div>
-
             ))}
-
           </div>
-
         )}
 
-      </div>
-
-      {/* DATE PICKER */}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "20px"
-        }}
-      >
-
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          style={{
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "16px"
-          }}
-        />
-
-      </div>
-
-      {/* SUMMARY */}
-
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginBottom: "20px"
-        }}
-      >
-
-        <div
-          style={{
-            flex: 1,
-            background: "#0d47a1",
-            color: "white",
-            padding: "30px",
-            borderRadius: "15px",
-            textAlign: "center"
-          }}
-        >
-          <h2>Total Purchase</h2>
-          <h1>₹{totalPurchase.toFixed(2)}</h1>
+        <div style={{ marginBottom: "20px" }}>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) =>
+              setSelectedDate(e.target.value)
+            }
+            style={{
+              padding: "10px",
+              borderRadius: "10px",
+              border: "1px solid #ccc",
+            }}
+          />
         </div>
 
         <div
           style={{
-            flex: 1,
-            background: "#0d47a1",
-            color: "white",
-            padding: "30px",
-            borderRadius: "15px",
-            textAlign: "center"
+            display: "flex",
+            gap: "20px",
+            marginBottom: "30px",
           }}
         >
-          <h2>Pending Balance</h2>
-          <h1>₹{pendingBalance.toFixed(2)}</h1>
+          <div
+            style={{
+              flex: 1,
+              background: "#1748a5",
+              color: "white",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+            }}
+          >
+            <h2>Total Purchase</h2>
+            <h1>₹{totalPurchase.toFixed(2)}</h1>
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              background: "#1748a5",
+              color: "white",
+              padding: "20px",
+              borderRadius: "15px",
+              textAlign: "center",
+            }}
+          >
+            <h2>Pending Balance</h2>
+            <h1>₹{pendingBalance.toFixed(2)}</h1>
+          </div>
         </div>
 
-      </div>
-
-      {/* BILL HISTORY */}
-
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "15px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-        }}
-      >
-
-        <h2
+        <div
           style={{
-            color: "#0d47a1",
-            marginBottom: "20px"
+            background: "white",
+            borderRadius: "15px",
           }}
         >
-          Bill History
-        </h2>
+          <h2
+            style={{
+              color: "#1748a5",
+              marginBottom: "20px",
+            }}
+          >
+            Bill History
+          </h2>
 
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse"
-          }}
-        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  background: "#1748a5",
+                  color: "white",
+                }}
+              >
+                <th style={{ padding: "12px" }}>
+                  Date
+                </th>
 
-          <thead>
+                <th>Total</th>
 
-            <tr
-              style={{
-                background: "#0d47a1",
-                color: "white"
-              }}
-            >
+                <th>Paid</th>
 
-              <th style={thStyle}>Date</th>
-              <th style={thStyle}>Total</th>
-              <th style={thStyle}>Paid</th>
-              <th style={thStyle}>Balance</th>
-              <th style={thStyle}>Download</th>
+                <th>Balance</th>
 
-            </tr>
+                <th>Download</th>
+              </tr>
+            </thead>
 
-          </thead>
-
-          <tbody>
-
-            {filteredBillsByDate.length > 0 ? (
-
-              filteredBillsByDate.map((bill, index) => (
-
-                <tr key={index}>
-
-                  <td style={tdStyle}>
-                    {bill.date || "N/A"}
-                  </td>
-
-                  <td style={tdStyle}>
-                    ₹{bill.totalAmount}
-                  </td>
-
-                  <td style={tdStyle}>
-                    ₹{bill.paidAmount}
-                  </td>
-
-                  <td style={tdStyle}>
-                    ₹{bill.balanceAmount}
-                  </td>
-
-                  <td style={tdStyle}>
-
-                    <button
-                      onClick={() => downloadBill(bill)}
+            <tbody>
+              {filteredBills.length > 0 ? (
+                filteredBills.map((bill) => (
+                  <tr key={bill.id}>
+                    <td
                       style={{
-                        background: "#1565c0",
-                        color: "white",
-                        border: "none",
-                        padding: "10px 18px",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "bold"
+                        padding: "12px",
+                        textAlign: "center",
                       }}
                     >
-                      Download
-                    </button>
+                      {bill.createdAt
+                        ? new Date(
+                            bill.createdAt
+                          ).toLocaleDateString()
+                        : bill.date
+                        ? new Date(
+                            bill.date
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </td>
 
+                    <td
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      ₹{bill.totalAmount}
+                    </td>
+
+                    <td
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      ₹{bill.paidAmount}
+                    </td>
+
+                    <td
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      ₹{bill.balanceAmount}
+                    </td>
+
+                    <td
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <button
+                        onClick={() =>
+                          downloadBill(bill)
+                        }
+                        style={{
+                          background: "#1748a5",
+                          color: "white",
+                          border: "none",
+                          padding:
+                            "8px 15px",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                    }}
+                  >
+                    No Bills Found
                   </td>
-
                 </tr>
-
-              ))
-
-            ) : (
-
-              <tr>
-
-                <td
-                  colSpan="5"
-                  style={{
-                    textAlign: "center",
-                    padding: "20px",
-                    color: "gray"
-                  }}
-                >
-                  No Bills Found
-                </td>
-
-              </tr>
-
-            )}
-
-          </tbody>
-
-        </table>
-
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-
     </div>
   );
 }
-
-const thStyle = {
-  padding: "14px"
-};
-
-const tdStyle = {
-  padding: "14px",
-  borderBottom: "1px solid #ddd",
-  textAlign: "center"
-};
 
 export default CustomerDetails;
