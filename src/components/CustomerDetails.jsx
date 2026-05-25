@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 function CustomerDetails() {
+
   const [customers, setCustomers] = useState([]);
   const [bills, setBills] = useState([]);
 
@@ -15,7 +16,9 @@ function CustomerDetails() {
   }, []);
 
   const fetchCustomers = async () => {
+
     try {
+
       const response = await fetch(
         "https://friends-auto-backend-1utc.onrender.com/customers"
       );
@@ -23,13 +26,17 @@ function CustomerDetails() {
       const data = await response.json();
 
       setCustomers(data || []);
+
     } catch (error) {
+
       console.log(error);
     }
   };
 
   const fetchBills = async () => {
+
     try {
+
       const response = await fetch(
         "https://friends-auto-backend-1utc.onrender.com/bills"
       );
@@ -37,7 +44,9 @@ function CustomerDetails() {
       const data = await response.json();
 
       setBills(data || []);
+
     } catch (error) {
+
       console.log(error);
     }
   };
@@ -49,12 +58,14 @@ function CustomerDetails() {
   );
 
   const customerBills = bills.filter((bill) => {
+
     const customerMatch =
       bill.customerName
         ?.toLowerCase()
         .includes(selectedCustomer.toLowerCase());
 
     if (!selectedDate) {
+
       return customerMatch;
     }
 
@@ -68,14 +79,33 @@ function CustomerDetails() {
   });
 
   const totalPurchase = customerBills.reduce(
-    (sum, bill) => sum + Number(bill.totalAmount || 0),
+    (sum, bill) =>
+      sum + Number(bill.totalAmount || 0),
     0
   );
 
   const pendingBalance = customerBills.reduce(
-    (sum, bill) => sum + Number(bill.balanceAmount || 0),
+    (sum, bill) =>
+      sum + Number(bill.balanceAmount || 0),
     0
   );
+
+  const downloadBill = (bill) => {
+
+    const rows = (bill.items || [])
+      .map(
+        (item, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.productName || "-"}</td>
+            <td>${item.quantity || 0}</td>
+            <td>₹${Number(item.price || 0).toFixed(2)}</td>
+            <td>₹${Number(item.finalPrice || 0).toFixed(2)}</td>
+            <td>₹${Number(item.total || 0).toFixed(2)}</td>
+          </tr>
+        `
+      )
+      .join("");
 
     const invoiceWindow = window.open("", "_blank");
 
@@ -402,15 +432,15 @@ function CustomerDetails() {
                 </h2>
 
                 <p>
-                  Total Amount : ₹${bill.totalAmount}
+                  Total Amount : ₹${Number(bill.totalAmount || 0).toFixed(2)}
                 </p>
 
                 <p>
-                  Paid Amount : ₹${bill.paidAmount}
+                  Paid Amount : ₹${Number(bill.paidAmount || 0).toFixed(2)}
                 </p>
 
                 <p style="color:red;">
-                  Balance Amount : ₹${bill.balanceAmount}
+                  Balance Amount : ₹${Number(bill.balanceAmount || 0).toFixed(2)}
                 </p>
 
               </div>
@@ -418,15 +448,24 @@ function CustomerDetails() {
               <div class="details-box">
 
                 <p>
-                  Date : ${new Date().toLocaleDateString()}
+                  Date :
+                  ${
+                    bill.createdAt
+                      ? new Date(
+                          bill.createdAt
+                        ).toLocaleDateString()
+                      : new Date().toLocaleDateString()
+                  }
                 </p>
 
                 <p>
-                  Time : ${new Date().toLocaleTimeString()}
+                  Time :
+                  ${new Date().toLocaleTimeString()}
                 </p>
 
                 <p>
-                  Invoice No : INV-${Date.now()}
+                  Invoice No :
+                  INV-${bill.id}
                 </p>
 
               </div>
@@ -461,7 +500,8 @@ function CustomerDetails() {
             <div class="grand-total">
 
               <span>
-                Grand Total : ₹${bill.totalAmount}
+                Grand Total :
+                ₹${Number(bill.totalAmount || 0).toFixed(2)}
               </span>
 
             </div>
@@ -513,6 +553,7 @@ function CustomerDetails() {
   };
 
   return (
+
     <div
       style={{
         padding: "20px",
@@ -520,6 +561,7 @@ function CustomerDetails() {
         minHeight: "100vh",
       }}
     >
+
       <h1
         style={{
           textAlign: "center",
@@ -539,6 +581,7 @@ function CustomerDetails() {
           marginTop: "20px",
         }}
       >
+
         <input
           type="text"
           placeholder="Search Customer"
@@ -555,6 +598,7 @@ function CustomerDetails() {
         />
 
         {search && (
+
           <div
             style={{
               border: "1px solid #ddd",
@@ -564,10 +608,13 @@ function CustomerDetails() {
               overflowY: "auto",
             }}
           >
+
             {filteredCustomers.map((customer) => (
+
               <div
                 key={customer.id}
                 onClick={() => {
+
                   setSelectedCustomer(
                     customer.customerName
                   );
@@ -583,8 +630,11 @@ function CustomerDetails() {
               >
                 {customer.customerName}
               </div>
+
             ))}
+
           </div>
+
         )}
 
         <div
@@ -592,6 +642,7 @@ function CustomerDetails() {
             marginTop: "15px",
           }}
         >
+
           <input
             type="date"
             value={selectedDate}
@@ -604,6 +655,7 @@ function CustomerDetails() {
               border: "1px solid #ccc",
             }}
           />
+
         </div>
 
         <div
@@ -613,6 +665,7 @@ function CustomerDetails() {
             marginTop: "20px",
           }}
         >
+
           <div
             style={{
               flex: 1,
@@ -623,14 +676,13 @@ function CustomerDetails() {
               textAlign: "center",
             }}
           >
+
             <h3>Total Purchase</h3>
 
             <h1>
-              ₹
-              {Number(
-                totalPurchase || 0
-              ).toFixed(2)}
+              ₹{Number(totalPurchase || 0).toFixed(2)}
             </h1>
+
           </div>
 
           <div
@@ -643,15 +695,15 @@ function CustomerDetails() {
               textAlign: "center",
             }}
           >
+
             <h3>Pending Balance</h3>
 
             <h1>
-              ₹
-              {Number(
-                pendingBalance || 0
-              ).toFixed(2)}
+              ₹{Number(pendingBalance || 0).toFixed(2)}
             </h1>
+
           </div>
+
         </div>
 
         <div
@@ -659,6 +711,7 @@ function CustomerDetails() {
             marginTop: "30px",
           }}
         >
+
           <h2
             style={{
               color: "#0d47a1",
@@ -674,13 +727,16 @@ function CustomerDetails() {
               marginTop: "10px",
             }}
           >
+
             <thead>
+
               <tr
                 style={{
                   background: "#0d47a1",
                   color: "white",
                 }}
               >
+
                 <th style={{ padding: "10px" }}>
                   Date
                 </th>
@@ -692,13 +748,19 @@ function CustomerDetails() {
                 <th>Balance</th>
 
                 <th>Download</th>
+
               </tr>
+
             </thead>
 
             <tbody>
+
               {customerBills.length > 0 ? (
+
                 customerBills.map((bill) => (
+
                   <tr key={bill.id}>
+
                     <td
                       style={{
                         padding: "10px",
@@ -721,8 +783,7 @@ function CustomerDetails() {
                         textAlign: "center",
                       }}
                     >
-                      ₹
-                      {Number(
+                      ₹{Number(
                         bill.totalAmount || 0
                       ).toFixed(2)}
                     </td>
@@ -732,8 +793,7 @@ function CustomerDetails() {
                         textAlign: "center",
                       }}
                     >
-                      ₹
-                      {Number(
+                      ₹{Number(
                         bill.paidAmount || 0
                       ).toFixed(2)}
                     </td>
@@ -743,8 +803,7 @@ function CustomerDetails() {
                         textAlign: "center",
                       }}
                     >
-                      ₹
-                      {Number(
+                      ₹{Number(
                         bill.balanceAmount || 0
                       ).toFixed(2)}
                     </td>
@@ -754,6 +813,7 @@ function CustomerDetails() {
                         textAlign: "center",
                       }}
                     >
+
                       <button
                         onClick={() =>
                           downloadBill(bill)
@@ -762,19 +822,24 @@ function CustomerDetails() {
                           background: "#0d47a1",
                           color: "white",
                           border: "none",
-                          padding:
-                            "8px 14px",
+                          padding: "8px 14px",
                           borderRadius: "6px",
                           cursor: "pointer",
                         }}
                       >
                         Download
                       </button>
+
                     </td>
+
                   </tr>
+
                 ))
+
               ) : (
+
                 <tr>
+
                   <td
                     colSpan="5"
                     style={{
@@ -784,12 +849,22 @@ function CustomerDetails() {
                   >
                     No Bills Found
                   </td>
+
                 </tr>
+
               )}
+
             </tbody>
+
           </table>
+
         </div>
+
       </div>
+
     </div>
+
   );
+}
+
 export default CustomerDetails;
