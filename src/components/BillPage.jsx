@@ -31,9 +31,9 @@ function BillPage() {
     fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
-  console.log("CUSTOMER API:", data);
-  setCustomers(data);
-})
+        console.log("CUSTOMERS:", data);
+        setCustomers(data);
+      })
       .catch((err) => console.log(err));
 
     // PRODUCTS
@@ -48,37 +48,42 @@ function BillPage() {
   }, []);
 
   // CUSTOMER AUTO SUGGESTION
- const handleCustomerChange = (e) => {
+  const handleCustomerChange = (e) => {
 
-  const value = e.target.value;
+    const value = e.target.value;
 
-  setCustomerName(value);
+    setCustomerName(value);
 
-  if (!value.trim()) {
-    setFilteredCustomers([]);
-    return;
-  }
+    // EMPTY INPUT
+    if (value.trim() === "") {
+      setFilteredCustomers([]);
+      return;
+    }
 
-  console.log("CUSTOMERS:", customers);
+    // SAFETY CHECK
+    if (!Array.isArray(customers)) {
+      setFilteredCustomers([]);
+      return;
+    }
 
-  const filtered = customers.filter((customer) => {
+    // FILTER CUSTOMERS
+    const filtered = customers.filter((customer) => {
 
-    const customerText =
-      String(
-        customer.name ||
-        customer.customerName ||
-        ""
-      ).toLowerCase();
+      const customerNameText =
+        (
+          customer.customerName ||
+          customer.name ||
+          ""
+        ).toLowerCase();
 
-    return customerText.includes(
-      value.toLowerCase()
-    );
-  });
+      return customerNameText.includes(
+        value.toLowerCase()
+      );
+    });
 
-  console.log("FILTERED:", filtered);
+    setFilteredCustomers(filtered);
+  };
 
-  setFilteredCustomers(filtered);
-};
   // ADD BILL ITEM
   const addItem = () => {
 
@@ -140,7 +145,6 @@ function BillPage() {
     // RESET
     setSelectedProduct("");
     setQuantity(1);
-    setPercentage("");
   };
 
   // TOTALS
@@ -203,9 +207,10 @@ function BillPage() {
               style={inputStyle}
             />
 
-            {/* SUGGESTION */}
+            {/* CUSTOMER SUGGESTIONS */}
             {customerName &&
- filteredCustomers.length > 0 && (
+              filteredCustomers.length > 0 && (
+
               <div
                 style={{
                   position: "absolute",
@@ -216,7 +221,9 @@ function BillPage() {
                   borderRadius: "10px",
                   boxShadow:
                     "0 2px 10px rgba(0,0,0,0.2)",
-                  zIndex: 1000
+                  zIndex: 1000,
+                  maxHeight: "200px",
+                  overflowY: "auto"
                 }}
               >
 
@@ -228,21 +235,21 @@ function BillPage() {
                       onClick={() => {
 
                         setCustomerName(
-  customer.name ||
-  customer.customerName
-);
+                          customer.customerName ||
+                          customer.name
+                        );
 
                         setFilteredCustomers([]);
                       }}
                       style={{
-                        padding: "10px",
+                        padding: "12px",
                         cursor: "pointer",
                         borderBottom:
                           "1px solid #eee"
                       }}
                     >
-                      {customer.name ||
-customer.customerName}
+                      {customer.customerName ||
+                        customer.name}
                     </div>
                   )
                 )}
@@ -301,7 +308,7 @@ customer.customerName}
 
           </select>
 
-          {/* QTY */}
+          {/* QUANTITY */}
           <input
             type="number"
             value={quantity}
