@@ -63,9 +63,9 @@ function BillPage() {
       const filtered = customers.filter(
         (customer) =>
           (
-            customer.customerName ||
             customer.name ||
-            ""
+customer.customerName ||
+""
           )
             .toLowerCase()
             .includes(value.toLowerCase())
@@ -223,9 +223,9 @@ function BillPage() {
                       onClick={() => {
 
                         setCustomerName(
-                          customer.customerName ||
-                          customer.name
-                        );
+  customer.name ||
+  customer.customerName
+);
 
                         setFilteredCustomers([]);
                       }}
@@ -236,8 +236,8 @@ function BillPage() {
                           "1px solid #eee"
                       }}
                     >
-                      {customer.customerName ||
-                        customer.name}
+                      {customer.name ||
+customer.customerName}
                     </div>
                   )
                 )}
