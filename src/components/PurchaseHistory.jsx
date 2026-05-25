@@ -25,6 +25,57 @@ function PurchaseHistory() {
     }
   };
 
+  const deleteBill = async (id) => {
+
+    const confirmDelete = window.confirm(
+      "Delete this bill?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await axios.delete(
+        `https://friends-auto-backend-1utc.onrender.com/bills/${id}`
+      );
+
+      fetchBills();
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  const editPaidAmount = async (bill) => {
+
+    const newPaid = prompt(
+      "Enter New Paid Amount",
+      bill.paidAmount
+    );
+
+    if (!newPaid) return;
+
+    try {
+
+      await axios.put(
+        `https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}`,
+        {
+          ...bill,
+          paidAmount: Number(newPaid),
+          balanceAmount:
+            bill.totalAmount - Number(newPaid),
+        }
+      );
+
+      fetchBills();
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
   return (
 
     <div>
@@ -82,6 +133,48 @@ function PurchaseHistory() {
             <h3>
               Balance : ₹{bill.balanceAmount}
             </h3>
+
+            {/* BUTTONS */}
+
+            <div
+              style={{
+                display: "flex",
+                gap: "15px",
+                marginTop: "20px",
+              }}
+            >
+
+              <button
+                onClick={() => editPaidAmount(bill)}
+                style={{
+                  background: "#1565c0",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => deleteBill(bill.id)}
+                style={{
+                  background: "red",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Delete
+              </button>
+
+            </div>
 
           </div>
 
