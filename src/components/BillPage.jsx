@@ -31,8 +31,9 @@ function BillPage() {
     fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
-        setCustomers(data);
-      })
+  console.log("CUSTOMER API:", data);
+  setCustomers(data);
+})
       .catch((err) => console.log(err));
 
     // PRODUCTS
@@ -47,34 +48,37 @@ function BillPage() {
   }, []);
 
   // CUSTOMER AUTO SUGGESTION
-  const handleCustomerChange = (e) => {
+ const handleCustomerChange = (e) => {
 
-    const value = e.target.value;
+  const value = e.target.value;
 
-    setCustomerName(value);
+  setCustomerName(value);
 
-    if (value.trim() === "") {
-      setFilteredCustomers([]);
-      return;
-    }
+  if (!value.trim()) {
+    setFilteredCustomers([]);
+    return;
+  }
 
-    if (value.length >= 1) {
+  console.log("CUSTOMERS:", customers);
 
-      const filtered = customers.filter(
-        (customer) =>
-          (
-            customer.name ||
-customer.customerName ||
-""
-          )
-            .toLowerCase()
-            .includes(value.toLowerCase())
-      );
+  const filtered = customers.filter((customer) => {
 
-      setFilteredCustomers(filtered);
-    }
-  };
+    const customerText =
+      String(
+        customer.name ||
+        customer.customerName ||
+        ""
+      ).toLowerCase();
 
+    return customerText.includes(
+      value.toLowerCase()
+    );
+  });
+
+  console.log("FILTERED:", filtered);
+
+  setFilteredCustomers(filtered);
+};
   // ADD BILL ITEM
   const addItem = () => {
 
@@ -200,7 +204,8 @@ customer.customerName ||
             />
 
             {/* SUGGESTION */}
-            {filteredCustomers.length > 0 && (
+            {customerName &&
+ filteredCustomers.length > 0 && (
               <div
                 style={{
                   position: "absolute",
