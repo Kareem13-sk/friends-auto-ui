@@ -65,53 +65,106 @@ function PurchaseHistory() {
   };
 
   // DOWNLOAD BILL
-  const downloadBill = (bill) => {
+ const downloadBill = (bill) => {
 
-    let billContent = `
-FRIENDS AUTO MOBILE
---------------------------------
+  let rows = "";
 
-Customer : ${bill.customerName}
+  bill.items?.forEach((item) => {
 
-`;
+    rows += `
+      <tr>
+        <td>${item.product}</td>
+        <td>${item.qty}</td>
+        <td>₹${item.actualPrice}</td>
+        <td>₹${item.price}</td>
+        <td>₹${item.total}</td>
+      </tr>
+    `;
+  });
 
-    bill.items?.forEach((item) => {
+  const billWindow = window.open("", "_blank");
 
-      billContent += `
-Product : ${item.product}
-Qty : ${item.qty}
-Actual Price : ₹${item.actualPrice}
-Final Price : ₹${item.price}
-Total : ₹${item.total}
+  billWindow.document.write(`
+    <html>
+      <head>
+        <title>Invoice</title>
 
---------------------------------
-`;
+        <style>
 
-    });
+          body{
+            font-family: Arial;
+            padding: 30px;
+          }
 
-    billContent += `
+          h1{
+            text-align:center;
+            color:#0d47a1;
+          }
 
-Total Amount : ₹${bill.totalAmount}
-Paid Amount : ₹${bill.paidAmount}
-Balance Amount : ₹${bill.balanceAmount}
+          table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+          }
 
-THANK YOU VISIT AGAIN
-`;
+          th, td{
+            border:1px solid #ddd;
+            padding:12px;
+            text-align:center;
+          }
 
-    const blob = new Blob(
-      [billContent],
-      { type: "text/plain" }
-    );
+          th{
+            background:#0d47a1;
+            color:white;
+          }
 
-    const link = document.createElement("a");
+        </style>
 
-    link.href = URL.createObjectURL(blob);
+      </head>
 
-    link.download =
-      `${bill.customerName}-bill.txt`;
+      <body>
 
-    link.click();
-  };
+        <h1>Friends Auto Mobile</h1>
+
+        <h2>Customer : ${bill.customerName}</h2>
+
+        <h3>Total : ₹${bill.totalAmount}</h3>
+        <h3>Paid : ₹${bill.paidAmount}</h3>
+        <h3>Balance : ₹${bill.balanceAmount}</h3>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Actual Price</th>
+              <th>Final Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+        <br/>
+
+        <h2 style="text-align:right">
+          Grand Total : ₹${bill.totalAmount}
+        </h2>
+
+      </body>
+
+    </html>
+  `);
+
+  billWindow.document.close();
+
+  billWindow.print();
+};
 
   return (
 
