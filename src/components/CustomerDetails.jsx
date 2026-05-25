@@ -77,7 +77,7 @@ function CustomerDetails() {
     0
   );
 
-      const invoiceWindow = window.open("", "_blank");
+    const invoiceWindow = window.open("", "_blank");
 
     invoiceWindow.document.write(`
 
@@ -792,6 +792,6 @@ function CustomerDetails() {
       </div>
     </div>
   );
-}
+
 
 export default CustomerDetails;
