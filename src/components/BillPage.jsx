@@ -147,27 +147,64 @@ function BillPage() {
     subtotal - Number(paidAmount || 0);
 
   // SAVE BILL
-  const saveBill = () => {
+  // SAVE BILL
+const saveBill = async () => {
 
-    if (billItems.length === 0) {
-      alert("No items added");
-      return;
+  if (billItems.length === 0) {
+    alert("No items added");
+    return;
+  }
+
+  const billData = {
+
+    customerName,
+
+    items: billItems,
+
+    totalAmount: subtotal,
+
+    paidAmount: Number(paidAmount || 0),
+
+    balanceAmount: balance,
+
+    date: new Date().toLocaleString()
+  };
+
+  try {
+
+    const response = await fetch(
+      "https://friends-auto-backend-1utc.onrender.com/bills",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(billData)
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to save bill");
     }
 
-    const billData = {
+    alert("Bill Saved Successfully");
 
-      customerName,
+    // CLEAR FORM
+    setBillItems([]);
+    setCustomerName("");
+    setPaidAmount("");
+    setPercentage("");
+    setSelectedProduct("");
 
-      items: billItems,
+  } catch (error) {
 
-      totalAmount: subtotal,
+    console.log(error);
 
-      paidAmount: Number(paidAmount),
-
-      balanceAmount: balance,
-
-      date: new Date().toLocaleString()
-    };
+    alert("Error saving bill");
+  }
+};
 
     const existingBills =
       JSON.parse(localStorage.getItem("bills")) || [];
