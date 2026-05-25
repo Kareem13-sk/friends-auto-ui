@@ -30,45 +30,65 @@ function PurchaseHistory() {
   };
 
   // DELETE BILL
-  const deleteBill = (indexToDelete) => {
+  const deleteBill = async (billId) => {
 
-    const confirmDelete =
-      window.confirm("Delete this bill?");
+  const confirmDelete =
+    window.confirm("Delete this bill?");
 
-    if (!confirmDelete) return;
+  if (!confirmDelete) return;
 
+  try {
+
+    await fetch(
+      `https://friends-auto-backend-1utc.onrender.com/bills/${billId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    // REMOVE FROM UI IMMEDIATELY
     const updatedBills =
       bills.filter(
-        (_, index) => index !== indexToDelete
+        (bill) => bill.id !== billId
       );
 
     setBills(updatedBills);
-  };
 
+  } catch (error) {
+
+    console.log(error);
+  }
+};
   // EDIT PAID AMOUNT
-  const editPaidAmount = (billIndex) => {
+  const editPaidAmount = (billId) => {
 
-    const bill = bills[billIndex];
+  const bill =
+    bills.find((b) => b.id === billId);
 
-    const newPaid = prompt(
-      "Enter New Paid Amount",
-      bill.paidAmount
-    );
+  const newPaid = prompt(
+    "Enter New Paid Amount",
+    bill.paidAmount
+  );
 
-    if (!newPaid) return;
+  if (!newPaid) return;
 
-    const updatedBills = [...bills];
+  const updatedBills = bills.map((b) => {
 
-    updatedBills[billIndex].paidAmount =
-      Number(newPaid);
+    if (b.id === billId) {
 
-    updatedBills[billIndex].balanceAmount =
-      updatedBills[billIndex].totalAmount -
-      Number(newPaid);
+      return {
+        ...b,
+        paidAmount: Number(newPaid),
+        balanceAmount:
+          b.totalAmount - Number(newPaid),
+      };
+    }
 
-    setBills(updatedBills);
-  };
+    return b;
+  });
 
+  setBills(updatedBills);
+};
   // DOWNLOAD BILL
   const downloadBill = (bill) => {
 
@@ -602,7 +622,7 @@ function PurchaseHistory() {
 
               <button
                 onClick={() =>
-                  editPaidAmount(billIndex)
+                  editPaidAmount(bill.id)
                 }
                 style={buttonStyleBlue}
               >
@@ -611,8 +631,8 @@ function PurchaseHistory() {
 
               <button
                 onClick={() =>
-                  deleteBill(billIndex)
-                }
+  deleteBill(bill.id)
+}
                 style={buttonStyleRed}
               >
                 Delete
