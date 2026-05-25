@@ -1,53 +1,44 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 function PurchaseHistory() {
 
   const [bills, setBills] = useState([]);
 
+  // LOAD BILLS FROM LOCAL STORAGE
   useEffect(() => {
-    fetchBills();
+
+    const savedBills =
+      JSON.parse(localStorage.getItem("bills")) || [];
+
+    setBills(savedBills);
+
   }, []);
 
-  const fetchBills = async () => {
+  // DELETE BILL
+  const deleteBill = (indexToDelete) => {
 
-    try {
-
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/bills"
-      );
-
-      setBills(response.data);
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
-  const deleteBill = async (id) => {
-
-    const confirmDelete = window.confirm(
-      "Delete this bill?"
-    );
+    const confirmDelete =
+      window.confirm("Delete this bill?");
 
     if (!confirmDelete) return;
 
-    try {
-
-      await axios.delete(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${id}`
+    const updatedBills =
+      bills.filter(
+        (_, index) => index !== indexToDelete
       );
 
-      fetchBills();
+    localStorage.setItem(
+      "bills",
+      JSON.stringify(updatedBills)
+    );
 
-    } catch (error) {
-
-      console.log(error);
-    }
+    setBills(updatedBills);
   };
 
-  const editPaidAmount = async (bill) => {
+  // EDIT PAID AMOUNT
+  const editPaidAmount = (billIndex) => {
+
+    const bill = bills[billIndex];
 
     const newPaid = prompt(
       "Enter New Paid Amount",
@@ -56,24 +47,21 @@ function PurchaseHistory() {
 
     if (!newPaid) return;
 
-    try {
+    const updatedBills = [...bills];
 
-      await axios.put(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}`,
-        {
-          ...bill,
-          paidAmount: Number(newPaid),
-          balanceAmount:
-            bill.totalAmount - Number(newPaid),
-        }
-      );
+    updatedBills[billIndex].paidAmount =
+      Number(newPaid);
 
-      fetchBills();
+    updatedBills[billIndex].balanceAmount =
+      updatedBills[billIndex].totalAmount -
+      Number(newPaid);
 
-    } catch (error) {
+    localStorage.setItem(
+      "bills",
+      JSON.stringify(updatedBills)
+    );
 
-      console.log(error);
-    }
+    setBills(updatedBills);
   };
 
   return (
@@ -91,10 +79,23 @@ function PurchaseHistory() {
         Bills History
       </h1>
 
-      {bills.map((bill) => (
+      {bills.length === 0 && (
+
+        <h2
+          style={{
+            textAlign: "center",
+            color: "gray",
+          }}
+        >
+          No Bills Found
+        </h2>
+
+      )}
+
+      {bills.map((bill, billIndex) => (
 
         <div
-          key={bill.id}
+          key={billIndex}
           style={{
             background: "white",
             borderRadius: "20px",
@@ -145,7 +146,9 @@ function PurchaseHistory() {
             >
 
               <button
-                onClick={() => editPaidAmount(bill)}
+                onClick={() =>
+                  editPaidAmount(billIndex)
+                }
                 style={{
                   background: "#1565c0",
                   color: "white",
@@ -160,7 +163,9 @@ function PurchaseHistory() {
               </button>
 
               <button
-                onClick={() => deleteBill(bill.id)}
+                onClick={() =>
+                  deleteBill(billIndex)
+                }
                 style={{
                   background: "red",
                   color: "white",
@@ -198,7 +203,12 @@ function PurchaseHistory() {
                 <th style={thStyle}>Product</th>
                 <th style={thStyle}>Qty</th>
                 <th style={thStyle}>%</th>
-                <th style={thStyle}>Price</th>
+                <th style={thStyle}>
+                  Actual Price
+                </th>
+                <th style={thStyle}>
+                  Final Price
+                </th>
                 <th style={thStyle}>Total</th>
               </tr>
 
@@ -211,15 +221,19 @@ function PurchaseHistory() {
                 <tr key={index}>
 
                   <td style={tdStyle}>
-                    {item.productName}
+                    {item.product}
                   </td>
 
                   <td style={tdStyle}>
-                    {item.quantity}
+                    {item.qty}
                   </td>
 
                   <td style={tdStyle}>
                     {item.percentage}%
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{item.actualPrice}
                   </td>
 
                   <td style={tdStyle}>
