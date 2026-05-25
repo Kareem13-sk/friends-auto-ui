@@ -1,434 +1,269 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import engineBanner from "../assets/engine-banner.jpg";
-
 function CustomerDetails() {
 
-  const [customerName, setCustomerName] =
-    useState("");
+  const [customers, setCustomers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
 
-  const [customers, setCustomers] =
-    useState([]);
+  const [bills, setBills] = useState([]);
 
-  const [bills, setBills] =
-    useState([]);
+  const [totalPurchase, setTotalPurchase] = useState(0);
+  const [pendingBalance, setPendingBalance] = useState(0);
 
   useEffect(() => {
-
     fetchCustomers();
-
   }, []);
 
   const fetchCustomers = async () => {
 
     try {
 
-      const response =
-        await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/customers"
-        );
+      const response = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/customers"
+      );
 
       setCustomers(response.data);
 
     } catch (error) {
-
       console.log(error);
-
     }
   };
 
-  const searchCustomer = async () => {
+  useEffect(() => {
+
+    if (search.trim() === "") {
+
+      setFilteredCustomers([]);
+      return;
+    }
+
+    const filtered = customers.filter((customer) =>
+      customer.customerName
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
+    );
+
+    setFilteredCustomers(filtered);
+
+  }, [search, customers]);
+
+  const selectCustomer = async (customerName) => {
+
+    setSearch(customerName);
+    setFilteredCustomers([]);
 
     try {
 
-      const customer =
-        customers.find(
-          (c) =>
-            c.customerName
-              ?.toLowerCase()
-              .includes(
-                customerName.toLowerCase()
-              )
-        );
-
-      if (!customer) {
-
-        alert("Customer Not Found");
-
-        return;
-      }
-
-      const response =
-        await axios.get(
-          `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customer.customerName}`
-        );
+      const response = await axios.get(
+        `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
+      );
 
       setBills(response.data);
+
+      let total = 0;
+      let balance = 0;
+
+      response.data.forEach((bill) => {
+
+        total += bill.totalAmount || 0;
+        balance += bill.balanceAmount || 0;
+      });
+
+      setTotalPurchase(total);
+      setPendingBalance(balance);
 
     } catch (error) {
 
       console.log(error);
-
     }
   };
 
-  const totalPurchase =
-    bills.reduce(
-      (acc, bill) =>
-        acc + (bill.finalAmount || 0),
-      0
-    );
-
-  const totalPaid =
-    bills.reduce(
-      (acc, bill) =>
-        acc + (bill.paidAmount || 0),
-      0
-    );
-
-  const pendingBalance =
-    bills.reduce(
-      (acc, bill) =>
-        acc + (bill.balanceAmount || 0),
-      0
-    );
-
   return (
+    <div>
 
-    <div
-      style={{
-        backgroundColor: "#eef3f9",
-        minHeight: "100vh",
-        padding: "20px",
-        overflowX: "hidden",
-      }}
-    >
+      <h1
+        style={{
+          textAlign: "center",
+          color: "#0d47a1",
+          marginBottom: "30px",
+          fontSize: "48px",
+        }}
+      >
+        Customer Details
+      </h1>
 
       <div
         style={{
-          width: "100%",
-          maxWidth: "1400px",
-          margin: "0 auto",
+          background: "white",
+          padding: "30px",
+          borderRadius: "20px",
+          position: "relative",
         }}
       >
 
-        {/* HERO IMAGE */}
-
-        <div
+        <input
+          type="text"
+          placeholder="Search Customer"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           style={{
-            position: "relative",
             width: "100%",
-            height: "320px",
-            borderRadius: "25px",
-            overflow: "hidden",
-            marginBottom: "30px",
-            boxShadow:
-              "0 5px 20px rgba(0,0,0,0.15)"
+            padding: "16px",
+            borderRadius: "12px",
+            border: "1px solid #ccc",
+            fontSize: "18px",
           }}
-        >
+        />
 
-          <img
-            src={engineBanner}
-            alt="Engine"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover"
-            }}
-          />
+        {filteredCustomers.length > 0 && (
 
           <div
             style={{
               position: "absolute",
-              inset: 0,
-              background:
-                "rgba(0,0,0,0.45)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-              padding: "20px",
+              top: "95px",
+              left: "30px",
+              right: "30px",
+              background: "white",
+              border: "1px solid #ddd",
+              borderRadius: "10px",
+              zIndex: 1000,
+              maxHeight: "200px",
+              overflowY: "auto",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
             }}
           >
 
-            <h1
-              style={{
-                color: "white",
-                fontSize:
-                  "clamp(35px,5vw,65px)",
-                marginBottom: "10px",
-                fontWeight: "bold"
-              }}
-            >
-              Customer Details
-            </h1>
+            {filteredCustomers.map((customer) => (
 
-            <p
-              style={{
-                color: "white",
-                fontSize:
-                  "clamp(18px,2vw,28px)"
-              }}
-            >
-              Engine Spare Parts Purchase History
-            </p>
+              <div
+                key={customer.id}
+                onClick={() =>
+                  selectCustomer(customer.customerName)
+                }
+                style={{
+                  padding: "12px",
+                  cursor: "pointer",
+                  borderBottom: "1px solid #eee",
+                }}
+              >
+                {customer.customerName}
+              </div>
+
+            ))}
 
           </div>
+        )}
 
-        </div>
+      </div>
 
-        {/* MAIN SECTION */}
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          marginTop: "30px",
+          flexWrap: "wrap",
+        }}
+      >
 
         <div
           style={{
-            backgroundColor: "white",
-            borderRadius: "25px",
+            flex: 1,
+            background: "#0d47a1",
+            color: "white",
             padding: "30px",
-            boxShadow:
-              "0 5px 20px rgba(0,0,0,0.08)"
+            borderRadius: "20px",
+            textAlign: "center",
+          }}
+        >
+          <h2>Total Purchase</h2>
+
+          <h1>₹{totalPurchase}</h1>
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            background: "#0d47a1",
+            color: "white",
+            padding: "30px",
+            borderRadius: "20px",
+            textAlign: "center",
+          }}
+        >
+          <h2>Pending Balance</h2>
+
+          <h1>₹{pendingBalance}</h1>
+        </div>
+
+      </div>
+
+      <div
+        style={{
+          background: "white",
+          marginTop: "30px",
+          padding: "25px",
+          borderRadius: "20px",
+        }}
+      >
+
+        <h2
+          style={{
+            color: "#0d47a1",
+            marginBottom: "20px",
+          }}
+        >
+          Bill History
+        </h2>
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
           }}
         >
 
-          <h1
-            style={{
-              textAlign: "center",
-              color: "#0d47a1",
-              marginBottom: "30px",
-              fontSize:
-                "clamp(35px,5vw,55px)"
-            }}
-          >
-            Customer Details
-          </h1>
+          <thead>
 
-          {/* SEARCH */}
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "15px",
-              marginBottom: "30px"
-            }}
-          >
-
-            <input
-              type="text"
-              placeholder="Search Customer"
-              value={customerName}
-              onChange={(e) =>
-                setCustomerName(
-                  e.target.value
-                )
-              }
+            <tr
               style={{
-                flex: 1,
-                minWidth: "250px",
-                padding: "15px",
-                borderRadius: "12px",
-                border:
-                  "1px solid #ccc",
-                fontSize: "16px"
-              }}
-            />
-
-            <button
-              onClick={searchCustomer}
-              style={{
-                backgroundColor:
-                  "#1565c0",
+                background: "#0d47a1",
                 color: "white",
-                border: "none",
-                padding:
-                  "15px 25px",
-                borderRadius:
-                  "12px",
-                fontSize: "16px",
-                cursor: "pointer",
-                fontWeight: "bold"
               }}
             >
-              Search
-            </button>
+              <th style={thStyle}>Total</th>
+              <th style={thStyle}>Paid</th>
+              <th style={thStyle}>Balance</th>
+            </tr>
 
-          </div>
+          </thead>
 
-          {/* SUMMARY CARDS */}
+          <tbody>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit,minmax(250px,1fr))",
-              gap: "20px",
-              marginBottom: "35px"
-            }}
-          >
+            {bills.map((bill) => (
 
-            <div style={cardStyle}>
+              <tr key={bill.id}>
 
-              <h2>Total Purchase</h2>
+                <td style={tdStyle}>
+                  ₹{bill.totalAmount}
+                </td>
 
-              <h1>
-                ₹
-                {Math.round(
-                  totalPurchase
-                )}
-              </h1>
+                <td style={tdStyle}>
+                  ₹{bill.paidAmount}
+                </td>
 
-            </div>
+                <td style={tdStyle}>
+                  ₹{bill.balanceAmount}
+                </td>
 
-            <div style={cardStyle}>
+              </tr>
 
-              <h2>Total Paid</h2>
+            ))}
 
-              <h1>
-                ₹
-                {Math.round(
-                  totalPaid
-                )}
-              </h1>
+          </tbody>
 
-            </div>
-
-            <div style={cardStyle}>
-
-              <h2>Pending Balance</h2>
-
-              <h1>
-                ₹
-                {Math.round(
-                  pendingBalance
-                )}
-              </h1>
-
-            </div>
-
-          </div>
-
-          {/* BILL TABLE */}
-
-          <div
-            style={{
-              overflowX: "auto"
-            }}
-          >
-
-            <h2
-              style={{
-                color: "#0d47a1",
-                marginBottom: "20px",
-                fontSize: "32px"
-              }}
-            >
-              Bill History
-            </h2>
-
-            <table
-              style={{
-                width: "100%",
-                borderCollapse:
-                  "collapse",
-                minWidth: "700px",
-                background: "white"
-              }}
-            >
-
-              <thead>
-
-                <tr
-                  style={{
-                    backgroundColor:
-                      "#0d47a1",
-                    color: "white"
-                  }}
-                >
-
-                  <th style={tableHeader}>
-                    Total
-                  </th>
-
-                  <th style={tableHeader}>
-                    Paid
-                  </th>
-
-                  <th style={tableHeader}>
-                    Balance
-                  </th>
-
-                  <th style={tableHeader}>
-                    Invoice
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {bills.map((bill) => (
-
-                  <tr key={bill.id}>
-
-                    <td style={tableCell}>
-                      ₹
-                      {Math.round(
-                        bill.finalAmount || 0
-                      )}
-                    </td>
-
-                    <td style={tableCell}>
-                      ₹
-                      {Math.round(
-                        bill.paidAmount || 0
-                      )}
-                    </td>
-
-                    <td style={tableCell}>
-                      ₹
-                      {Math.round(
-                        bill.balanceAmount || 0
-                      )}
-                    </td>
-
-                    <td style={tableCell}>
-
-                      <a
-                        href={`https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}/invoice`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          textDecoration:
-                            "none",
-                          backgroundColor:
-                            "#1565c0",
-                          color: "white",
-                          padding:
-                            "10px 18px",
-                          borderRadius:
-                            "10px",
-                          fontWeight:
-                            "bold"
-                        }}
-                      >
-                        View Invoice
-                      </a>
-
-                    </td>
-
-                  </tr>
-
-                ))}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
+        </table>
 
       </div>
 
@@ -436,32 +271,15 @@ function CustomerDetails() {
   );
 }
 
-const cardStyle = {
+const thStyle = {
+  padding: "16px",
+  fontSize: "18px",
+};
 
-  backgroundColor: "#0d47a1",
-  color: "white",
-  padding: "30px",
-  borderRadius: "20px",
+const tdStyle = {
+  padding: "16px",
   textAlign: "center",
-  boxShadow:
-    "0 5px 15px rgba(0,0,0,0.1)"
-
-};
-
-const tableHeader = {
-
-  padding: "18px",
-  textAlign: "left",
-  fontSize: "16px"
-
-};
-
-const tableCell = {
-
-  padding: "18px",
   borderBottom: "1px solid #ddd",
-  fontSize: "15px"
-
 };
 
 export default CustomerDetails;
