@@ -792,6 +792,4 @@ function CustomerDetails() {
       </div>
     </div>
   );
-
-
 export default CustomerDetails;
