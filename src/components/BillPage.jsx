@@ -27,20 +27,16 @@ function BillPage() {
   // LOAD CUSTOMERS + PRODUCTS
   useEffect(() => {
 
-    // CUSTOMERS
     fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
-        console.log("CUSTOMERS:", data);
         setCustomers(data);
       })
       .catch((err) => console.log(err));
 
-    // PRODUCTS
     fetch("https://friends-auto-backend-1utc.onrender.com/products")
       .then((res) => res.json())
       .then((data) => {
-        console.log("PRODUCTS:", data);
         setProducts(data);
       })
       .catch((err) => console.log(err));
@@ -54,19 +50,11 @@ function BillPage() {
 
     setCustomerName(value);
 
-    // EMPTY INPUT
     if (value.trim() === "") {
       setFilteredCustomers([]);
       return;
     }
 
-    // SAFETY CHECK
-    if (!Array.isArray(customers)) {
-      setFilteredCustomers([]);
-      return;
-    }
-
-    // FILTER CUSTOMERS
     const filtered = customers.filter((customer) => {
 
       const customerNameText =
@@ -84,7 +72,7 @@ function BillPage() {
     setFilteredCustomers(filtered);
   };
 
-  // ADD BILL ITEM
+  // ADD ITEM
   const addItem = () => {
 
     if (!customerName) {
@@ -115,18 +103,19 @@ function BillPage() {
 
     const percent = Number(percentage || 0);
 
-    const productPrice =
+    // ACTUAL PRICE
+    const actualPrice =
       Number(product.price) || 0;
 
-    const discountAmount =
-      productPrice * (percent / 100);
-
+    // DISCOUNTED PRICE
     const finalPrice =
-      productPrice - discountAmount;
+      actualPrice -
+      (actualPrice * percent) / 100;
 
     const total = finalPrice * qty;
 
     const newItem = {
+
       product:
         product.productName ||
         product.name,
@@ -135,6 +124,8 @@ function BillPage() {
 
       percentage: percent,
 
+      actualPrice,
+
       price: finalPrice,
 
       total
@@ -142,7 +133,6 @@ function BillPage() {
 
     setBillItems([...billItems, newItem]);
 
-    // RESET
     setSelectedProduct("");
     setQuantity(1);
   };
@@ -156,7 +146,48 @@ function BillPage() {
   const balance =
     subtotal - Number(paidAmount || 0);
 
+  // SAVE BILL
+  const saveBill = () => {
+
+    if (billItems.length === 0) {
+      alert("No items added");
+      return;
+    }
+
+    const billData = {
+
+      customerName,
+
+      items: billItems,
+
+      totalAmount: subtotal,
+
+      paidAmount: Number(paidAmount),
+
+      balanceAmount: balance,
+
+      date: new Date().toLocaleString()
+    };
+
+    const existingBills =
+      JSON.parse(localStorage.getItem("bills")) || [];
+
+    existingBills.push(billData);
+
+    localStorage.setItem(
+      "bills",
+      JSON.stringify(existingBills)
+    );
+
+    alert("Bill Saved Successfully");
+
+    setBillItems([]);
+    setCustomerName("");
+    setPaidAmount("");
+  };
+
   return (
+
     <div
       style={{
         background: "#eef3f9",
@@ -207,7 +238,7 @@ function BillPage() {
               style={inputStyle}
             />
 
-            {/* CUSTOMER SUGGESTIONS */}
+            {/* AUTO SUGGESTION */}
             {customerName &&
               filteredCustomers.length > 0 && (
 
@@ -221,9 +252,7 @@ function BillPage() {
                   borderRadius: "10px",
                   boxShadow:
                     "0 2px 10px rgba(0,0,0,0.2)",
-                  zIndex: 1000,
-                  maxHeight: "200px",
-                  overflowY: "auto"
+                  zIndex: 1000
                 }}
               >
 
@@ -235,8 +264,7 @@ function BillPage() {
                       onClick={() => {
 
                         setCustomerName(
-                          customer.customerName ||
-                          customer.name
+                          customer.customerName
                         );
 
                         setFilteredCustomers([]);
@@ -248,8 +276,7 @@ function BillPage() {
                           "1px solid #eee"
                       }}
                     >
-                      {customer.customerName ||
-                        customer.name}
+                      {customer.customerName}
                     </div>
                   )
                 )}
@@ -259,7 +286,7 @@ function BillPage() {
 
           </div>
 
-          {/* PRODUCT DROPDOWN */}
+          {/* PRODUCT */}
           <select
             value={selectedProduct}
             onChange={(e) => {
@@ -308,7 +335,7 @@ function BillPage() {
 
           </select>
 
-          {/* QUANTITY */}
+          {/* QTY */}
           <input
             type="number"
             value={quantity}
@@ -358,6 +385,7 @@ function BillPage() {
         >
 
           <thead>
+
             <tr
               style={{
                 background: "#0d47a1",
@@ -367,15 +395,18 @@ function BillPage() {
               <th style={thStyle}>Product</th>
               <th style={thStyle}>Qty</th>
               <th style={thStyle}>%</th>
-              <th style={thStyle}>Price</th>
+              <th style={thStyle}>Actual Price</th>
+              <th style={thStyle}>Final Price</th>
               <th style={thStyle}>Total</th>
               <th style={thStyle}>Action</th>
             </tr>
+
           </thead>
 
           <tbody>
 
             {billItems.map((item, index) => (
+
               <tr key={index}>
 
                 <td style={tdStyle}>
@@ -388,6 +419,10 @@ function BillPage() {
 
                 <td style={tdStyle}>
                   {item.percentage}%
+                </td>
+
+                <td style={tdStyle}>
+                  ₹{item.actualPrice}
                 </td>
 
                 <td style={tdStyle}>
@@ -456,6 +491,7 @@ function BillPage() {
                 </td>
 
               </tr>
+
             ))}
 
           </tbody>
@@ -499,6 +535,22 @@ function BillPage() {
         <h2>Subtotal : ₹{subtotal}</h2>
 
         <h2>Balance : ₹{balance}</h2>
+
+        <button
+          onClick={saveBill}
+          style={{
+            marginTop: "20px",
+            background: "green",
+            color: "white",
+            border: "none",
+            padding: "15px 25px",
+            borderRadius: "10px",
+            fontSize: "18px",
+            cursor: "pointer"
+          }}
+        >
+          Save Bill
+        </button>
 
       </div>
 
