@@ -27,68 +27,84 @@ function CustomerDetails() {
       setCustomers(response.data);
 
     } catch (error) {
+
       console.log(error);
     }
   };
 
-  useEffect(() => {
+  const handleSearch = (value) => {
 
-    if (search.trim() === "") {
+    setSearch(value);
+
+    if (value.trim() === "") {
 
       setFilteredCustomers([]);
+      setBills([]);
+      setTotalPurchase(0);
+      setPendingBalance(0);
+
       return;
     }
 
     const filtered = customers.filter((customer) =>
       customer.customerName
         ?.toLowerCase()
-        .includes(search.toLowerCase())
+        .includes(value.toLowerCase())
     );
 
     setFilteredCustomers(filtered);
-
-  }, [search, customers]);
+  };
 
   const selectCustomer = async (customerName) => {
 
-  setSearch(customerName);
-  setFilteredCustomers([]);
+    setSearch(customerName);
 
-  try {
+    setFilteredCustomers([]);
 
-    const response = await axios.get(
-      `https://friends-auto-backend-1utc.onrender.com/bills`
-    );
+    try {
 
-    const customerBills = response.data.filter(
-      (bill) =>
-        bill.customerName?.toLowerCase() ===
-        customerName.toLowerCase()
-    );
+      const response = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/bills"
+      );
 
-    setBills(customerBills);
+      const customerBills = response.data.filter(
+        (bill) =>
+          bill.customerName
+            ?.toLowerCase()
+            .trim() ===
+          customerName
+            ?.toLowerCase()
+            .trim()
+      );
 
-    let total = 0;
-    let balance = 0;
+      setBills(customerBills);
 
-    customerBills.forEach((bill) => {
+      let total = 0;
+      let balance = 0;
 
-      total += Number(bill.totalAmount || 0);
+      customerBills.forEach((bill) => {
 
-      balance += Number(bill.balanceAmount || 0);
-    });
+        total += Number(
+          bill.totalAmount || 0
+        );
 
-    setTotalPurchase(total);
+        balance += Number(
+          bill.balanceAmount || 0
+        );
+      });
 
-    setPendingBalance(balance);
+      setTotalPurchase(total);
 
-  } catch (error) {
+      setPendingBalance(balance);
 
-    console.log(error);
-  }
-};
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
 
   return (
+
     <div>
 
       <h1
@@ -97,7 +113,6 @@ function CustomerDetails() {
           color: "#0d47a1",
           marginBottom: "30px",
           fontSize: "48px",
-          fontWeight: "bold",
         }}
       >
         Customer Details
@@ -117,18 +132,20 @@ function CustomerDetails() {
           type="text"
           placeholder="Search Customer"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>
+            handleSearch(e.target.value)
+          }
           style={{
             width: "100%",
             padding: "16px",
             borderRadius: "12px",
-            border: "2px solid #dce3f0",
+            border: "1px solid #ccc",
             fontSize: "18px",
             outline: "none",
           }}
         />
 
-        {search !== "" && filteredCustomers.length > 0 && (
+        {filteredCustomers.length > 0 && (
 
           <div
             style={{
@@ -138,11 +155,12 @@ function CustomerDetails() {
               right: "30px",
               background: "white",
               border: "1px solid #ddd",
-              borderRadius: "12px",
+              borderRadius: "10px",
               zIndex: 1000,
               maxHeight: "220px",
               overflowY: "auto",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+              boxShadow:
+                "0 4px 10px rgba(0,0,0,0.1)",
             }}
           >
 
@@ -151,21 +169,26 @@ function CustomerDetails() {
               <div
                 key={customer.id}
                 onClick={() =>
-                  selectCustomer(customer.customerName)
+                  selectCustomer(
+                    customer.customerName
+                  )
                 }
                 style={{
-                  padding: "14px 18px",
+                  padding: "14px",
                   cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                  fontSize: "17px",
+                  borderBottom:
+                    "1px solid #eee",
+                  fontSize: "16px",
                   transition: "0.2s",
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#f2f6ff";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "white";
-                }}
+                onMouseEnter={(e) =>
+                  (e.target.style.background =
+                    "#f2f6ff")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.background =
+                    "white")
+                }
               >
                 {customer.customerName}
               </div>
@@ -194,7 +217,6 @@ function CustomerDetails() {
             padding: "30px",
             borderRadius: "20px",
             textAlign: "center",
-            boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
           }}
         >
           <h2>Total Purchase</h2>
@@ -210,7 +232,6 @@ function CustomerDetails() {
             padding: "30px",
             borderRadius: "20px",
             textAlign: "center",
-            boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
           }}
         >
           <h2>Pending Balance</h2>
@@ -226,7 +247,8 @@ function CustomerDetails() {
           marginTop: "30px",
           padding: "25px",
           borderRadius: "20px",
-          boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
+          boxShadow:
+            "0 5px 15px rgba(0,0,0,0.08)",
         }}
       >
 
@@ -234,7 +256,6 @@ function CustomerDetails() {
           style={{
             color: "#0d47a1",
             marginBottom: "20px",
-            fontSize: "30px",
           }}
         >
           Bill History
