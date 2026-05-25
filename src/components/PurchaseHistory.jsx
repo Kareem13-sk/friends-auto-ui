@@ -18,7 +18,7 @@ function PurchaseHistory() {
         "https://friends-auto-backend-1utc.onrender.com/bills"
       );
 
-      setBills(response.data);
+      setBills(response.data || []);
 
     } catch (error) {
 
@@ -77,9 +77,6 @@ function PurchaseHistory() {
       )
       .join("");
 
-    const isLargeBill =
-      (bill.items || []).length > 15;
-
     const printWindow = window.open("", "_blank");
 
     printWindow.document.write(`
@@ -94,23 +91,21 @@ function PurchaseHistory() {
           body{
             font-family:Arial,sans-serif;
             background:#f2f2f2;
-            padding:20px;
             margin:0;
+            padding:20px;
           }
 
           .invoice{
 
-            width:800px;
-            height:${isLargeBill ? "auto" : "1120px"};
+            max-width:900px;
             margin:auto;
             background:white;
-            border-radius:25px;
+            border-radius:20px;
             padding:30px;
+            border:3px solid #0d47a1;
             position:relative;
             overflow:hidden;
-            border:4px solid #0d47a1;
-            box-shadow:0 10px 30px rgba(0,0,0,0.15);
-            box-sizing:border-box;
+            box-shadow:0 5px 20px rgba(0,0,0,0.15);
           }
 
           .engine-bg{
@@ -119,8 +114,8 @@ function PurchaseHistory() {
             top:50%;
             left:50%;
             transform:translate(-50%,-50%);
-            opacity:0.06;
-            width:500px;
+            width:450px;
+            opacity:0.05;
             z-index:0;
           }
 
@@ -135,28 +130,27 @@ function PurchaseHistory() {
           }
 
           .title{
-            font-size:52px;
+            font-size:46px;
             color:#0d47a1;
             font-weight:bold;
-            margin-bottom:5px;
           }
 
           .owner{
-            font-size:24px;
-            color:#333;
+            font-size:22px;
+            margin-top:10px;
             font-weight:bold;
           }
 
           .phone{
             font-size:18px;
-            color:#666;
+            color:#555;
           }
 
           .flower-left{
             position:absolute;
             top:0;
             left:0;
-            width:160px;
+            width:130px;
             opacity:0.8;
           }
 
@@ -164,25 +158,24 @@ function PurchaseHistory() {
             position:absolute;
             top:0;
             right:0;
-            width:160px;
+            width:130px;
             opacity:0.8;
           }
 
           .customer{
             margin-top:25px;
-            margin-bottom:20px;
+            margin-bottom:25px;
           }
 
           .customer h2{
             color:#0d47a1;
-            margin-bottom:10px;
-            font-size:32px;
+            font-size:30px;
           }
 
           .details{
-            font-size:24px;
-            font-weight:bold;
+            font-size:22px;
             line-height:1.8;
+            font-weight:bold;
           }
 
           table{
@@ -195,39 +188,39 @@ function PurchaseHistory() {
           th{
             background:#0d47a1;
             color:white;
-            padding:12px;
+            padding:14px;
             font-size:16px;
           }
 
           td{
-            padding:10px;
+            padding:12px;
             text-align:center;
             border-bottom:1px solid #ddd;
             font-size:15px;
           }
 
           .grand-total{
+            margin-top:25px;
             text-align:right;
-            margin-top:30px;
-            font-size:34px;
-            color:#0d47a1;
+            font-size:32px;
             font-weight:bold;
+            color:#0d47a1;
           }
 
           .thankyou{
             text-align:center;
-            margin-top:40px;
-            font-size:34px;
+            margin-top:35px;
+            font-size:32px;
             color:#0d47a1;
-            font-family:cursive;
             font-weight:bold;
+            font-family:cursive;
           }
 
           .footer{
             text-align:center;
-            margin-top:15px;
-            font-size:18px;
+            margin-top:10px;
             color:#666;
+            font-size:16px;
           }
 
           @media print{
@@ -239,7 +232,6 @@ function PurchaseHistory() {
 
             .invoice{
               box-shadow:none;
-              border:3px solid #0d47a1;
             }
           }
 
@@ -343,7 +335,9 @@ function PurchaseHistory() {
 
     printWindow.document.close();
 
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
   };
 
   return (
@@ -388,6 +382,7 @@ function PurchaseHistory() {
               display: "flex",
               gap: "10px",
               marginBottom: "20px",
+              flexWrap: "wrap",
             }}
           >
 
