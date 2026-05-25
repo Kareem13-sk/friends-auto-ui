@@ -147,80 +147,62 @@ function BillPage() {
     subtotal - Number(paidAmount || 0);
 
   // SAVE BILL
-  // SAVE BILL
-const saveBill = async () => {
+  const saveBill = async () => {
 
-  if (billItems.length === 0) {
-    alert("No items added");
-    return;
-  }
-
-  const billData = {
-
-    customerName,
-
-    items: billItems,
-
-    totalAmount: subtotal,
-
-    paidAmount: Number(paidAmount || 0),
-
-    balanceAmount: balance,
-
-    date: new Date().toLocaleString()
-  };
-
-  try {
-
-    const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/bills",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(billData)
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to save bill");
+    if (billItems.length === 0) {
+      alert("No items added");
+      return;
     }
 
-    alert("Bill Saved Successfully");
+    const billData = {
 
-    // CLEAR FORM
-    setBillItems([]);
-    setCustomerName("");
-    setPaidAmount("");
-    setPercentage("");
-    setSelectedProduct("");
+      customerName,
 
-  } catch (error) {
+      items: billItems,
 
-    console.log(error);
+      totalAmount: subtotal,
 
-    alert("Error saving bill");
-  }
-};
+      paidAmount: Number(paidAmount || 0),
 
-    const existingBills =
-      JSON.parse(localStorage.getItem("bills")) || [];
+      balanceAmount: balance,
 
-    existingBills.push(billData);
+      date: new Date().toLocaleString()
+    };
 
-    localStorage.setItem(
-      "bills",
-      JSON.stringify(existingBills)
-    );
+    try {
 
-    alert("Bill Saved Successfully");
+      const response = await fetch(
+        "https://friends-auto-backend-1utc.onrender.com/bills",
+        {
+          method: "POST",
 
-    setBillItems([]);
-    setCustomerName("");
-    setPaidAmount("");
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(billData)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save bill");
+      }
+
+      alert("Bill Saved Successfully");
+
+      // CLEAR FORM
+      setBillItems([]);
+      setCustomerName("");
+      setPaidAmount("");
+      setPercentage("");
+      setSelectedProduct("");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Error saving bill");
+    }
   };
 
   return (
@@ -593,7 +575,7 @@ const saveBill = async () => {
 
     </div>
   );
-
+}
 
 const inputStyle = {
   padding: "15px",
