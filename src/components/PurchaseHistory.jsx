@@ -86,6 +86,7 @@ const downloadBill = (bill) => {
   const invoiceWindow = window.open("", "_blank");
 
   invoiceWindow.document.write(`
+
     <html>
 
       <head>
@@ -101,35 +102,35 @@ const downloadBill = (bill) => {
           }
 
           body{
-            background:#f2f6ff;
+            background:#f5f7fb;
             font-family:Arial, sans-serif;
-            padding:20px;
+            padding:10px;
           }
 
           .invoice{
 
-            width:1000px;
+            width:900px;
             margin:auto;
             background:white;
-            border:8px solid #0d47a1;
-            border-radius:35px;
-            overflow:hidden;
+            border:5px solid #0d47a1;
+            border-radius:25px;
+            padding:20px;
             position:relative;
-            padding:30px;
+            overflow:hidden;
           }
 
           .invoice::before{
 
-            content:"⚙";
+            content:"🏍";
             position:absolute;
-            top:45%;
+            top:35%;
             left:50%;
             transform:translate(-50%,-50%);
-            font-size:350px;
-            opacity:0.04;
+            font-size:220px;
+            opacity:0.03;
           }
 
-          .top-row{
+          .top-header{
 
             display:flex;
             justify-content:space-between;
@@ -137,103 +138,110 @@ const downloadBill = (bill) => {
           }
 
           .date{
-            font-size:20px;
+
+            font-size:14px;
             font-weight:bold;
           }
 
-          .invoice-box{
+          .invoice-tag{
 
             background:#0d47a1;
             color:white;
-            padding:15px 35px;
-            border-radius:12px;
-            font-size:42px;
+            padding:10px 25px;
+            border-radius:10px;
+            font-size:28px;
             font-weight:bold;
           }
 
-          .logo{
-            text-align:center;
+          .bike-icons{
+
+            display:flex;
+            justify-content:space-between;
             margin-top:10px;
+            font-size:45px;
+            opacity:0.15;
           }
 
-          .logo-icon{
-            font-size:90px;
-            color:#0d47a1;
-          }
-
-          .shop-name{
+          .title{
 
             text-align:center;
-            font-size:72px;
             color:#0d47a1;
+            font-size:46px;
             font-weight:bold;
-            margin-top:10px;
+            margin-top:5px;
             letter-spacing:2px;
+          }
+
+          .sub-title{
+
+            text-align:center;
+            color:#666;
+            font-size:15px;
+            margin-top:4px;
           }
 
           .owner-section{
 
-            margin-top:30px;
             display:flex;
             justify-content:center;
             gap:80px;
-            font-size:28px;
+            margin-top:20px;
+            font-size:18px;
             font-weight:bold;
           }
 
-          .divider{
+          .line{
 
-            margin:25px auto;
-            width:85%;
-            height:3px;
+            width:100%;
+            height:2px;
             background:#0d47a1;
+            margin:20px 0;
+          }
+
+          .customer-section{
+
+            display:flex;
+            justify-content:space-between;
+            gap:20px;
           }
 
           .customer-box{
 
-            display:flex;
-            justify-content:space-between;
-            margin-top:30px;
-            gap:30px;
-          }
-
-          .left-box{
-
             width:55%;
-            border:3px solid #cde4ff;
-            border-radius:25px;
-            padding:25px;
-            background:#f8fbff;
+            border:2px solid #d6e6ff;
+            border-radius:18px;
+            padding:15px;
+            background:#f9fbff;
           }
 
-          .left-box h2{
+          .customer-box h2{
 
             color:#0d47a1;
-            font-size:42px;
-            margin-bottom:20px;
+            margin-bottom:10px;
+            font-size:28px;
           }
 
-          .left-box p{
+          .customer-box p{
 
-            font-size:28px;
-            margin:15px 0;
+            margin:8px 0;
+            font-size:20px;
             font-weight:bold;
           }
 
-          .right-box{
+          .details-box{
 
             width:40%;
-            border-left:4px solid #0d47a1;
-            padding-left:30px;
+            border-left:3px solid #0d47a1;
+            padding-left:20px;
             display:flex;
             flex-direction:column;
             justify-content:center;
           }
 
-          .right-box p{
+          .details-box p{
 
-            font-size:26px;
-            margin:18px 0;
+            margin:10px 0;
+            font-size:18px;
             font-weight:bold;
           }
 
@@ -241,24 +249,23 @@ const downloadBill = (bill) => {
 
             width:100%;
             border-collapse:collapse;
-            margin-top:40px;
+            margin-top:25px;
           }
 
           th{
 
             background:#0d47a1;
             color:white;
-            padding:20px;
-            font-size:24px;
+            padding:12px;
+            font-size:18px;
           }
 
           td{
 
-            padding:18px;
-            border:1px solid #cfd8dc;
+            border:1px solid #d8d8d8;
+            padding:10px;
             text-align:center;
-            font-size:22px;
-            font-weight:500;
+            font-size:16px;
           }
 
           tr:nth-child(even){
@@ -268,7 +275,7 @@ const downloadBill = (bill) => {
 
           .grand-total{
 
-            margin-top:30px;
+            margin-top:25px;
             text-align:right;
           }
 
@@ -276,30 +283,30 @@ const downloadBill = (bill) => {
 
             background:#0d47a1;
             color:white;
-            padding:18px 35px;
-            border-radius:18px;
-            font-size:42px;
+            padding:12px 25px;
+            border-radius:12px;
+            font-size:28px;
             font-weight:bold;
           }
 
-          .thank-you{
+          .thanks{
 
             text-align:center;
-            margin-top:60px;
+            margin-top:40px;
           }
 
-          .thank-you h1{
+          .thanks h1{
 
             color:#0d47a1;
-            font-size:72px;
+            font-size:42px;
             font-family:cursive;
           }
 
-          .thank-you p{
+          .thanks p{
 
             margin-top:10px;
-            font-size:26px;
             color:#444;
+            font-size:18px;
             font-weight:bold;
           }
 
@@ -308,54 +315,40 @@ const downloadBill = (bill) => {
             display:flex;
             justify-content:space-between;
             align-items:end;
-            margin-top:40px;
+            margin-top:25px;
           }
 
           .seal{
 
-            width:170px;
-            height:170px;
+            width:110px;
+            height:110px;
             border-radius:50%;
-            border:10px solid #0d47a1;
+            border:6px solid #0d47a1;
             display:flex;
-            align-items:center;
             justify-content:center;
-            color:#0d47a1;
-            font-size:28px;
-            font-weight:bold;
+            align-items:center;
             text-align:center;
+            color:#0d47a1;
+            font-size:18px;
+            font-weight:bold;
           }
 
           .signature{
 
             text-align:center;
-            font-size:24px;
-            font-weight:bold;
           }
 
           .signature h2{
 
-            font-family:cursive;
-            font-size:52px;
             color:#0d47a1;
+            font-size:38px;
+            font-family:cursive;
           }
 
-          .flower-left{
+          .signature p{
 
-            position:absolute;
-            top:15px;
-            left:15px;
-            font-size:90px;
-            opacity:0.18;
-          }
-
-          .flower-right{
-
-            position:absolute;
-            top:15px;
-            right:15px;
-            font-size:90px;
-            opacity:0.18;
+            font-size:18px;
+            font-weight:bold;
           }
 
           @media print{
@@ -366,9 +359,13 @@ const downloadBill = (bill) => {
             }
 
             .invoice{
-              border:none;
               width:100%;
-              box-shadow:none;
+              border:none;
+            }
+
+            @page{
+              size:A4;
+              margin:8mm;
             }
           }
 
@@ -380,27 +377,30 @@ const downloadBill = (bill) => {
 
         <div class="invoice">
 
-          <div class="flower-left">🌸</div>
-          <div class="flower-right">🌸</div>
-
-          <div class="top-row">
+          <div class="top-header">
 
             <div class="date">
-              ${new Date().toLocaleDateString()}
+              ${new Date().toLocaleDateString()} ,
+              ${new Date().toLocaleTimeString()}
             </div>
 
-            <div class="invoice-box">
+            <div class="invoice-tag">
               INVOICE
             </div>
 
           </div>
 
-          <div class="logo">
-            <div class="logo-icon">⚙️</div>
+          <div class="bike-icons">
+            <span>🏍</span>
+            <span>🏍</span>
           </div>
 
-          <div class="shop-name">
+          <div class="title">
             FRIENDS AUTO MOBILE
+          </div>
+
+          <div class="sub-title">
+            Professional Auto Parts & Service
           </div>
 
           <div class="owner-section">
@@ -415,11 +415,11 @@ const downloadBill = (bill) => {
 
           </div>
 
-          <div class="divider"></div>
+          <div class="line"></div>
 
-          <div class="customer-box">
+          <div class="customer-section">
 
-            <div class="left-box">
+            <div class="customer-box">
 
               <h2>
                 Customer : ${bill.customerName}
@@ -439,7 +439,7 @@ const downloadBill = (bill) => {
 
             </div>
 
-            <div class="right-box">
+            <div class="details-box">
 
               <p>
                 Date : ${new Date().toLocaleDateString()}
@@ -490,7 +490,7 @@ const downloadBill = (bill) => {
 
           </div>
 
-          <div class="thank-you">
+          <div class="thanks">
 
             <h1>
               Thank You! Visit Again
@@ -498,7 +498,7 @@ const downloadBill = (bill) => {
 
             <p>
               Friends Auto Mobile <br/>
-              We Deal in All Types of Auto Parts
+              We Deal In All Types Of Auto Parts
             </p>
 
           </div>
@@ -515,9 +515,9 @@ const downloadBill = (bill) => {
                 Naimulla
               </h2>
 
-              <div>
+              <p>
                 Owner
-              </div>
+              </p>
 
             </div>
 
@@ -528,6 +528,7 @@ const downloadBill = (bill) => {
       </body>
 
     </html>
+
   `);
 
   invoiceWindow.document.close();
