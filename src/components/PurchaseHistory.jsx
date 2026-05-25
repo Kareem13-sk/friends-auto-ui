@@ -1,352 +1,346 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 function PurchaseHistory() {
 
   const [bills, setBills] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-  // LOAD BILLS
   useEffect(() => {
-
-    const savedBills =
-      JSON.parse(localStorage.getItem("bills")) || [];
-
-    setBills(savedBills);
-
+    fetchBills();
   }, []);
 
-  // DELETE BILL
-  const deleteBill = (indexToDelete) => {
+  const fetchBills = async () => {
 
-    const confirmDelete =
-      window.confirm("Delete this bill?");
+    try {
 
-    if (!confirmDelete) return;
-
-    const updatedBills =
-      bills.filter(
-        (_, index) => index !== indexToDelete
+      const response = await axios.get(
+        "https://friends-auto-backend-1utc.onrender.com/bills"
       );
 
-    localStorage.setItem(
-      "bills",
-      JSON.stringify(updatedBills)
-    );
+      setBills(response.data);
 
-    setBills(updatedBills);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  // EDIT PAID AMOUNT
-  const editPaidAmount = (billIndex) => {
+  const deleteBill = async (id) => {
 
-    const bill = bills[billIndex];
+    try {
 
-    const newPaid = prompt(
-      "Enter New Paid Amount",
-      bill.paidAmount
-    );
+      await axios.delete(
+        `https://friends-auto-backend-1utc.onrender.com/bills/${id}`
+      );
 
-    if (!newPaid) return;
+      fetchBills();
 
-    const updatedBills = [...bills];
+    } catch (error) {
 
-    updatedBills[billIndex].paidAmount =
-      Number(newPaid);
-
-    updatedBills[billIndex].balanceAmount =
-      updatedBills[billIndex].totalAmount -
-      Number(newPaid);
-
-    localStorage.setItem(
-      "bills",
-      JSON.stringify(updatedBills)
-    );
-
-    setBills(updatedBills);
+      console.log(error);
+    }
   };
 
-  // DOWNLOAD / PRINT BILL
+  const updateBill = async (bill) => {
+
+    try {
+
+      await axios.put(
+        `https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}`,
+        bill
+      );
+
+      setEditingId(null);
+
+      fetchBills();
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
   const downloadBill = (bill) => {
 
-    let rows = "";
+    const rows = bill.items
+      .map(
+        (item) => `
+          <tr>
+            <td>${item.productName}</td>
+            <td>${item.quantity}</td>
+            <td>₹${item.actualPrice}</td>
+            <td>₹${item.price}</td>
+            <td>₹${item.total}</td>
+          </tr>
+        `
+      )
+      .join("");
 
-    bill.items?.forEach((item) => {
+    const isLargeBill = bill.items.length > 15;
 
-      rows += `
-        <tr>
-          <td>${item.product}</td>
-          <td>${item.qty}</td>
-          <td>₹${item.actualPrice}</td>
-          <td>₹${item.price}</td>
-          <td>₹${item.total}</td>
-        </tr>
-      `;
-    });
+    const printWindow = window.open("", "_blank");
 
-    const billWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Invoice</title>
 
-    billWindow.document.write(`
+        <style>
 
-    <html>
+          body{
+            font-family:Arial,sans-serif;
+            background:#f2f2f2;
+            padding:20px;
+            margin:0;
+          }
 
-    <head>
+          .invoice{
 
-      <title>Invoice</title>
+            width:800px;
+            height:${isLargeBill ? "auto" : "1120px"};
+            margin:auto;
+            background:white;
+            border-radius:25px;
+            padding:30px;
+            position:relative;
+            overflow:hidden;
+            border:4px solid #0d47a1;
+            box-shadow:0 10px 30px rgba(0,0,0,0.15);
+            box-sizing:border-box;
+          }
 
-      <style>
+          .engine-bg{
 
-        body{
-          background:#f3f6fb;
-          padding:30px;
-          font-family:Arial,sans-serif;
-        }
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            opacity:0.06;
+            width:500px;
+            z-index:0;
+          }
 
-        .invoice{
-          max-width:900px;
-          margin:auto;
-          background:white;
-          border-radius:25px;
-          padding:50px;
-          position:relative;
-          overflow:hidden;
-          border:4px solid #0d47a1;
-          box-shadow:0 10px 30px rgba(0,0,0,0.15);
-        }
+          .content{
+            position:relative;
+            z-index:2;
+          }
 
-        .invoice::before{
-          content:"";
-          position:absolute;
-          top:50%;
-          left:50%;
-          transform:translate(-50%,-50%);
-          width:450px;
-          height:450px;
+          .header{
+            text-align:center;
+            margin-bottom:20px;
+          }
 
-          background-image:url('https://cdn-icons-png.flaticon.com/512/741/741407.png');
+          .title{
+            font-size:52px;
+            color:#0d47a1;
+            font-weight:bold;
+            margin-bottom:5px;
+          }
 
-          background-repeat:no-repeat;
-          background-size:contain;
+          .owner{
+            font-size:24px;
+            color:#333;
+            font-weight:bold;
+          }
 
-          opacity:0.05;
+          .phone{
+            font-size:18px;
+            color:#666;
+          }
 
-          z-index:0;
-        }
+          .flower-left{
+            position:absolute;
+            top:0;
+            left:0;
+            width:160px;
+            opacity:0.8;
+          }
 
-        .flower1,
-        .flower2,
-        .flower3,
-        .flower4{
-          position:absolute;
-          width:170px;
-          z-index:1;
-        }
+          .flower-right{
+            position:absolute;
+            top:0;
+            right:0;
+            width:160px;
+            opacity:0.8;
+          }
 
-        .flower1{
-          top:-10px;
-          left:-10px;
-        }
+          .customer{
+            margin-top:25px;
+            margin-bottom:20px;
+          }
 
-        .flower2{
-          top:-10px;
-          right:-10px;
-          transform:scaleX(-1);
-        }
+          .customer h2{
+            color:#0d47a1;
+            margin-bottom:10px;
+            font-size:32px;
+          }
 
-        .flower3{
-          bottom:-10px;
-          left:-10px;
-          transform:scaleY(-1);
-        }
+          .details{
+            font-size:24px;
+            font-weight:bold;
+            line-height:1.8;
+          }
 
-        .flower4{
-          bottom:-10px;
-          right:-10px;
-          transform:scale(-1);
-        }
+          table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            background:white;
+          }
 
-        .content{
-          position:relative;
-          z-index:2;
-        }
+          th{
+            background:#0d47a1;
+            color:white;
+            padding:12px;
+            font-size:16px;
+          }
 
-        h1{
-          text-align:center;
-          color:#0d47a1;
-          font-size:52px;
-          margin-bottom:5px;
-        }
+          td{
+            padding:10px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+            font-size:15px;
+          }
 
-        .owner{
-          text-align:center;
-          font-size:22px;
-          font-weight:bold;
-          margin-top:15px;
-        }
+          .grand-total{
+            text-align:right;
+            margin-top:30px;
+            font-size:34px;
+            color:#0d47a1;
+            font-weight:bold;
+          }
 
-        .phone{
-          text-align:center;
-          font-size:18px;
-          margin-bottom:35px;
-          color:#555;
-        }
+          .thankyou{
+            text-align:center;
+            margin-top:40px;
+            font-size:34px;
+            color:#0d47a1;
+            font-family:cursive;
+            font-weight:bold;
+          }
 
-        .customer{
-          font-size:30px;
-          color:#0d47a1;
-          margin-bottom:25px;
-          font-weight:bold;
-        }
+          .footer{
+            text-align:center;
+            margin-top:15px;
+            font-size:18px;
+            color:#666;
+          }
 
-        .summary{
-          font-size:24px;
-          margin-bottom:10px;
-          font-weight:bold;
-        }
+          @media print{
 
-        table{
-          width:100%;
-          border-collapse:collapse;
-          margin-top:35px;
-          background:white;
-        }
+            body{
+              background:white;
+              padding:0;
+            }
 
-        th{
-          background:#0d47a1;
-          color:white;
-          padding:18px;
-          font-size:18px;
-        }
+            .invoice{
+              box-shadow:none;
+              border:3px solid #0d47a1;
+            }
+          }
 
-        td{
-          border:1px solid #ddd;
-          padding:16px;
-          text-align:center;
-          font-size:17px;
-        }
+        </style>
 
-        tr:nth-child(even){
-          background:#f8f8f8;
-        }
+      </head>
 
-        .grand-total{
-          text-align:right;
-          margin-top:40px;
-          font-size:34px;
-          color:#0d47a1;
-          font-weight:bold;
-        }
+      <body>
 
-        .thankyou{
-          text-align:center;
-          margin-top:80px;
-          font-size:38px;
-          color:#0d47a1;
-          font-family:cursive;
-          font-weight:bold;
-        }
+        <div class="invoice">
 
-      </style>
+          <img
+            class="flower-left"
+            src="https://png.pngtree.com/png-clipart/20230401/original/pngtree-blue-flower-watercolor-decoration-png-image_9019822.png"
+          />
 
-    </head>
+          <img
+            class="flower-right"
+            src="https://png.pngtree.com/png-clipart/20230401/original/pngtree-blue-flower-watercolor-decoration-png-image_9019822.png"
+          />
 
-    <body>
+          <img
+            class="engine-bg"
+            src="https://cdn-icons-png.flaticon.com/512/8086/8086346.png"
+          />
 
-      <div class="invoice">
+          <div class="content">
 
-        <img
-          class="flower1"
-          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
-        />
+            <div class="header">
 
-        <img
-          class="flower2"
-          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
-        />
+              <div class="title">
+                Friends Auto Mobile
+              </div>
 
-        <img
-          class="flower3"
-          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
-        />
+              <div class="owner">
+                Owner : Naimulla
+              </div>
 
-        <img
-          class="flower4"
-          src="https://png.pngtree.com/png-clipart/20230415/original/pngtree-watercolor-flower-corner-decoration-png-image_9054934.png"
-        />
+              <div class="phone">
+                Phone : 9700433876
+              </div>
 
-        <div class="content">
+            </div>
 
-          <h1>Friends Auto Mobile</h1>
+            <div class="customer">
 
-          <div class="owner">
-            Owner : Naimulla
-          </div>
+              <h2>
+                Customer : ${bill.customerName}
+              </h2>
 
-          <div class="phone">
-            Phone : 9700433876
-          </div>
+              <div class="details">
+                Total : ₹${bill.totalAmount}<br/>
+                Paid : ₹${bill.paidAmount}<br/>
+                Balance : ₹${bill.balanceAmount}
+              </div>
 
-          <div class="customer">
-            Customer : ${bill.customerName}
-          </div>
+            </div>
 
-          <div class="summary">
-            Total : ₹${bill.totalAmount}
-          </div>
+            <table>
 
-          <div class="summary">
-            Paid : ₹${bill.paidAmount}
-          </div>
+              <thead>
 
-          <div class="summary">
-            Balance : ₹${bill.balanceAmount}
-          </div>
+                <tr>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Actual Price</th>
+                  <th>Final Price</th>
+                  <th>Total</th>
+                </tr>
 
-          <table>
+              </thead>
 
-            <thead>
+              <tbody>
+                ${rows}
+              </tbody>
 
-              <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Actual Price</th>
-                <th>Final Price</th>
-                <th>Total</th>
-              </tr>
+            </table>
 
-            </thead>
+            <div class="grand-total">
+              Grand Total : ₹${bill.totalAmount}
+            </div>
 
-            <tbody>
+            <div class="thankyou">
+              Thank You Visit Again
+            </div>
 
-              ${rows}
+            <div class="footer">
+              Friends Auto Mobile • Quality Parts & Service
+            </div>
 
-            </tbody>
-
-          </table>
-
-          <div class="grand-total">
-            Grand Total : ₹${bill.totalAmount}
-          </div>
-
-          <div class="thankyou">
-            Thank You Visit Again
           </div>
 
         </div>
 
-      </div>
+      </body>
 
-    </body>
-
-    </html>
-
+      </html>
     `);
 
-    billWindow.document.close();
+    printWindow.document.close();
 
-    billWindow.print();
+    printWindow.print();
   };
 
   return (
-
     <div>
 
       <h1
@@ -360,121 +354,57 @@ function PurchaseHistory() {
         Bills History
       </h1>
 
-      {bills.length === 0 && (
-
-        <h2
-          style={{
-            textAlign: "center",
-            color: "gray",
-          }}
-        >
-          No Bills Found
-        </h2>
-
-      )}
-
-      {bills.map((bill, billIndex) => (
+      {bills.map((bill) => (
 
         <div
-          key={billIndex}
+          key={bill.id}
           style={{
             background: "white",
             borderRadius: "20px",
-            padding: "25px",
-            marginBottom: "30px",
+            padding: "20px",
+            marginBottom: "25px",
             boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-            overflowX: "auto",
           }}
         >
 
+          <h2 style={{ color: "#0d47a1" }}>
+            Customer : {bill.customerName}
+          </h2>
+
+          <h3>Total : ₹{bill.totalAmount}</h3>
+
+          <h3>Paid : ₹{bill.paidAmount}</h3>
+
+          <h3>Balance : ₹{bill.balanceAmount}</h3>
+
           <div
             style={{
+              display: "flex",
+              gap: "10px",
               marginBottom: "20px",
             }}
           >
 
-            <h2
-              style={{
-                color: "#0d47a1",
-                marginBottom: "10px",
-              }}
+            <button
+              onClick={() => setEditingId(bill.id)}
+              style={editBtn}
             >
-              Customer : {bill.customerName}
-            </h2>
+              Edit
+            </button>
 
-            <h3>
-              Total : ₹{bill.totalAmount}
-            </h3>
-
-            <h3>
-              Paid : ₹{bill.paidAmount}
-            </h3>
-
-            <h3>
-              Balance : ₹{bill.balanceAmount}
-            </h3>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "15px",
-                marginTop: "20px",
-                flexWrap: "wrap",
-              }}
+            <button
+              onClick={() => deleteBill(bill.id)}
+              style={deleteBtn}
             >
+              Delete
+            </button>
 
-              <button
-                onClick={() =>
-                  editPaidAmount(billIndex)
-                }
-                style={{
-                  background: "#1565c0",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={() =>
-                  deleteBill(billIndex)
-                }
-                style={{
-                  background: "red",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Delete
-              </button>
-
-              <button
-                onClick={() =>
-                  downloadBill(bill)
-                }
-                style={{
-                  background: "green",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Download Bill
-              </button>
-
-            </div>
+            <button
+              onClick={() => downloadBill(bill)}
+              style={downloadBtn}
+            >
+              Download Bill
+            </button>
 
           </div>
 
@@ -496,12 +426,8 @@ function PurchaseHistory() {
                 <th style={thStyle}>Product</th>
                 <th style={thStyle}>Qty</th>
                 <th style={thStyle}>%</th>
-                <th style={thStyle}>
-                  Actual Price
-                </th>
-                <th style={thStyle}>
-                  Final Price
-                </th>
+                <th style={thStyle}>Actual Price</th>
+                <th style={thStyle}>Final Price</th>
                 <th style={thStyle}>Total</th>
               </tr>
 
@@ -514,11 +440,11 @@ function PurchaseHistory() {
                 <tr key={index}>
 
                   <td style={tdStyle}>
-                    {item.product}
+                    {item.productName}
                   </td>
 
                   <td style={tdStyle}>
-                    {item.qty}
+                    {item.quantity}
                   </td>
 
                   <td style={tdStyle}>
@@ -562,6 +488,36 @@ const tdStyle = {
   padding: "16px",
   textAlign: "center",
   borderBottom: "1px solid #ddd",
+};
+
+const editBtn = {
+  background: "#1976d2",
+  color: "white",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const deleteBtn = {
+  background: "red",
+  color: "white",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const downloadBtn = {
+  background: "#0d47a1",
+  color: "white",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontWeight: "bold",
 };
 
 export default PurchaseHistory;
