@@ -114,13 +114,14 @@ function BillPage() {
 
     const total = finalPrice * qty;
 
+    // IMPORTANT FIX
     const newItem = {
 
-      product:
+      productName:
         product.productName ||
         product.name,
 
-      qty,
+      quantity: qty,
 
       percentage: percent,
 
@@ -429,11 +430,11 @@ function BillPage() {
               <tr key={index}>
 
                 <td style={tdStyle}>
-                  {item.product}
+                  {item.productName}
                 </td>
 
                 <td style={tdStyle}>
-                  {item.qty}
+                  {item.quantity}
                 </td>
 
                 <td style={tdStyle}>
@@ -458,10 +459,10 @@ function BillPage() {
                     onClick={() => {
 
                       setSelectedProduct(
-                        item.product
+                        item.productName
                       );
 
-                      setQuantity(item.qty);
+                      setQuantity(item.quantity);
 
                       setPercentage(
                         item.percentage
