@@ -89,6 +89,7 @@ function CustomerDetails() {
           color: "#0d47a1",
           marginBottom: "30px",
           fontSize: "48px",
+          fontWeight: "bold",
         }}
       >
         Customer Details
@@ -100,6 +101,7 @@ function CustomerDetails() {
           padding: "30px",
           borderRadius: "20px",
           position: "relative",
+          boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
         }}
       >
 
@@ -112,12 +114,13 @@ function CustomerDetails() {
             width: "100%",
             padding: "16px",
             borderRadius: "12px",
-            border: "1px solid #ccc",
+            border: "2px solid #dce3f0",
             fontSize: "18px",
+            outline: "none",
           }}
         />
 
-        {filteredCustomers.length > 0 && (
+        {search !== "" && filteredCustomers.length > 0 && (
 
           <div
             style={{
@@ -127,11 +130,11 @@ function CustomerDetails() {
               right: "30px",
               background: "white",
               border: "1px solid #ddd",
-              borderRadius: "10px",
+              borderRadius: "12px",
               zIndex: 1000,
-              maxHeight: "200px",
+              maxHeight: "220px",
               overflowY: "auto",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
             }}
           >
 
@@ -143,9 +146,17 @@ function CustomerDetails() {
                   selectCustomer(customer.customerName)
                 }
                 style={{
-                  padding: "12px",
+                  padding: "14px 18px",
                   cursor: "pointer",
                   borderBottom: "1px solid #eee",
+                  fontSize: "17px",
+                  transition: "0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "#f2f6ff";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "white";
                 }}
               >
                 {customer.customerName}
@@ -175,6 +186,7 @@ function CustomerDetails() {
             padding: "30px",
             borderRadius: "20px",
             textAlign: "center",
+            boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
           }}
         >
           <h2>Total Purchase</h2>
@@ -190,6 +202,7 @@ function CustomerDetails() {
             padding: "30px",
             borderRadius: "20px",
             textAlign: "center",
+            boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
           }}
         >
           <h2>Pending Balance</h2>
@@ -205,6 +218,7 @@ function CustomerDetails() {
           marginTop: "30px",
           padding: "25px",
           borderRadius: "20px",
+          boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
         }}
       >
 
@@ -212,6 +226,7 @@ function CustomerDetails() {
           style={{
             color: "#0d47a1",
             marginBottom: "20px",
+            fontSize: "30px",
           }}
         >
           Bill History
@@ -241,25 +256,46 @@ function CustomerDetails() {
 
           <tbody>
 
-            {bills.map((bill) => (
+            {bills.length > 0 ? (
 
-              <tr key={bill.id}>
+              bills.map((bill) => (
 
-                <td style={tdStyle}>
-                  ₹{bill.totalAmount}
-                </td>
+                <tr key={bill.id}>
 
-                <td style={tdStyle}>
-                  ₹{bill.paidAmount}
-                </td>
+                  <td style={tdStyle}>
+                    ₹{bill.totalAmount}
+                  </td>
 
-                <td style={tdStyle}>
-                  ₹{bill.balanceAmount}
+                  <td style={tdStyle}>
+                    ₹{bill.paidAmount}
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{bill.balanceAmount}
+                  </td>
+
+                </tr>
+
+              ))
+
+            ) : (
+
+              <tr>
+
+                <td
+                  colSpan="3"
+                  style={{
+                    padding: "20px",
+                    textAlign: "center",
+                    color: "gray",
+                  }}
+                >
+                  No Bills Found
                 </td>
 
               </tr>
 
-            ))}
+            )}
 
           </tbody>
 
