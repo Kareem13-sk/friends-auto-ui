@@ -14,17 +14,19 @@ function PurchaseHistory() {
     try {
 
       const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/Bills"
+        "https://friends-auto-backend-1utc.onrender.com/bills"
       );
 
       setBills(response.data);
 
     } catch (error) {
+
       console.log(error);
     }
   };
 
   return (
+
     <div>
 
       <h1
@@ -38,70 +40,114 @@ function PurchaseHistory() {
         Bills History
       </h1>
 
-      <div
-        style={{
-          background: "white",
-          borderRadius: "20px",
-          padding: "25px",
-          boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-          overflowX: "auto",
-        }}
-      >
+      {bills.map((bill) => (
 
-        <table
+        <div
+          key={bill.id}
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
+            background: "white",
+            borderRadius: "20px",
+            padding: "25px",
+            marginBottom: "30px",
+            boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+            overflowX: "auto",
           }}
         >
 
-          <thead>
+          {/* CUSTOMER DETAILS */}
 
-            <tr
+          <div
+            style={{
+              marginBottom: "20px",
+            }}
+          >
+
+            <h2
               style={{
-                background: "#0d47a1",
-                color: "white",
+                color: "#0d47a1",
+                marginBottom: "10px",
               }}
             >
-              <th style={thStyle}>Customer</th>
-              <th style={thStyle}>Total</th>
-              <th style={thStyle}>Paid</th>
-              <th style={thStyle}>Balance</th>
-            </tr>
+              Customer : {bill.customerName}
+            </h2>
 
-          </thead>
+            <h3>
+              Total : ₹{bill.totalAmount}
+            </h3>
 
-          <tbody>
+            <h3>
+              Paid : ₹{bill.paidAmount}
+            </h3>
 
-            {bills.map((bill) => (
+            <h3>
+              Balance : ₹{bill.balanceAmount}
+            </h3>
 
-              <tr key={bill.id}>
+          </div>
 
-                <td style={tdStyle}>
-                  {bill.customerName}
-                </td>
+          {/* PRODUCTS TABLE */}
 
-                <td style={tdStyle}>
-                  ₹{bill.totalAmount}
-                </td>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
 
-                <td style={tdStyle}>
-                  ₹{bill.paidAmount}
-                </td>
+            <thead>
 
-                <td style={tdStyle}>
-                  ₹{bill.balanceAmount}
-                </td>
-
+              <tr
+                style={{
+                  background: "#0d47a1",
+                  color: "white",
+                }}
+              >
+                <th style={thStyle}>Product</th>
+                <th style={thStyle}>Qty</th>
+                <th style={thStyle}>%</th>
+                <th style={thStyle}>Price</th>
+                <th style={thStyle}>Total</th>
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {bill.items?.map((item, index) => (
 
-      </div>
+                <tr key={index}>
+
+                  <td style={tdStyle}>
+                    {item.productName}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {item.quantity}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {item.percentage}%
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{item.price}
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{item.total}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      ))}
 
     </div>
   );
