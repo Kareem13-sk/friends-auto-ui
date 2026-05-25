@@ -68,19 +68,19 @@ function PurchaseHistory() {
   const downloadBill = (bill) => {
 
   const rows = (bill.items || [])
-    .map(
-      (item, index) => `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${item.productName}</td>
-          <td>${item.quantity}</td>
-          <td>₹${item.actualPrice}</td>
-          <td>₹${item.price}</td>
-          <td>₹${item.total}</td>
-        </tr>
-      `
-    )
-    .join("");
+  .map(
+    (item, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${item.product || item.productName || ""}</td>
+        <td>${item.qty || item.quantity || ""}</td>
+        <td>₹${item.actualPrice || 0}</td>
+        <td>₹${item.price || 0}</td>
+        <td>₹${item.total || 0}</td>
+      </tr>
+    `
+  )
+  .join("");
 
   const invoiceWindow = window.open("", "_blank");
 
