@@ -21,6 +21,7 @@ function PurchaseHistory() {
       setBills(response.data);
 
     } catch (error) {
+
       console.log(error);
     }
   };
@@ -62,7 +63,7 @@ function PurchaseHistory() {
 
   const downloadBill = (bill) => {
 
-    const rows = bill.items
+    const rows = (bill.items || [])
       .map(
         (item) => `
           <tr>
@@ -76,13 +77,16 @@ function PurchaseHistory() {
       )
       .join("");
 
-    const isLargeBill = bill.items.length > 15;
+    const isLargeBill =
+      (bill.items || []).length > 15;
 
     const printWindow = window.open("", "_blank");
 
     printWindow.document.write(`
       <html>
+
       <head>
+
         <title>Invoice</title>
 
         <style>
@@ -309,7 +313,9 @@ function PurchaseHistory() {
               </thead>
 
               <tbody>
+
                 ${rows}
+
               </tbody>
 
             </table>
@@ -354,7 +360,7 @@ function PurchaseHistory() {
         Bills History
       </h1>
 
-      {bills.map((bill) => (
+      {(bills || []).map((bill) => (
 
         <div
           key={bill.id}
@@ -435,7 +441,7 @@ function PurchaseHistory() {
 
             <tbody>
 
-              {bill.items?.map((item, index) => (
+              {(bill.items || []).map((item, index) => (
 
                 <tr key={index}>
 
