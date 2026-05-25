@@ -1,238 +1,121 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 function PurchaseHistory() {
 
   const [bills, setBills] = useState([]);
-  const [editingId, setEditingId] = useState(null);
 
+  // LOAD BILLS FROM LOCAL STORAGE
   useEffect(() => {
-    fetchBills();
+
+    const savedBills =
+      JSON.parse(localStorage.getItem("bills")) || [];
+
+    setBills(savedBills);
+
   }, []);
 
-  const fetchBills = async () => {
+  // DELETE BILL
+  const deleteBill = (indexToDelete) => {
 
-    try {
+    const confirmDelete =
+      window.confirm("Delete this bill?");
 
-      const response = await axios.get(
-        "https://friends-auto-backend-1utc.onrender.com/bills"
+    if (!confirmDelete) return;
+
+    const updatedBills =
+      bills.filter(
+        (_, index) => index !== indexToDelete
       );
 
-      setBills(response.data || []);
+    localStorage.setItem(
+      "bills",
+      JSON.stringify(updatedBills)
+    );
 
-    } catch (error) {
-
-      console.log(error);
-    }
+    setBills(updatedBills);
   };
 
-  const deleteBill = async (id) => {
+  // EDIT PAID AMOUNT
+  const editPaidAmount = (billIndex) => {
 
-    try {
+    const bill = bills[billIndex];
 
-      await axios.delete(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${id}`
-      );
+    const newPaid = prompt(
+      "Enter New Paid Amount",
+      bill.paidAmount
+    );
 
-      fetchBills();
+    if (!newPaid) return;
 
-    } catch (error) {
+    const updatedBills = [...bills];
 
-      console.log(error);
-    }
+    updatedBills[billIndex].paidAmount =
+      Number(newPaid);
+
+    updatedBills[billIndex].balanceAmount =
+      updatedBills[billIndex].totalAmount -
+      Number(newPaid);
+
+    localStorage.setItem(
+      "bills",
+      JSON.stringify(updatedBills)
+    );
+
+    setBills(updatedBills);
   };
 
-  const updateBill = async (bill) => {
-
-    try {
-
-      await axios.put(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${bill.id}`,
-        bill
-      );
-
-      setEditingId(null);
-
-      fetchBills();
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
+  // DOWNLOAD BILL
   const downloadBill = (bill) => {
 
-    const rows = (bill.items || [])
-      .map(
-        (item) => `
-          <tr>
-            <td>${item.productName}</td>
-            <td>${item.quantity}</td>
-            <td>₹${item.actualPrice}</td>
-            <td>₹${item.price}</td>
-            <td>₹${item.total}</td>
-          </tr>
-        `
-      )
-      .join("");
+  let rows = "";
 
-    const printWindow = window.open("", "_blank");
+  bill.items?.forEach((item) => {
 
-    printWindow.document.write(`
-      <html>
+    rows += `
+      <tr>
+        <td>${item.product}</td>
+        <td>${item.qty}</td>
+        <td>₹${item.actualPrice}</td>
+        <td>₹${item.price}</td>
+        <td>₹${item.total}</td>
+      </tr>
+    `;
+  });
 
+  const billWindow = window.open("", "_blank");
+
+  billWindow.document.write(`
+    <html>
       <head>
-
         <title>Invoice</title>
 
         <style>
 
           body{
-            font-family:Arial,sans-serif;
-            background:#f2f2f2;
-            margin:0;
-            padding:20px;
+            font-family: Arial;
+            padding: 30px;
           }
 
-          .invoice{
-
-            max-width:900px;
-            margin:auto;
-            background:white;
-            border-radius:20px;
-            padding:30px;
-            border:3px solid #0d47a1;
-            position:relative;
-            overflow:hidden;
-            box-shadow:0 5px 20px rgba(0,0,0,0.15);
-          }
-
-          .engine-bg{
-
-            position:absolute;
-            top:50%;
-            left:50%;
-            transform:translate(-50%,-50%);
-            width:450px;
-            opacity:0.05;
-            z-index:0;
-          }
-
-          .content{
-            position:relative;
-            z-index:2;
-          }
-
-          .header{
+          h1{
             text-align:center;
-            margin-bottom:20px;
-          }
-
-          .title{
-            font-size:46px;
             color:#0d47a1;
-            font-weight:bold;
-          }
-
-          .owner{
-            font-size:22px;
-            margin-top:10px;
-            font-weight:bold;
-          }
-
-          .phone{
-            font-size:18px;
-            color:#555;
-          }
-
-          .flower-left{
-            position:absolute;
-            top:0;
-            left:0;
-            width:130px;
-            opacity:0.8;
-          }
-
-          .flower-right{
-            position:absolute;
-            top:0;
-            right:0;
-            width:130px;
-            opacity:0.8;
-          }
-
-          .customer{
-            margin-top:25px;
-            margin-bottom:25px;
-          }
-
-          .customer h2{
-            color:#0d47a1;
-            font-size:30px;
-          }
-
-          .details{
-            font-size:22px;
-            line-height:1.8;
-            font-weight:bold;
           }
 
           table{
             width:100%;
             border-collapse:collapse;
             margin-top:20px;
-            background:white;
+          }
+
+          th, td{
+            border:1px solid #ddd;
+            padding:12px;
+            text-align:center;
           }
 
           th{
             background:#0d47a1;
             color:white;
-            padding:14px;
-            font-size:16px;
-          }
-
-          td{
-            padding:12px;
-            text-align:center;
-            border-bottom:1px solid #ddd;
-            font-size:15px;
-          }
-
-          .grand-total{
-            margin-top:25px;
-            text-align:right;
-            font-size:32px;
-            font-weight:bold;
-            color:#0d47a1;
-          }
-
-          .thankyou{
-            text-align:center;
-            margin-top:35px;
-            font-size:32px;
-            color:#0d47a1;
-            font-weight:bold;
-            font-family:cursive;
-          }
-
-          .footer{
-            text-align:center;
-            margin-top:10px;
-            color:#666;
-            font-size:16px;
-          }
-
-          @media print{
-
-            body{
-              background:white;
-              padding:0;
-            }
-
-            .invoice{
-              box-shadow:none;
-            }
           }
 
         </style>
@@ -241,106 +124,50 @@ function PurchaseHistory() {
 
       <body>
 
-        <div class="invoice">
+        <h1>Friends Auto Mobile</h1>
 
-          <img
-            class="flower-left"
-            src="https://png.pngtree.com/png-clipart/20230401/original/pngtree-blue-flower-watercolor-decoration-png-image_9019822.png"
-          />
+        <h2>Customer : ${bill.customerName}</h2>
 
-          <img
-            class="flower-right"
-            src="https://png.pngtree.com/png-clipart/20230401/original/pngtree-blue-flower-watercolor-decoration-png-image_9019822.png"
-          />
+        <h3>Total : ₹${bill.totalAmount}</h3>
+        <h3>Paid : ₹${bill.paidAmount}</h3>
+        <h3>Balance : ₹${bill.balanceAmount}</h3>
 
-          <img
-            class="engine-bg"
-            src="https://cdn-icons-png.flaticon.com/512/8086/8086346.png"
-          />
+        <table>
 
-          <div class="content">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Actual Price</th>
+              <th>Final Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
 
-            <div class="header">
+          <tbody>
+            ${rows}
+          </tbody>
 
-              <div class="title">
-                Friends Auto Mobile
-              </div>
+        </table>
 
-              <div class="owner">
-                Owner : Naimulla
-              </div>
+        <br/>
 
-              <div class="phone">
-                Phone : 9700433876
-              </div>
-
-            </div>
-
-            <div class="customer">
-
-              <h2>
-                Customer : ${bill.customerName}
-              </h2>
-
-              <div class="details">
-                Total : ₹${bill.totalAmount}<br/>
-                Paid : ₹${bill.paidAmount}<br/>
-                Balance : ₹${bill.balanceAmount}
-              </div>
-
-            </div>
-
-            <table>
-
-              <thead>
-
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Actual Price</th>
-                  <th>Final Price</th>
-                  <th>Total</th>
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                ${rows}
-
-              </tbody>
-
-            </table>
-
-            <div class="grand-total">
-              Grand Total : ₹${bill.totalAmount}
-            </div>
-
-            <div class="thankyou">
-              Thank You Visit Again
-            </div>
-
-            <div class="footer">
-              Friends Auto Mobile • Quality Parts & Service
-            </div>
-
-          </div>
-
-        </div>
+        <h2 style="text-align:right">
+          Grand Total : ₹${bill.totalAmount}
+        </h2>
 
       </body>
 
-      </html>
-    `);
+    </html>
+  `);
 
-    printWindow.document.close();
+  billWindow.document.close();
 
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
-  };
+  billWindow.print();
+};
 
   return (
+
     <div>
 
       <h1
@@ -354,60 +181,129 @@ function PurchaseHistory() {
         Bills History
       </h1>
 
-      {(bills || []).map((bill) => (
+      {bills.length === 0 && (
+
+        <h2
+          style={{
+            textAlign: "center",
+            color: "gray",
+          }}
+        >
+          No Bills Found
+        </h2>
+
+      )}
+
+      {bills.map((bill, billIndex) => (
 
         <div
-          key={bill.id}
+          key={billIndex}
           style={{
             background: "white",
             borderRadius: "20px",
-            padding: "20px",
-            marginBottom: "25px",
+            padding: "25px",
+            marginBottom: "30px",
             boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+            overflowX: "auto",
           }}
         >
 
-          <h2 style={{ color: "#0d47a1" }}>
-            Customer : {bill.customerName}
-          </h2>
-
-          <h3>Total : ₹{bill.totalAmount}</h3>
-
-          <h3>Paid : ₹{bill.paidAmount}</h3>
-
-          <h3>Balance : ₹{bill.balanceAmount}</h3>
+          {/* CUSTOMER DETAILS */}
 
           <div
             style={{
-              display: "flex",
-              gap: "10px",
               marginBottom: "20px",
-              flexWrap: "wrap",
             }}
           >
 
-            <button
-              onClick={() => setEditingId(bill.id)}
-              style={editBtn}
+            <h2
+              style={{
+                color: "#0d47a1",
+                marginBottom: "10px",
+              }}
             >
-              Edit
-            </button>
+              Customer : {bill.customerName}
+            </h2>
 
-            <button
-              onClick={() => deleteBill(bill.id)}
-              style={deleteBtn}
-            >
-              Delete
-            </button>
+            <h3>
+              Total : ₹{bill.totalAmount}
+            </h3>
 
-            <button
-              onClick={() => downloadBill(bill)}
-              style={downloadBtn}
+            <h3>
+              Paid : ₹{bill.paidAmount}
+            </h3>
+
+            <h3>
+              Balance : ₹{bill.balanceAmount}
+            </h3>
+
+            {/* BUTTONS */}
+
+            <div
+              style={{
+                display: "flex",
+                gap: "15px",
+                marginTop: "20px",
+                flexWrap: "wrap",
+              }}
             >
-              Download Bill
-            </button>
+
+              <button
+                onClick={() =>
+                  editPaidAmount(billIndex)
+                }
+                style={{
+                  background: "#1565c0",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() =>
+                  deleteBill(billIndex)
+                }
+                style={{
+                  background: "red",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Delete
+              </button>
+
+              <button
+                onClick={() =>
+                  downloadBill(bill)
+                }
+                style={{
+                  background: "green",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Download Bill
+              </button>
+
+            </div>
 
           </div>
+
+          {/* PRODUCTS TABLE */}
 
           <table
             style={{
@@ -427,8 +323,12 @@ function PurchaseHistory() {
                 <th style={thStyle}>Product</th>
                 <th style={thStyle}>Qty</th>
                 <th style={thStyle}>%</th>
-                <th style={thStyle}>Actual Price</th>
-                <th style={thStyle}>Final Price</th>
+                <th style={thStyle}>
+                  Actual Price
+                </th>
+                <th style={thStyle}>
+                  Final Price
+                </th>
                 <th style={thStyle}>Total</th>
               </tr>
 
@@ -436,16 +336,16 @@ function PurchaseHistory() {
 
             <tbody>
 
-              {(bill.items || []).map((item, index) => (
+              {bill.items?.map((item, index) => (
 
                 <tr key={index}>
 
                   <td style={tdStyle}>
-                    {item.productName}
+                    {item.product}
                   </td>
 
                   <td style={tdStyle}>
-                    {item.quantity}
+                    {item.qty}
                   </td>
 
                   <td style={tdStyle}>
@@ -489,36 +389,6 @@ const tdStyle = {
   padding: "16px",
   textAlign: "center",
   borderBottom: "1px solid #ddd",
-};
-
-const editBtn = {
-  background: "#1976d2",
-  color: "white",
-  border: "none",
-  padding: "10px 18px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-
-const deleteBtn = {
-  background: "red",
-  color: "white",
-  border: "none",
-  padding: "10px 18px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-
-const downloadBtn = {
-  background: "#0d47a1",
-  color: "white",
-  border: "none",
-  padding: "10px 18px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  fontWeight: "bold",
 };
 
 export default PurchaseHistory;
