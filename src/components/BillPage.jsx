@@ -58,18 +58,21 @@ function BillPage() {
       return;
     }
 
-    const filtered = customers.filter(
-      (customer) =>
-        (
-          customer.customerName ||
-          customer.name ||
-          ""
-        )
-          .toLowerCase()
-          .includes(value.toLowerCase())
-    );
+    if (value.length >= 1) {
 
-    setFilteredCustomers(filtered);
+      const filtered = customers.filter(
+        (customer) =>
+          (
+            customer.customerName ||
+            customer.name ||
+            ""
+          )
+            .toLowerCase()
+            .includes(value.toLowerCase())
+      );
+
+      setFilteredCustomers(filtered);
+    }
   };
 
   // ADD BILL ITEM
@@ -247,11 +250,28 @@ function BillPage() {
           {/* PRODUCT DROPDOWN */}
           <select
             value={selectedProduct}
-            onChange={(e) =>
-              setSelectedProduct(
-                e.target.value
-              )
-            }
+            onChange={(e) => {
+
+              const value = e.target.value;
+
+              setSelectedProduct(value);
+
+              const product = products.find(
+                (p) =>
+                  (
+                    p.productName ||
+                    p.name ||
+                    ""
+                  ) === value
+              );
+
+              if (product) {
+
+                setPercentage(
+                  product.defaultPercentage || 0
+                );
+              }
+            }}
             style={inputStyle}
           >
 
@@ -337,6 +357,7 @@ function BillPage() {
               <th style={thStyle}>%</th>
               <th style={thStyle}>Price</th>
               <th style={thStyle}>Total</th>
+              <th style={thStyle}>Action</th>
             </tr>
           </thead>
 
@@ -363,6 +384,63 @@ function BillPage() {
 
                 <td style={tdStyle}>
                   ₹{item.total}
+                </td>
+
+                <td style={tdStyle}>
+
+                  <button
+                    onClick={() => {
+
+                      setSelectedProduct(
+                        item.product
+                      );
+
+                      setQuantity(item.qty);
+
+                      setPercentage(
+                        item.percentage
+                      );
+
+                      setBillItems(
+                        billItems.filter(
+                          (_, i) => i !== index
+                        )
+                      );
+                    }}
+                    style={{
+                      background: "#1565c0",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      marginRight: "10px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => {
+
+                      setBillItems(
+                        billItems.filter(
+                          (_, i) => i !== index
+                        )
+                      );
+                    }}
+                    style={{
+                      background: "red",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Delete
+                  </button>
+
                 </td>
 
               </tr>
