@@ -65,199 +65,310 @@ function PurchaseHistory() {
   };
 
   // DOWNLOAD BILL
-  const downloadBill = (bill) => {
+  // DOWNLOAD BILL
+const downloadBill = (bill) => {
 
   const rows = (bill.items || [])
-  .map(
-    (item, index) => `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${item.product || item.productName || ""}</td>
-        <td>${item.qty || item.quantity || ""}</td>
-        <td>₹${item.actualPrice || 0}</td>
-        <td>₹${item.price || 0}</td>
-        <td>₹${item.total || 0}</td>
-      </tr>
-    `
-  )
-  .join("");
+    .map(
+      (item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.product || item.productName || ""}</td>
+          <td>${item.qty || item.quantity || ""}</td>
+          <td>₹${item.actualPrice || 0}</td>
+          <td>₹${item.price || 0}</td>
+          <td>₹${item.total || 0}</td>
+        </tr>
+      `
+    )
+    .join("");
 
   const invoiceWindow = window.open("", "_blank");
 
   invoiceWindow.document.write(`
     <html>
+
       <head>
+
         <title>Invoice</title>
 
         <style>
 
+          *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+          }
+
           body{
-            font-family: Arial, sans-serif;
-            background:#f4f7ff;
+            background:#f2f6ff;
+            font-family:Arial, sans-serif;
             padding:20px;
           }
 
-          .invoice-container{
-            max-width:900px;
+          .invoice{
+
+            width:1000px;
             margin:auto;
             background:white;
-            border-radius:20px;
+            border:8px solid #0d47a1;
+            border-radius:35px;
             overflow:hidden;
-            border:4px solid #0d47a1;
             position:relative;
-            box-shadow:0 5px 20px rgba(0,0,0,0.2);
+            padding:30px;
           }
 
-          .watermark{
+          .invoice::before{
+
+            content:"⚙";
             position:absolute;
-            top:35%;
+            top:45%;
             left:50%;
             transform:translate(-50%,-50%);
-            opacity:0.05;
-            font-size:250px;
-            z-index:0;
+            font-size:350px;
+            opacity:0.04;
           }
 
-          .header{
-            background:#0d47a1;
-            color:white;
-            padding:25px;
-            text-align:center;
-            position:relative;
-            z-index:2;
-          }
+          .top-row{
 
-          .header h1{
-            margin:0;
-            font-size:42px;
-            letter-spacing:2px;
-          }
-
-          .header p{
-            margin:5px 0;
-            font-size:18px;
-          }
-
-          .owner-box{
             display:flex;
             justify-content:space-between;
-            flex-wrap:wrap;
-            padding:20px 30px;
-            border-bottom:2px dashed #0d47a1;
-            position:relative;
-            z-index:2;
+            align-items:center;
           }
 
-          .owner-box div{
-            font-size:18px;
-            font-weight:bold;
-            color:#333;
-            line-height:1.8;
-          }
-
-          .customer-section{
-            padding:25px 30px 10px;
-            position:relative;
-            z-index:2;
-          }
-
-          .customer-section h2{
-            color:#0d47a1;
-            margin-bottom:10px;
-            font-size:32px;
-          }
-
-          .summary{
-            display:flex;
-            gap:40px;
-            flex-wrap:wrap;
-            margin-top:10px;
+          .date{
             font-size:20px;
             font-weight:bold;
           }
 
+          .invoice-box{
+
+            background:#0d47a1;
+            color:white;
+            padding:15px 35px;
+            border-radius:12px;
+            font-size:42px;
+            font-weight:bold;
+          }
+
+          .logo{
+            text-align:center;
+            margin-top:10px;
+          }
+
+          .logo-icon{
+            font-size:90px;
+            color:#0d47a1;
+          }
+
+          .shop-name{
+
+            text-align:center;
+            font-size:72px;
+            color:#0d47a1;
+            font-weight:bold;
+            margin-top:10px;
+            letter-spacing:2px;
+          }
+
+          .owner-section{
+
+            margin-top:30px;
+            display:flex;
+            justify-content:center;
+            gap:80px;
+            font-size:28px;
+            font-weight:bold;
+          }
+
+          .divider{
+
+            margin:25px auto;
+            width:85%;
+            height:3px;
+            background:#0d47a1;
+          }
+
+          .customer-box{
+
+            display:flex;
+            justify-content:space-between;
+            margin-top:30px;
+            gap:30px;
+          }
+
+          .left-box{
+
+            width:55%;
+            border:3px solid #cde4ff;
+            border-radius:25px;
+            padding:25px;
+            background:#f8fbff;
+          }
+
+          .left-box h2{
+
+            color:#0d47a1;
+            font-size:42px;
+            margin-bottom:20px;
+          }
+
+          .left-box p{
+
+            font-size:28px;
+            margin:15px 0;
+            font-weight:bold;
+          }
+
+          .right-box{
+
+            width:40%;
+            border-left:4px solid #0d47a1;
+            padding-left:30px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+          }
+
+          .right-box p{
+
+            font-size:26px;
+            margin:18px 0;
+            font-weight:bold;
+          }
+
           table{
-            width:92%;
-            margin:20px auto;
+
+            width:100%;
             border-collapse:collapse;
-            position:relative;
-            z-index:2;
+            margin-top:40px;
           }
 
           th{
+
             background:#0d47a1;
             color:white;
-            padding:15px;
-            font-size:18px;
+            padding:20px;
+            font-size:24px;
           }
 
           td{
-            padding:14px;
-            border-bottom:1px solid #ddd;
+
+            padding:18px;
+            border:1px solid #cfd8dc;
             text-align:center;
-            font-size:17px;
+            font-size:22px;
+            font-weight:500;
           }
 
           tr:nth-child(even){
-            background:#f5f8ff;
+
+            background:#f7fbff;
           }
 
           .grand-total{
+
+            margin-top:30px;
             text-align:right;
-            padding:20px 40px;
-            font-size:32px;
-            font-weight:bold;
-            color:#0d47a1;
-            position:relative;
-            z-index:2;
           }
 
-          .footer{
-            margin-top:30px;
+          .grand-total span{
+
             background:#0d47a1;
             color:white;
-            text-align:center;
-            padding:25px;
-            position:relative;
-            z-index:2;
+            padding:18px 35px;
+            border-radius:18px;
+            font-size:42px;
+            font-weight:bold;
           }
 
-          .footer h2{
-            margin:0;
-            font-size:38px;
+          .thank-you{
+
+            text-align:center;
+            margin-top:60px;
+          }
+
+          .thank-you h1{
+
+            color:#0d47a1;
+            font-size:72px;
             font-family:cursive;
           }
 
-          .footer p{
+          .thank-you p{
+
             margin-top:10px;
-            font-size:18px;
+            font-size:26px;
+            color:#444;
+            font-weight:bold;
+          }
+
+          .bottom{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:end;
+            margin-top:40px;
+          }
+
+          .seal{
+
+            width:170px;
+            height:170px;
+            border-radius:50%;
+            border:10px solid #0d47a1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#0d47a1;
+            font-size:28px;
+            font-weight:bold;
+            text-align:center;
+          }
+
+          .signature{
+
+            text-align:center;
+            font-size:24px;
+            font-weight:bold;
+          }
+
+          .signature h2{
+
+            font-family:cursive;
+            font-size:52px;
+            color:#0d47a1;
           }
 
           .flower-left{
+
             position:absolute;
-            top:10px;
-            left:10px;
-            font-size:70px;
-            opacity:0.2;
+            top:15px;
+            left:15px;
+            font-size:90px;
+            opacity:0.18;
           }
 
           .flower-right{
+
             position:absolute;
-            top:10px;
-            right:10px;
-            font-size:70px;
-            opacity:0.2;
+            top:15px;
+            right:15px;
+            font-size:90px;
+            opacity:0.18;
           }
 
           @media print{
+
             body{
               background:white;
               padding:0;
             }
 
-            .invoice-container{
-              box-shadow:none;
+            .invoice{
               border:none;
+              width:100%;
+              box-shadow:none;
             }
           }
 
@@ -267,54 +378,80 @@ function PurchaseHistory() {
 
       <body>
 
-        <div class="invoice-container">
+        <div class="invoice">
 
           <div class="flower-left">🌸</div>
           <div class="flower-right">🌸</div>
 
-          <div class="watermark">
-            ⚙️
+          <div class="top-row">
+
+            <div class="date">
+              ${new Date().toLocaleDateString()}
+            </div>
+
+            <div class="invoice-box">
+              INVOICE
+            </div>
+
           </div>
 
-          <div class="header">
-            <h1>Friends Auto Mobile</h1>
-
-            <p>
-              Professional Auto Parts & Service
-            </p>
+          <div class="logo">
+            <div class="logo-icon">⚙️</div>
           </div>
 
-          <div class="owner-box">
+          <div class="shop-name">
+            FRIENDS AUTO MOBILE
+          </div>
+
+          <div class="owner-section">
 
             <div>
               Owner : Naimulla
             </div>
 
             <div>
-              Phone : 9700433876 / 70326227488
+              Phone : 9700433876 / 7032627488
             </div>
 
           </div>
 
-          <div class="customer-section">
+          <div class="divider"></div>
 
-            <h2>
-              Customer : ${bill.customerName}
-            </h2>
+          <div class="customer-box">
 
-            <div class="summary">
+            <div class="left-box">
 
-              <div>
-                Total : ₹${bill.totalAmount}
-              </div>
+              <h2>
+                Customer : ${bill.customerName}
+              </h2>
 
-              <div>
-                Paid : ₹${bill.paidAmount}
-              </div>
+              <p>
+                Total Amount : ₹${bill.totalAmount}
+              </p>
 
-              <div>
-                Balance : ₹${bill.balanceAmount}
-              </div>
+              <p>
+                Paid Amount : ₹${bill.paidAmount}
+              </p>
+
+              <p style="color:red;">
+                Balance Amount : ₹${bill.balanceAmount}
+              </p>
+
+            </div>
+
+            <div class="right-box">
+
+              <p>
+                Date : ${new Date().toLocaleDateString()}
+              </p>
+
+              <p>
+                Time : ${new Date().toLocaleTimeString()}
+              </p>
+
+              <p>
+                Invoice No : INV-${Date.now()}
+              </p>
 
             </div>
 
@@ -325,41 +462,71 @@ function PurchaseHistory() {
             <thead>
 
               <tr>
-                <th>#</th>
+
+                <th>Sl.No</th>
                 <th>Product</th>
                 <th>Qty</th>
                 <th>Actual Price</th>
                 <th>Final Price</th>
                 <th>Total</th>
+
               </tr>
 
             </thead>
 
             <tbody>
+
               ${rows}
+
             </tbody>
 
           </table>
 
           <div class="grand-total">
-            Grand Total : ₹${bill.totalAmount}
+
+            <span>
+              Grand Total : ₹${bill.totalAmount}
+            </span>
+
           </div>
 
-          <div class="footer">
+          <div class="thank-you">
 
-            <h2>
-              Thank You Visit Again
-            </h2>
+            <h1>
+              Thank You! Visit Again
+            </h1>
 
             <p>
-              Friends Auto Mobile | Trusted Auto Parts Shop
+              Friends Auto Mobile <br/>
+              We Deal in All Types of Auto Parts
             </p>
+
+          </div>
+
+          <div class="bottom">
+
+            <div class="seal">
+              Thank<br/>You
+            </div>
+
+            <div class="signature">
+
+              <h2>
+                Naimulla
+              </h2>
+
+              <div>
+                Owner
+              </div>
+
+            </div>
 
           </div>
 
         </div>
 
       </body>
+
     </html>
   `);
 
