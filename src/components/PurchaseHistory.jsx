@@ -67,24 +67,24 @@ function PurchaseHistory() {
   // DOWNLOAD BILL
   const downloadBill = (bill) => {
 
-  let rows = "";
+  const rows = (bill.items || [])
+    .map(
+      (item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${item.productName}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.actualPrice}</td>
+          <td>₹${item.price}</td>
+          <td>₹${item.total}</td>
+        </tr>
+      `
+    )
+    .join("");
 
-  bill.items?.forEach((item) => {
+  const invoiceWindow = window.open("", "_blank");
 
-    rows += `
-      <tr>
-        <td>${item.product}</td>
-        <td>${item.qty}</td>
-        <td>₹${item.actualPrice}</td>
-        <td>₹${item.price}</td>
-        <td>₹${item.total}</td>
-      </tr>
-    `;
-  });
-
-  const billWindow = window.open("", "_blank");
-
-  billWindow.document.write(`
+  invoiceWindow.document.write(`
     <html>
       <head>
         <title>Invoice</title>
@@ -92,30 +92,173 @@ function PurchaseHistory() {
         <style>
 
           body{
-            font-family: Arial;
-            padding: 30px;
+            font-family: Arial, sans-serif;
+            background:#f4f7ff;
+            padding:20px;
           }
 
-          h1{
+          .invoice-container{
+            max-width:900px;
+            margin:auto;
+            background:white;
+            border-radius:20px;
+            overflow:hidden;
+            border:4px solid #0d47a1;
+            position:relative;
+            box-shadow:0 5px 20px rgba(0,0,0,0.2);
+          }
+
+          .watermark{
+            position:absolute;
+            top:35%;
+            left:50%;
+            transform:translate(-50%,-50%);
+            opacity:0.05;
+            font-size:250px;
+            z-index:0;
+          }
+
+          .header{
+            background:#0d47a1;
+            color:white;
+            padding:25px;
             text-align:center;
+            position:relative;
+            z-index:2;
+          }
+
+          .header h1{
+            margin:0;
+            font-size:42px;
+            letter-spacing:2px;
+          }
+
+          .header p{
+            margin:5px 0;
+            font-size:18px;
+          }
+
+          .owner-box{
+            display:flex;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            padding:20px 30px;
+            border-bottom:2px dashed #0d47a1;
+            position:relative;
+            z-index:2;
+          }
+
+          .owner-box div{
+            font-size:18px;
+            font-weight:bold;
+            color:#333;
+            line-height:1.8;
+          }
+
+          .customer-section{
+            padding:25px 30px 10px;
+            position:relative;
+            z-index:2;
+          }
+
+          .customer-section h2{
             color:#0d47a1;
+            margin-bottom:10px;
+            font-size:32px;
+          }
+
+          .summary{
+            display:flex;
+            gap:40px;
+            flex-wrap:wrap;
+            margin-top:10px;
+            font-size:20px;
+            font-weight:bold;
           }
 
           table{
-            width:100%;
+            width:92%;
+            margin:20px auto;
             border-collapse:collapse;
-            margin-top:20px;
-          }
-
-          th, td{
-            border:1px solid #ddd;
-            padding:12px;
-            text-align:center;
+            position:relative;
+            z-index:2;
           }
 
           th{
             background:#0d47a1;
             color:white;
+            padding:15px;
+            font-size:18px;
+          }
+
+          td{
+            padding:14px;
+            border-bottom:1px solid #ddd;
+            text-align:center;
+            font-size:17px;
+          }
+
+          tr:nth-child(even){
+            background:#f5f8ff;
+          }
+
+          .grand-total{
+            text-align:right;
+            padding:20px 40px;
+            font-size:32px;
+            font-weight:bold;
+            color:#0d47a1;
+            position:relative;
+            z-index:2;
+          }
+
+          .footer{
+            margin-top:30px;
+            background:#0d47a1;
+            color:white;
+            text-align:center;
+            padding:25px;
+            position:relative;
+            z-index:2;
+          }
+
+          .footer h2{
+            margin:0;
+            font-size:38px;
+            font-family:cursive;
+          }
+
+          .footer p{
+            margin-top:10px;
+            font-size:18px;
+          }
+
+          .flower-left{
+            position:absolute;
+            top:10px;
+            left:10px;
+            font-size:70px;
+            opacity:0.2;
+          }
+
+          .flower-right{
+            position:absolute;
+            top:10px;
+            right:10px;
+            font-size:70px;
+            opacity:0.2;
+          }
+
+          @media print{
+            body{
+              background:white;
+              padding:0;
+            }
+
+            .invoice-container{
+              box-shadow:none;
+              border:none;
+            }
           }
 
         </style>
@@ -124,46 +267,105 @@ function PurchaseHistory() {
 
       <body>
 
-        <h1>Friends Auto Mobile</h1>
+        <div class="invoice-container">
 
-        <h2>Customer : ${bill.customerName}</h2>
+          <div class="flower-left">🌸</div>
+          <div class="flower-right">🌸</div>
 
-        <h3>Total : ₹${bill.totalAmount}</h3>
-        <h3>Paid : ₹${bill.paidAmount}</h3>
-        <h3>Balance : ₹${bill.balanceAmount}</h3>
+          <div class="watermark">
+            ⚙️
+          </div>
 
-        <table>
+          <div class="header">
+            <h1>Friends Auto Mobile</h1>
 
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Qty</th>
-              <th>Actual Price</th>
-              <th>Final Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
+            <p>
+              Professional Auto Parts & Service
+            </p>
+          </div>
 
-          <tbody>
-            ${rows}
-          </tbody>
+          <div class="owner-box">
 
-        </table>
+            <div>
+              Owner : Naimulla
+            </div>
 
-        <br/>
+            <div>
+              Phone : 9700433876 / 70326227488
+            </div>
 
-        <h2 style="text-align:right">
-          Grand Total : ₹${bill.totalAmount}
-        </h2>
+          </div>
+
+          <div class="customer-section">
+
+            <h2>
+              Customer : ${bill.customerName}
+            </h2>
+
+            <div class="summary">
+
+              <div>
+                Total : ₹${bill.totalAmount}
+              </div>
+
+              <div>
+                Paid : ₹${bill.paidAmount}
+              </div>
+
+              <div>
+                Balance : ₹${bill.balanceAmount}
+              </div>
+
+            </div>
+
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Actual Price</th>
+                <th>Final Price</th>
+                <th>Total</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+              ${rows}
+            </tbody>
+
+          </table>
+
+          <div class="grand-total">
+            Grand Total : ₹${bill.totalAmount}
+          </div>
+
+          <div class="footer">
+
+            <h2>
+              Thank You Visit Again
+            </h2>
+
+            <p>
+              Friends Auto Mobile | Trusted Auto Parts Shop
+            </p>
+
+          </div>
+
+        </div>
 
       </body>
-
     </html>
   `);
 
-  billWindow.document.close();
+  invoiceWindow.document.close();
 
-  billWindow.print();
+  invoiceWindow.print();
 };
 
   return (
