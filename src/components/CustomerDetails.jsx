@@ -51,34 +51,42 @@ function CustomerDetails() {
 
   const selectCustomer = async (customerName) => {
 
-    setSearch(customerName);
-    setFilteredCustomers([]);
+  setSearch(customerName);
+  setFilteredCustomers([]);
 
-    try {
+  try {
 
-      const response = await axios.get(
-        `https://friends-auto-backend-1utc.onrender.com/bills/customer/${customerName}`
-      );
+    const response = await axios.get(
+      `https://friends-auto-backend-1utc.onrender.com/bills`
+    );
 
-      setBills(response.data);
+    const customerBills = response.data.filter(
+      (bill) =>
+        bill.customerName?.toLowerCase() ===
+        customerName.toLowerCase()
+    );
 
-      let total = 0;
-      let balance = 0;
+    setBills(customerBills);
 
-      response.data.forEach((bill) => {
+    let total = 0;
+    let balance = 0;
 
-        total += bill.totalAmount || 0;
-        balance += bill.balanceAmount || 0;
-      });
+    customerBills.forEach((bill) => {
 
-      setTotalPurchase(total);
-      setPendingBalance(balance);
+      total += Number(bill.totalAmount || 0);
 
-    } catch (error) {
+      balance += Number(bill.balanceAmount || 0);
+    });
 
-      console.log(error);
-    }
-  };
+    setTotalPurchase(total);
+
+    setPendingBalance(balance);
+
+  } catch (error) {
+
+    console.log(error);
+  }
+};
 
   return (
     <div>
