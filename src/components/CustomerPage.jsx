@@ -1,22 +1,49 @@
 import { useEffect, useState } from "react";
 
 function CustomerPage() {
-  const [customers, setCustomers] = useState([]);
+
+  const [customers, setCustomers] =
+    useState([]);
 
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
 
-  const [editIndex, setEditIndex] = useState(null);
+  const [phone, setPhone] = useState("");
+
+  const [address, setAddress] =
+    useState("");
+
+  const [editIndex, setEditIndex] =
+    useState(null);
+
+  // LOAD CUSTOMERS FROM BACKEND
 
   useEffect(() => {
-    const savedCustomers =
-      JSON.parse(localStorage.getItem("customers")) || [];
 
-    setCustomers(savedCustomers);
+    fetch(
+      "https://friends-auto-backend-1utc.onrender.com/customers"
+    )
+      .then((res) => res.json())
+      .then((data) => {
+
+        console.log("CUSTOMERS:", data);
+
+        setCustomers(data);
+
+        localStorage.setItem(
+          "customers",
+          JSON.stringify(data)
+        );
+      })
+      .catch((err) => console.log(err));
+
   }, []);
 
-  const saveCustomers = (updatedCustomers) => {
+  // SAVE CUSTOMERS
+
+  const saveCustomers = (
+    updatedCustomers
+  ) => {
+
     setCustomers(updatedCustomers);
 
     localStorage.setItem(
@@ -26,63 +53,123 @@ function CustomerPage() {
   };
 
   // ADD OR UPDATE CUSTOMER
-  const handleSubmit = () => {
+
+  const handleSubmit = async () => {
+
     if (!name || !phone || !address) {
+
       alert("Please fill all fields");
+
       return;
     }
 
-    // UPDATE
-    if (editIndex !== null) {
-      const updatedCustomers = [...customers];
+    const customerData = {
 
-      updatedCustomers[editIndex] = {
-  customerName: name,
-  phone,
-  address
-};
+      customerName: name,
 
-      saveCustomers(updatedCustomers);
+      phone: phone,
 
-      setEditIndex(null);
-    } else {
-      // ADD
-      const newCustomer = {
-  customerName: name,
-  phone,
-  address
-};
-      const updatedCustomers = [
-        ...customers,
-        newCustomer
-      ];
+      address: address
+    };
 
-      saveCustomers(updatedCustomers);
+    try {
+
+      // UPDATE
+
+      if (editIndex !== null) {
+
+        const updatedCustomers =
+          [...customers];
+
+        updatedCustomers[editIndex] =
+          customerData;
+
+        saveCustomers(updatedCustomers);
+
+        setEditIndex(null);
+
+      } else {
+
+        // SAVE TO BACKEND
+
+        const response = await fetch(
+          "https://friends-auto-backend-1utc.onrender.com/customers",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify(
+              customerData
+            )
+          }
+        );
+
+        const data =
+          await response.json();
+
+        console.log(
+          "CUSTOMER SAVED:",
+          data
+        );
+
+        const updatedCustomers = [
+          ...customers,
+          data
+        ];
+
+        saveCustomers(updatedCustomers);
+      }
+
+      // RESET
+
+      setName("");
+
+      setPhone("");
+
+      setAddress("");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to save customer");
     }
-
-    setName("");
-    setPhone("");
-    setAddress("");
   };
 
   // EDIT CUSTOMER
-  const handleEdit = (customer, index) => {
+
+  const handleEdit = (
+    customer,
+    index
+  ) => {
+
     setName(customer.customerName);
+
     setPhone(customer.phone);
+
     setAddress(customer.address);
 
     setEditIndex(index);
   };
 
   // DELETE CUSTOMER
+
   const handleDelete = (index) => {
+
     const updatedCustomers =
-      customers.filter((_, i) => i !== index);
+      customers.filter(
+        (_, i) => i !== index
+      );
 
     saveCustomers(updatedCustomers);
   };
 
   return (
+
     <div
       style={{
         background: "#eef3f9",
@@ -91,7 +178,9 @@ function CustomerPage() {
         minHeight: "100vh"
       }}
     >
+
       {/* TITLE */}
+
       <h1
         style={{
           textAlign: "center",
@@ -104,6 +193,7 @@ function CustomerPage() {
       </h1>
 
       {/* FORM */}
+
       <div
         style={{
           background: "white",
@@ -112,6 +202,7 @@ function CustomerPage() {
           marginBottom: "30px"
         }}
       >
+
         <div
           style={{
             display: "grid",
@@ -120,6 +211,7 @@ function CustomerPage() {
             gap: "20px"
           }}
         >
+
           <input
             type="text"
             placeholder="Customer Name"
@@ -149,19 +241,24 @@ function CustomerPage() {
             }
             style={inputStyle}
           />
+
         </div>
 
         <button
           onClick={handleSubmit}
           style={buttonStyle}
         >
+
           {editIndex !== null
             ? "Update Customer"
             : "Add Customer"}
+
         </button>
+
       </div>
 
       {/* TABLE */}
+
       <div
         style={{
           background: "white",
@@ -169,89 +266,144 @@ function CustomerPage() {
           borderRadius: "20px"
         }}
       >
+
         <table
           style={{
             width: "100%",
             borderCollapse: "collapse"
           }}
         >
+
           <thead>
+
             <tr
               style={{
                 background: "#0d47a1",
                 color: "white"
               }}
             >
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Phone</th>
-              <th style={thStyle}>Address</th>
-              <th style={thStyle}>Action</th>
+
+              <th style={thStyle}>
+                Name
+              </th>
+
+              <th style={thStyle}>
+                Phone
+              </th>
+
+              <th style={thStyle}>
+                Address
+              </th>
+
+              <th style={thStyle}>
+                Action
+              </th>
+
             </tr>
+
           </thead>
 
           <tbody>
-            {customers.map((customer, index) => (
-              <tr key={index}>
-                <td style={tdStyle}>
-                  {customer.customerName}
-                </td>
 
-                <td style={tdStyle}>
-                  {customer.phone}
-                </td>
+            {customers.map(
+              (customer, index) => (
 
-                <td style={tdStyle}>
-                  {customer.address}
-                </td>
+                <tr key={index}>
 
-                <td style={tdStyle}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      justifyContent: "center"
-                    }}
-                  >
-                    <button
-                      onClick={() =>
-                        handleEdit(customer, index)
-                      }
+                  <td style={tdStyle}>
+                    {customer.customerName}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {customer.phone}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {customer.address}
+                  </td>
+
+                  <td style={tdStyle}>
+
+                    <div
                       style={{
-                        background: "#1565c0",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "6px",
-                        cursor: "pointer"
+                        display: "flex",
+                        gap: "10px",
+                        justifyContent:
+                          "center"
                       }}
                     >
-                      Edit
-                    </button>
 
-                    <button
-                      onClick={() =>
-                        handleDelete(index)
-                      }
-                      style={{
-                        background: "#d32f2f",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "6px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      <button
+                        onClick={() =>
+                          handleEdit(
+                            customer,
+                            index
+                          )
+                        }
+                        style={{
+                          background:
+                            "#1565c0",
+
+                          color: "white",
+
+                          border: "none",
+
+                          padding:
+                            "8px 15px",
+
+                          borderRadius:
+                            "6px",
+
+                          cursor:
+                            "pointer"
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleDelete(
+                            index
+                          )
+                        }
+                        style={{
+                          background:
+                            "#d32f2f",
+
+                          color: "white",
+
+                          border: "none",
+
+                          padding:
+                            "8px 15px",
+
+                          borderRadius:
+                            "6px",
+
+                          cursor:
+                            "pointer"
+                        }}
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+              )
+            )}
+
           </tbody>
+
         </table>
+
       </div>
 
       {/* FOOTER */}
+
       <div
         style={{
           background: "#0d47a1",
@@ -262,39 +414,60 @@ function CustomerPage() {
           borderRadius: "10px"
         }}
       >
-        © 2026 Friends Auto Mobile | All Rights Reserved
+        © 2026 Friends Auto Mobile |
+        All Rights Reserved
       </div>
+
     </div>
   );
 }
 
 const inputStyle = {
+
   padding: "15px",
+
   borderRadius: "10px",
+
   border: "1px solid #ccc",
+
   fontSize: "18px"
 };
 
 const buttonStyle = {
+
   marginTop: "20px",
+
   background: "#1565c0",
+
   color: "white",
+
   border: "none",
+
   padding: "12px 20px",
+
   borderRadius: "10px",
+
   fontSize: "18px",
+
   cursor: "pointer"
 };
 
 const thStyle = {
+
   padding: "15px",
+
   fontSize: "20px"
 };
 
 const tdStyle = {
+
   padding: "15px",
+
   textAlign: "center",
-  borderBottom: "1px solid #ddd",
+
+  borderBottom:
+    "1px solid #ddd",
+
   fontSize: "18px"
 };
 
