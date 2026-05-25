@@ -64,6 +64,55 @@ function PurchaseHistory() {
     setBills(updatedBills);
   };
 
+  // DOWNLOAD BILL
+  const downloadBill = (bill) => {
+
+    let billContent = `
+FRIENDS AUTO MOBILE
+--------------------------------
+
+Customer : ${bill.customerName}
+
+`;
+
+    bill.items?.forEach((item) => {
+
+      billContent += `
+Product : ${item.product}
+Qty : ${item.qty}
+Actual Price : ₹${item.actualPrice}
+Final Price : ₹${item.price}
+Total : ₹${item.total}
+
+--------------------------------
+`;
+
+    });
+
+    billContent += `
+
+Total Amount : ₹${bill.totalAmount}
+Paid Amount : ₹${bill.paidAmount}
+Balance Amount : ₹${bill.balanceAmount}
+
+THANK YOU VISIT AGAIN
+`;
+
+    const blob = new Blob(
+      [billContent],
+      { type: "text/plain" }
+    );
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+
+    link.download =
+      `${bill.customerName}-bill.txt`;
+
+    link.click();
+  };
+
   return (
 
     <div>
@@ -142,6 +191,7 @@ function PurchaseHistory() {
                 display: "flex",
                 gap: "15px",
                 marginTop: "20px",
+                flexWrap: "wrap",
               }}
             >
 
@@ -177,6 +227,23 @@ function PurchaseHistory() {
                 }}
               >
                 Delete
+              </button>
+
+              <button
+                onClick={() =>
+                  downloadBill(bill)
+                }
+                style={{
+                  background: "green",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Download Bill
               </button>
 
             </div>
