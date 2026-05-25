@@ -1,217 +1,185 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 function BillPage() {
 
-  const [customerName, setCustomerName] = useState("");
-
   const [customers, setCustomers] = useState([]);
-
   const [products, setProducts] = useState([]);
+
+  const [customerName, setCustomerName] =
+    useState("");
+
+  const [filteredCustomers, setFilteredCustomers] =
+    useState([]);
 
   const [selectedProduct, setSelectedProduct] =
     useState("");
 
   const [quantity, setQuantity] = useState(1);
 
-  const [percentage, setPercentage] = useState("");
+  const [percentage, setPercentage] =
+    useState("");
 
   const [billItems, setBillItems] = useState([]);
 
-  const [paidAmount, setPaidAmount] = useState("");
+  const [paidAmount, setPaidAmount] =
+    useState("");
 
-  const [editingIndex, setEditingIndex] =
-    useState(null);
-
-  // LOAD CUSTOMERS
-
+  // LOAD CUSTOMERS + PRODUCTS
   useEffect(() => {
 
-    fetch(
-      "https://friends-auto-backend-1utc.onrender.com/customers"
-    )
+    // CUSTOMERS
+    fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
-
-        console.log("CUSTOMER API:", data);
-
-        setCustomers(data || []);
-      })
+  console.log("CUSTOMER API:", data);
+  setCustomers(data);
+})
       .catch((err) => console.log(err));
 
-  }, []);
-
-  // LOAD PRODUCTS
-
-  useEffect(() => {
-
-    fetch(
-      "https://friends-auto-backend-1utc.onrender.com/products"
-    )
+    // PRODUCTS
+    fetch("https://friends-auto-backend-1utc.onrender.com/products")
       .then((res) => res.json())
       .then((data) => {
-
         console.log("PRODUCTS:", data);
-
-        setProducts(data || []);
+        setProducts(data);
       })
       .catch((err) => console.log(err));
 
   }, []);
 
-  // CUSTOMER AUTOSUGGESTION
+  // CUSTOMER AUTO SUGGESTION
+ const handleCustomerChange = (e) => {
 
-  const filteredCustomers =
-    customers.filter((c) =>
-      c.customerName
-        ?.toLowerCase()
-        .includes(customerName.toLowerCase())
+  const value = e.target.value;
+
+  setCustomerName(value);
+
+  if (!value.trim()) {
+    setFilteredCustomers([]);
+    return;
+  }
+
+  console.log("CUSTOMERS:", customers);
+
+  const filtered = customers.filter((customer) => {
+
+    const customerText =
+      String(
+        customer.name ||
+        customer.customerName ||
+        ""
+      ).toLowerCase();
+
+    return customerText.includes(
+      value.toLowerCase()
     );
+  });
 
-  // PRODUCT CHANGE
+  console.log("FILTERED:", filtered);
 
-  const handleProductChange = (e) => {
-
-    const productName = e.target.value;
-
-    setSelectedProduct(productName);
-
-    const product = products.find(
-      (p) => p.productName === productName
-    );
-
-    if (product) {
-
-      setPercentage(
-        product.defaultPercentage || 0
-      );
-    }
-  };
-
-  // ADD ITEM
-
+  setFilteredCustomers(filtered);
+};
+  // ADD BILL ITEM
   const addItem = () => {
 
+    if (!customerName) {
+      alert("Enter Customer Name");
+      return;
+    }
+
     if (!selectedProduct) {
-
       alert("Select Product");
-
       return;
     }
 
     const product = products.find(
-      (p) => p.productName === selectedProduct
+      (p) =>
+        (
+          p.productName ||
+          p.name ||
+          ""
+        ) === selectedProduct
     );
 
-    if (!product) return;
+    if (!product) {
+      alert("Product not found");
+      return;
+    }
 
     const qty = Number(quantity);
 
-    const per = Number(percentage);
+    const percent = Number(percentage || 0);
 
-    const price =
-      product.price -
-      (product.price * per) / 100;
+    const productPrice =
+      Number(product.price) || 0;
 
-    const total = price * qty;
+    const discountAmount =
+      productPrice * (percent / 100);
+
+    const finalPrice =
+      productPrice - discountAmount;
+
+    const total = finalPrice * qty;
 
     const newItem = {
+      product:
+        product.productName ||
+        product.name,
 
-      product: selectedProduct,
+      qty,
 
-      quantity: qty,
+      percentage: percent,
 
-      percentage: per,
+      price: finalPrice,
 
-      price,
-
-      total,
+      total
     };
 
-    // EDIT
-
-    if (editingIndex !== null) {
-
-      const updated = [...billItems];
-
-      updated[editingIndex] = newItem;
-
-      setBillItems(updated);
-
-      setEditingIndex(null);
-
-    } else {
-
-      setBillItems([...billItems, newItem]);
-    }
+    setBillItems([...billItems, newItem]);
 
     // RESET
-
     setSelectedProduct("");
-
     setQuantity(1);
-
     setPercentage("");
   };
 
-  // DELETE ITEM
-
-  const deleteItem = (index) => {
-
-    const updated =
-      billItems.filter((_, i) => i !== index);
-
-    setBillItems(updated);
-  };
-
-  // EDIT ITEM
-
-  const editItem = (index) => {
-
-    const item = billItems[index];
-
-    setSelectedProduct(item.product);
-
-    setQuantity(item.quantity);
-
-    setPercentage(item.percentage);
-
-    setEditingIndex(index);
-  };
-
   // TOTALS
-
-  const subtotal =
-    billItems.reduce(
-      (sum, item) => sum + item.total,
-      0
-    );
+  const subtotal = billItems.reduce(
+    (sum, item) => sum + item.total,
+    0
+  );
 
   const balance =
     subtotal - Number(paidAmount || 0);
 
   return (
-
-    <div>
+    <div
+      style={{
+        background: "#eef3f9",
+        minHeight: "100vh",
+        padding: "20px"
+      }}
+    >
 
       <h1
         style={{
           textAlign: "center",
           color: "#0d47a1",
-          fontSize: "70px",
-          marginBottom: "40px",
+          fontSize: "55px",
+          marginBottom: "30px"
         }}
       >
         Billing Management
       </h1>
 
       {/* FORM */}
-
       <div
         style={{
           background: "white",
-          padding: "30px",
-          borderRadius: "25px",
-          marginBottom: "30px",
+          padding: "25px",
+          borderRadius: "20px",
+          marginBottom: "25px",
+          position: "relative"
         }}
       >
 
@@ -219,79 +187,96 @@ function BillPage() {
           style={{
             display: "grid",
             gridTemplateColumns:
-              "repeat(auto-fit,minmax(220px,1fr))",
-            gap: "20px",
+              "1fr 1fr 1fr 1fr",
+            gap: "15px"
           }}
         >
 
           {/* CUSTOMER */}
-
           <div style={{ position: "relative" }}>
 
             <input
               type="text"
               placeholder="Customer Name"
               value={customerName}
-              onChange={(e) =>
-                setCustomerName(e.target.value)
-              }
+              onChange={handleCustomerChange}
               style={inputStyle}
             />
 
-            {
-              customerName &&
-              filteredCustomers.length > 0 && (
+            {/* SUGGESTION */}
+            {customerName &&
+ filteredCustomers.length > 0 && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "55px",
+                  left: 0,
+                  right: 0,
+                  background: "white",
+                  borderRadius: "10px",
+                  boxShadow:
+                    "0 2px 10px rgba(0,0,0,0.2)",
+                  zIndex: 1000
+                }}
+              >
 
-                <div
-                  style={{
-                    position: "absolute",
-                    background: "white",
-                    width: "100%",
-                    borderRadius: "10px",
-                    boxShadow:
-                      "0 2px 10px rgba(0,0,0,0.2)",
-                    zIndex: 1000,
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                  }}
-                >
+                {filteredCustomers.map(
+                  (customer, index) => (
 
-                  {
-                    filteredCustomers.map(
-                      (customer) => (
+                    <div
+                      key={index}
+                      onClick={() => {
 
-                        <div
-                          key={customer.id}
-                          onClick={() => {
+                        setCustomerName(
+  customer.name ||
+  customer.customerName
+);
 
-                            setCustomerName(
-                              customer.customerName
-                            );
-                          }}
-                          style={{
-                            padding: "10px",
-                            cursor: "pointer",
-                            borderBottom:
-                              "1px solid #eee",
-                          }}
-                        >
-                          {customer.customerName}
-                        </div>
-                      )
-                    )
-                  }
+                        setFilteredCustomers([]);
+                      }}
+                      style={{
+                        padding: "10px",
+                        cursor: "pointer",
+                        borderBottom:
+                          "1px solid #eee"
+                      }}
+                    >
+                      {customer.name ||
+customer.customerName}
+                    </div>
+                  )
+                )}
 
-                </div>
-              )
-            }
+              </div>
+            )}
 
           </div>
 
-          {/* PRODUCT */}
-
+          {/* PRODUCT DROPDOWN */}
           <select
             value={selectedProduct}
-            onChange={handleProductChange}
+            onChange={(e) => {
+
+              const value = e.target.value;
+
+              setSelectedProduct(value);
+
+              const product = products.find(
+                (p) =>
+                  (
+                    p.productName ||
+                    p.name ||
+                    ""
+                  ) === value
+              );
+
+              if (product) {
+
+                setPercentage(
+                  product.defaultPercentage || 0
+                );
+              }
+            }}
             style={inputStyle}
           >
 
@@ -299,22 +284,24 @@ function BillPage() {
               Select Product
             </option>
 
-            {
-              products.map((product) => (
+            {products.map((product, index) => (
 
-                <option
-                  key={product.id}
-                  value={product.productName}
-                >
-                  {product.productName.toUpperCase()}
-                </option>
-              ))
-            }
+              <option
+                key={index}
+                value={
+                  product.productName ||
+                  product.name
+                }
+              >
+                {product.productName ||
+                  product.name}
+              </option>
+
+            ))}
 
           </select>
 
           {/* QTY */}
-
           <input
             type="number"
             value={quantity}
@@ -325,7 +312,6 @@ function BillPage() {
           />
 
           {/* PERCENTAGE */}
-
           <input
             type="number"
             placeholder="Percentage"
@@ -342,127 +328,128 @@ function BillPage() {
           onClick={addItem}
           style={buttonStyle}
         >
-          {
-            editingIndex !== null
-              ? "Update Item"
-              : "Add Item"
-          }
+          Add Item
         </button>
 
       </div>
 
       {/* TABLE */}
-
       <div
         style={{
           background: "white",
-          padding: "30px",
-          borderRadius: "25px",
-          marginBottom: "30px",
+          padding: "25px",
+          borderRadius: "20px",
+          marginBottom: "25px"
         }}
       >
 
         <table
           style={{
             width: "100%",
-            borderCollapse: "collapse",
+            borderCollapse: "collapse"
           }}
         >
 
           <thead>
-
             <tr
               style={{
                 background: "#0d47a1",
-                color: "white",
+                color: "white"
               }}
             >
-
               <th style={thStyle}>Product</th>
-
               <th style={thStyle}>Qty</th>
-
               <th style={thStyle}>%</th>
-
               <th style={thStyle}>Price</th>
-
               <th style={thStyle}>Total</th>
-
               <th style={thStyle}>Action</th>
-
             </tr>
-
           </thead>
 
           <tbody>
 
-            {
-              billItems.map((item, index) => (
+            {billItems.map((item, index) => (
+              <tr key={index}>
 
-                <tr key={index}>
+                <td style={tdStyle}>
+                  {item.product}
+                </td>
 
-                  <td style={tdStyle}>
-                    {item.product}
-                  </td>
+                <td style={tdStyle}>
+                  {item.qty}
+                </td>
 
-                  <td style={tdStyle}>
-                    {item.quantity}
-                  </td>
+                <td style={tdStyle}>
+                  {item.percentage}%
+                </td>
 
-                  <td style={tdStyle}>
-                    {item.percentage}%
-                  </td>
+                <td style={tdStyle}>
+                  ₹{item.price}
+                </td>
 
-                  <td style={tdStyle}>
-                    ₹{item.price}
-                  </td>
+                <td style={tdStyle}>
+                  ₹{item.total}
+                </td>
 
-                  <td style={tdStyle}>
-                    ₹{item.total}
-                  </td>
+                <td style={tdStyle}>
 
-                  <td style={tdStyle}>
+                  <button
+                    onClick={() => {
 
-                    <button
-                      onClick={() =>
-                        editItem(index)
-                      }
-                      style={{
-                        background: "#1976d2",
-                        color: "white",
-                        border: "none",
-                        padding:
-                          "8px 15px",
-                        borderRadius: "8px",
-                        marginRight: "10px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Edit
-                    </button>
+                      setSelectedProduct(
+                        item.product
+                      );
 
-                    <button
-                      onClick={() =>
-                        deleteItem(index)
-                      }
-                      style={{
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        padding:
-                          "8px 15px",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Delete
-                    </button>
+                      setQuantity(item.qty);
 
-                  </td>
+                      setPercentage(
+                        item.percentage
+                      );
 
-                </tr>
-              ))
-            }
+                      setBillItems(
+                        billItems.filter(
+                          (_, i) => i !== index
+                        )
+                      );
+                    }}
+                    style={{
+                      background: "#1565c0",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      marginRight: "10px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => {
+
+                      setBillItems(
+                        billItems.filter(
+                          (_, i) => i !== index
+                        )
+                      );
+                    }}
+                    style={{
+                      background: "red",
+                      color: "white",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+            ))}
 
           </tbody>
 
@@ -471,19 +458,18 @@ function BillPage() {
       </div>
 
       {/* SUMMARY */}
-
       <div
         style={{
           background: "white",
-          padding: "30px",
-          borderRadius: "25px",
+          padding: "25px",
+          borderRadius: "20px"
         }}
       >
 
         <h2
           style={{
             color: "#0d47a1",
-            marginBottom: "20px",
+            marginBottom: "20px"
           }}
         >
           Bill Summary
@@ -499,17 +485,13 @@ function BillPage() {
           style={{
             ...inputStyle,
             width: "100%",
-            marginBottom: "20px",
+            marginBottom: "20px"
           }}
         />
 
-        <h2>
-          Subtotal : ₹{subtotal.toFixed(2)}
-        </h2>
+        <h2>Subtotal : ₹{subtotal}</h2>
 
-        <h2>
-          Balance : ₹{balance.toFixed(2)}
-        </h2>
+        <h2>Balance : ₹{balance}</h2>
 
       </div>
 
@@ -518,52 +500,34 @@ function BillPage() {
 }
 
 const inputStyle = {
-
-  padding: "18px",
-
-  borderRadius: "15px",
-
+  padding: "15px",
+  borderRadius: "10px",
   border: "1px solid #ccc",
-
-  fontSize: "18px",
-
-  width: "100%",
+  fontSize: "16px",
+  width: "100%"
 };
 
 const buttonStyle = {
-
-  background:
-    "linear-gradient(to right,#1565c0,#0d47a1)",
-
+  marginTop: "20px",
+  background: "#1565c0",
   color: "white",
-
-  padding: "15px 30px",
-
   border: "none",
-
-  borderRadius: "15px",
-
-  marginTop: "25px",
-
-  fontSize: "20px",
-
-  cursor: "pointer",
+  padding: "12px 20px",
+  borderRadius: "10px",
+  fontSize: "18px",
+  cursor: "pointer"
 };
 
 const thStyle = {
-
-  padding: "18px",
-
-  fontSize: "20px",
+  padding: "15px",
+  fontSize: "18px"
 };
 
 const tdStyle = {
-
-  padding: "18px",
-
+  padding: "15px",
   textAlign: "center",
-
   borderBottom: "1px solid #ddd",
+  fontSize: "16px"
 };
 
-export default Billing;
+export default BillPage;
