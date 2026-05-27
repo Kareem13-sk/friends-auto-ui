@@ -93,6 +93,14 @@ function Sidebar() {
       >
         Customer Details
       </Link>
+
+      <Link
+  to="/brand-discounts"
+  style={menuStyle}
+>
+  Brand Discounts
+</Link>
+
     </div>
   );
 }
