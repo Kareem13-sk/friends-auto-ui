@@ -13,10 +13,13 @@ function BrandDiscountPage() {
   const [discountPercentage,
     setDiscountPercentage] = useState("");
 
+  const [brands, setBrands] = useState([]);
+
   useEffect(() => {
 
     loadCustomers();
     loadDiscounts();
+    loadBrands();
 
   }, []);
 
@@ -42,6 +45,29 @@ function BrandDiscountPage() {
     setDiscounts(data);
   };
 
+  const loadBrands = async () => {
+
+    const response = await fetch(
+      "https://friends-auto-backend-1utc.onrender.com/products"
+    );
+
+    const products = await response.json();
+
+    const uniqueBrands = [
+      ...new Set(
+        products
+          .map((product) => product.brand)
+          .filter(
+            (brand) =>
+              brand &&
+              brand.trim() !== ""
+          )
+      )
+    ];
+
+    setBrands(uniqueBrands);
+  };
+
   const saveDiscount = async () => {
 
     if (
@@ -51,7 +77,6 @@ function BrandDiscountPage() {
     ) {
 
       alert("Fill all fields");
-
       return;
     }
 
@@ -186,21 +211,16 @@ function BrandDiscountPage() {
             Select Brand
           </option>
 
-          <option value="Mahle">
-            Mahle
-          </option>
+          {brands.map((brandName) => (
 
-          <option value="USHA">
-            USHA
-          </option>
+            <option
+              key={brandName}
+              value={brandName}
+            >
+              {brandName}
+            </option>
 
-          <option value="Goetze">
-            Goetze
-          </option>
-
-          <option value="SAM">
-            SAM
-          </option>
+          ))}
 
         </select>
 
@@ -297,7 +317,8 @@ function BrandDiscountPage() {
                       padding:
                         "8px 15px",
                       borderRadius:
-                        "5px"
+                        "5px",
+                      cursor: "pointer"
                     }}
                   >
                     Delete
@@ -328,7 +349,8 @@ const buttonStyle = {
   background: "#0d47a1",
   color: "white",
   border: "none",
-  padding: "12px 20px"
+  padding: "12px 20px",
+  cursor: "pointer"
 };
 
 const thStyle = {
