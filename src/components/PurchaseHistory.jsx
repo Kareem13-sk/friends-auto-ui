@@ -4,6 +4,8 @@ function PurchaseHistory() {
 
   const [bills, setBills] = useState([]);
 
+  const [expandedBill, setExpandedBill] = useState(null);
+
   // LOAD BILLS FROM BACKEND
   useEffect(() => {
 
@@ -594,26 +596,18 @@ function PurchaseHistory() {
   style={{
     color: "#0d47a1",
     marginBottom: "10px",
-    cursor: "pointer",
-    textDecoration: "underline"
+    cursor: "pointer"
   }}
-  onClick={() => {
-    const itemsText = bill.items
-      ?.map(
-        (item, index) =>
-          `${index + 1}. ${item.productName || item.product}
-           | Qty: ${item.quantity || item.qty}
-           | Price: ₹${Number(item.price || 0).toFixed(2)}
-           | Total: ₹${Number(item.total || 0).toFixed(2)}`
-      )
-      .join("\n");
-
-    alert(
-      `Customer: ${bill.customerName}\n\nPurchased Items:\n\n${itemsText}`
-    );
-  }}
+  onClick={() =>
+    setExpandedBill(
+      expandedBill === bill.id
+        ? null
+        : bill.id
+    )
+  }
 >
   Customer : {bill.customerName}
+  {expandedBill === bill.id ? " ▲" : " ▼"}
 </h2>
 
             <h3>
@@ -667,13 +661,17 @@ function PurchaseHistory() {
 
           </div>
 
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-            }}
-          >
+         {expandedBill === bill.id && (
 
+<table>
+  style={{
+    width: "100%",
+    borderCollapse: "collapse",
+  }}
+    </table>
+         )}
+
+  
             <thead>
 
               <tr
@@ -727,7 +725,6 @@ function PurchaseHistory() {
 ))}
 
 </tbody>
-          </table>
 
         </div>
 
