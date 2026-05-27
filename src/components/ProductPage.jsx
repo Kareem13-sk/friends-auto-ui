@@ -66,7 +66,7 @@ function ProductPage() {
 
     const productData = {
   productName,
-  brand,
+  brand: brand.trim(),
   category,
   price,
   stock,
@@ -124,20 +124,22 @@ function ProductPage() {
 
   const editProduct = (product) => {
 
-    setEditId(product.id);
+  setEditId(product.id);
 
-    setProductName(product.productName);
+  setProductName(product.productName);
 
-    setCategory(product.category);
+  setBrand(product.brand);
 
-    setPrice(product.price);
+  setCategory(product.category);
 
-    setStock(product.stock);
+  setPrice(product.price);
 
-    setDefaultPercentage(
-      product.defaultPercentage
-    );
-  };
+  setStock(product.stock);
+
+  setDefaultPercentage(
+    product.defaultPercentage
+  );
+};
 
   const clearFields = () => {
 
@@ -227,31 +229,15 @@ function ProductPage() {
             style={inputStyle}
           />
 
-          <select
+         <input
+  type="text"
+  placeholder="Brand (Ex: Bosch, TVS, Lucas)"
   value={brand}
-  onChange={(e) => setBrand(e.target.value)}
+  onChange={(e) =>
+    setBrand(e.target.value)
+  }
   style={inputStyle}
->
-  <option value="">
-    Select Brand
-  </option>
-
-  <option value="Mahle">
-    Mahle
-  </option>
-
-  <option value="USHA">
-    USHA
-  </option>
-
-  <option value="Goetze">
-    Goetze
-  </option>
-
-  <option value="SAM">
-    SAM
-  </option>
-</select>
+/>
 
 <input
   type="text"
