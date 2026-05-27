@@ -443,22 +443,6 @@ const handleSubmit = async () => {
 
       </div>
 
-      {/* FOOTER */}
-
-      <div
-        style={{
-          background: "#0d47a1",
-          color: "white",
-          textAlign: "center",
-          padding: "15px",
-          marginTop: "30px",
-          borderRadius: "10px"
-        }}
-      >
-        © 2026 Friends Auto Mobile |
-        All Rights Reserved
-      </div>
-
     </div>
   );
 }
