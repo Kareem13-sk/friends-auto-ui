@@ -600,17 +600,16 @@ function PurchaseHistory() {
             </h2>
 
             <h3>
-              Total : ₹{bill.totalAmount}
-            </h3>
+  Total : ₹{Number(bill.totalAmount || 0).toFixed(2)}
+</h3>
 
-            <h3>
-              Paid : ₹{bill.paidAmount}
-            </h3>
+<h3>
+  Paid : ₹{Number(bill.paidAmount || 0).toFixed(2)}
+</h3>
 
-            <h3>
-              Balance : ₹{bill.balanceAmount}
-            </h3>
-
+<h3>
+  Balance : ₹{Number(bill.balanceAmount || 0).toFixed(2)}
+</h3>
             <div
               style={{
                 display: "flex",
@@ -661,61 +660,61 @@ function PurchaseHistory() {
             <thead>
 
               <tr
-                style={{
-                  background: "#0d47a1",
-                  color: "white",
-                }}
-              >
-                <th style={thStyle}>Product</th>
-                <th style={thStyle}>Qty</th>
-                <th style={thStyle}>%</th>
-                <th style={thStyle}>
-                  Actual Price
-                </th>
-                <th style={thStyle}>
-                  Final Price
-                </th>
-                <th style={thStyle}>Total</th>
-              </tr>
+  style={{
+    background: "#0d47a1",
+    color: "white",
+  }}
+>
+  <th style={thStyle}>S.No</th>
+  <th style={thStyle}>Product</th>
+  <th style={thStyle}>Qty</th>
+  <th style={thStyle}>%</th>
+  <th style={thStyle}>Actual Price</th>
+  <th style={thStyle}>Final Price</th>
+  <th style={thStyle}>Total</th>
+</tr>
 
             </thead>
 
             <tbody>
 
-              {bill.items?.map((item, index) => (
+  {bill.items?.map((item, index) => (
 
-                <tr key={index}>
+    <tr key={index}>
 
-                  <td style={tdStyle}>
-                    {item.product || item.productName}
-                  </td>
+      <td style={tdStyle}>
+        {index + 1}
+      </td>
 
-                  <td style={tdStyle}>
-                    {item.qty || item.quantity}
-                  </td>
+      <td style={tdStyle}>
+        {item.product || item.productName}
+      </td>
 
-                  <td style={tdStyle}>
-                    {item.percentage}%
-                  </td>
+      <td style={tdStyle}>
+        {item.qty || item.quantity}
+      </td>
 
-                  <td style={tdStyle}>
-                    ₹{item.actualPrice}
-                  </td>
+      <td style={tdStyle}>
+        {item.percentage}%
+      </td>
 
-                  <td style={tdStyle}>
-                    ₹{item.price}
-                  </td>
+      <td style={tdStyle}>
+        ₹{Number(item.actualPrice || 0).toFixed(2)}
+      </td>
 
-                  <td style={tdStyle}>
-                    ₹{item.total}
-                  </td>
+      <td style={tdStyle}>
+        ₹{Number(item.price || 0).toFixed(2)}
+      </td>
 
-                </tr>
+      <td style={tdStyle}>
+        ₹{Number(item.total || 0).toFixed(2)}
+      </td>
 
-              ))}
+    </tr>
 
-            </tbody>
+  ))}
 
+</tbody>
           </table>
 
         </div>
