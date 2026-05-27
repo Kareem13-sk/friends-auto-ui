@@ -96,11 +96,10 @@ function Sidebar() {
 
       <Link
   to="/brand-discounts"
-  style={menuStyle}
+  style={menuStyle("/brand-discounts")}
 >
   Brand Discounts
 </Link>
-
     </div>
   );
 }

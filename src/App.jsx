@@ -44,7 +44,7 @@ function App() {
             element={<CustomerDetails />}
           />
           <Route
-  path="/brand-discounts"
+  path="brand-discounts"
   element={<BrandDiscountPage />}
 />
 
