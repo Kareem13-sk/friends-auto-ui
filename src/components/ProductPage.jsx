@@ -231,7 +231,7 @@ function ProductPage() {
 
          <input
   type="text"
-  placeholder="Brand (Ex: Bosch, TVS, Lucas)"
+  placeholder="Brand"
   value={brand}
   onChange={(e) =>
     setBrand(e.target.value)
