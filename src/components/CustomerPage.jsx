@@ -158,16 +158,42 @@ function CustomerPage() {
 
   // DELETE CUSTOMER
 
-  const handleDelete = (index) => {
+  const handleDelete = async (customerId) => {
 
-    const updatedCustomers =
-      customers.filter(
-        (_, i) => i !== index
-      );
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this customer?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    const response = await fetch(
+      `https://friends-auto-backend-1utc.onrender.com/customers/${customerId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Delete failed");
+    }
+
+    const updatedCustomers = customers.filter(
+      (customer) => customer.id !== customerId
+    );
 
     saveCustomers(updatedCustomers);
-  };
 
+    alert("Customer deleted successfully");
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to delete customer");
+  }
+};
   return (
 
     <div
@@ -335,11 +361,8 @@ function CustomerPage() {
 
                       <button
                         onClick={() =>
-                          handleEdit(
-                            customer,
-                            index
-                          )
-                        }
+  handleDelete(customer.id)
+}
                         style={{
                           background:
                             "#1565c0",
