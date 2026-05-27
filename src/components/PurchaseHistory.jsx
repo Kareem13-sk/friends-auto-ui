@@ -669,7 +669,6 @@ function PurchaseHistory() {
   <th style={thStyle}>Product</th>
   <th style={thStyle}>Qty</th>
   <th style={thStyle}>%</th>
-  <th style={thStyle}>Actual Price</th>
   <th style={thStyle}>Final Price</th>
   <th style={thStyle}>Total</th>
 </tr>
@@ -700,10 +699,6 @@ function PurchaseHistory() {
 
     <td style={tdStyle}>
       ₹{Number(item.price || 0).toFixed(2)}
-    </td>
-
-    <td style={tdStyle}>
-      ₹{Number(item.finalPrice ?? item.price ?? 0).toFixed(2)}
     </td>
 
     <td style={tdStyle}>
