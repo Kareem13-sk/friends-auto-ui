@@ -11,6 +11,8 @@ function ProductPage() {
   const [productName,
     setProductName] =
     useState("");
+  
+  const [brand, setBrand] = useState("");
 
   const [category,
     setCategory] =
@@ -63,14 +65,13 @@ function ProductPage() {
   const saveProduct = async () => {
 
     const productData = {
-
-      productName,
-      category,
-      price,
-      stock,
-      defaultPercentage
-
-    };
+  productName,
+  brand,
+  category,
+  price,
+  stock,
+  defaultPercentage
+};
 
     try {
 
@@ -143,6 +144,8 @@ function ProductPage() {
     setEditId(null);
 
     setProductName("");
+
+    setBrand("");
 
     setCategory("");
 
@@ -224,17 +227,41 @@ function ProductPage() {
             style={inputStyle}
           />
 
-          <input
-            type="text"
-            placeholder="Category"
-            value={category}
-            onChange={(e) =>
-              setCategory(
-                e.target.value
-              )
-            }
-            style={inputStyle}
-          />
+          <select
+  value={brand}
+  onChange={(e) => setBrand(e.target.value)}
+  style={inputStyle}
+>
+  <option value="">
+    Select Brand
+  </option>
+
+  <option value="Mahle">
+    Mahle
+  </option>
+
+  <option value="USHA">
+    USHA
+  </option>
+
+  <option value="Goetze">
+    Goetze
+  </option>
+
+  <option value="SAM">
+    SAM
+  </option>
+</select>
+
+<input
+  type="text"
+  placeholder="Category"
+  value={category}
+  onChange={(e) =>
+    setCategory(e.target.value)
+  }
+  style={inputStyle}
+/>
 
           <input
             type="number"
@@ -355,6 +382,10 @@ function ProductPage() {
                   Product
                 </th>
 
+                  <th style={tableHeader}>
+                  Brand
+                </th>
+
                 <th style={tableHeader}>
                   Category
                 </th>
@@ -403,6 +434,9 @@ function ProductPage() {
 
                     <td style={tableCell}>
                       {product.productName}
+                    </td>
+                    <td style={tableCell}>
+                      {product.brand}
                     </td>
 
                     <td style={tableCell}>
