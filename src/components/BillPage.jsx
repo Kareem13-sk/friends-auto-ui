@@ -24,6 +24,11 @@ function BillPage() {
   const [paidAmount, setPaidAmount] =
     useState("");
 
+    const [selectedCustomer, setSelectedCustomer] =
+  useState(null);
+  
+  
+
   // LOAD CUSTOMERS + PRODUCTS
   useEffect(() => {
 
@@ -283,12 +288,14 @@ function BillPage() {
                       key={index}
                       onClick={() => {
 
-                        setCustomerName(
-                          customer.customerName
-                        );
+  setCustomerName(
+    customer.customerName
+  );
 
-                        setFilteredCustomers([]);
-                      }}
+  setSelectedCustomer(customer);
+
+  setFilteredCustomers([]);
+}}
                       style={{
                         padding: "12px",
                         cursor: "pointer",
@@ -326,10 +333,51 @@ function BillPage() {
 
               if (product) {
 
-                setPercentage(
-                  product.defaultPercentage || 0
-                );
-              }
+  if (!selectedCustomer) {
+
+    setPercentage(
+      product.defaultPercentage || 0
+    );
+
+    return;
+  }
+
+  fetch(
+    `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
+  )
+    .then((res) => {
+
+      if (!res.ok) {
+        throw new Error();
+      }
+
+      return res.json();
+    })
+    .then((discount) => {
+
+      if (
+        discount &&
+        discount.discountPercentage
+      ) {
+
+        setPercentage(
+          discount.discountPercentage
+        );
+
+      } else {
+
+        setPercentage(
+          product.defaultPercentage || 0
+        );
+      }
+    })
+    .catch(() => {
+
+      setPercentage(
+        product.defaultPercentage || 0
+      );
+    });
+}
             }}
             style={inputStyle}
           >
