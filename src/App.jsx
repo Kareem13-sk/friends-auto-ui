@@ -8,7 +8,7 @@ import ProductPage from "./components/ProductPage";
 import BillPage from "./components/BillPage";
 import PurchaseHistory from "./components/PurchaseHistory";
 import CustomerDetails from "./components/CustomerDetails";
-import BrandDiscountPage from "./pages/BrandDiscountPage";
+import BrandDiscountPage from "./components/BrandDiscountPage";
 
 function App() {
   return (
