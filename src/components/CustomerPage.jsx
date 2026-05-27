@@ -54,91 +54,104 @@ function CustomerPage() {
 
   // ADD OR UPDATE CUSTOMER
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
 
-    if (!name || !phone || !address) {
+  if (!name || !phone || !address) {
 
-      alert("Please fill all fields");
+    alert("Please fill all fields");
 
-      return;
-    }
+    return;
+  }
 
-    const customerData = {
+  const customerData = {
 
-      customerName: name,
-
-      phone: phone,
-
-      address: address
-    };
-
-    try {
-
-      // UPDATE
-
-      if (editIndex !== null) {
-
-        const updatedCustomers =
-          [...customers];
-
-        updatedCustomers[editIndex] =
-          customerData;
-
-        saveCustomers(updatedCustomers);
-
-        setEditIndex(null);
-
-      } else {
-
-        // SAVE TO BACKEND
-
-        const response = await fetch(
-          "https://friends-auto-backend-1utc.onrender.com/customers",
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify(
-              customerData
-            )
-          }
-        );
-
-        const data =
-          await response.json();
-
-        console.log(
-          "CUSTOMER SAVED:",
-          data
-        );
-
-        const updatedCustomers = [
-          ...customers,
-          data
-        ];
-
-        saveCustomers(updatedCustomers);
-      }
-
-      // RESET
-
-      setName("");
-
-      setPhone("");
-
-      setAddress("");
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert("Failed to save customer");
-    }
+    customerName: name,
+    phone: phone,
+    address: address
   };
+
+  try {
+
+    // UPDATE CUSTOMER
+
+    if (editIndex !== null) {
+
+      const customerId =
+        customers[editIndex].id;
+
+      const response = await fetch(
+        `https://friends-auto-backend-1utc.onrender.com/customers/${customerId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify(
+            customerData
+          )
+        }
+      );
+
+      const updatedCustomer =
+        await response.json();
+
+      const updatedCustomers =
+        [...customers];
+
+      updatedCustomers[editIndex] =
+        updatedCustomer;
+
+      saveCustomers(updatedCustomers);
+
+      setEditIndex(null);
+
+      alert("Customer Updated Successfully");
+
+    } else {
+
+      // ADD CUSTOMER
+
+      const response = await fetch(
+        "https://friends-auto-backend-1utc.onrender.com/customers",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify(
+            customerData
+          )
+        }
+      );
+
+      const data =
+        await response.json();
+
+      const updatedCustomers = [
+        ...customers,
+        data
+      ];
+
+      saveCustomers(updatedCustomers);
+
+      alert("Customer Added Successfully");
+    }
+
+    // RESET
+
+    setName("");
+    setPhone("");
+    setAddress("");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Failed to save customer");
+  }
+};
 
   // EDIT CUSTOMER
 
@@ -308,6 +321,7 @@ function CustomerPage() {
                 color: "white"
               }}
             >
+              <th style={thStyle}>S.No</th>
 
               <th style={thStyle}>
                 Name
@@ -337,6 +351,10 @@ function CustomerPage() {
                 <tr key={index}>
 
                   <td style={tdStyle}>
+  {index + 1}
+</td>
+
+                  <td style={tdStyle}>
                     {customer.customerName}
                   </td>
 
@@ -360,9 +378,10 @@ function CustomerPage() {
                     >
 
                       <button
-                        onClick={() =>
-  handleDelete(customer.id)
-}
+  onClick={() =>
+    handleEdit(customer, index)
+  }
+
                         style={{
                           background:
                             "#1565c0",
@@ -385,11 +404,10 @@ function CustomerPage() {
                       </button>
 
                       <button
-                        onClick={() =>
-                          handleDelete(
-                            index
-                          )
-                        }
+  onClick={() =>
+    handleDelete(customer.id)
+  }
+
                         style={{
                           background:
                             "#d32f2f",
