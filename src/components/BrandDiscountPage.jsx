@@ -9,18 +9,15 @@ function BrandDiscountPage() {
   const [customerName, setCustomerName] = useState("");
 
   const [brand, setBrand] = useState("");
-
-  const [discountPercentage,
-    setDiscountPercentage] = useState("");
+  const [discountPercentage, setDiscountPercentage] = useState("");
 
   const [brands, setBrands] = useState([]);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-
     loadCustomers();
     loadDiscounts();
     loadBrands();
-
   }, []);
 
   const loadCustomers = async () => {
@@ -75,45 +72,47 @@ function BrandDiscountPage() {
       !brand ||
       !discountPercentage
     ) {
-
       alert("Fill all fields");
       return;
     }
 
     const payload = {
-
-      customerId,
-
+      customerId: Number(customerId),
       customerName,
-
       brand,
-
       discountPercentage:
         Number(discountPercentage)
     };
 
-    await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/brand-discounts",
-      {
-        method: "POST",
+    const url = editId
+      ? `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${editId}`
+      : "https://friends-auto-backend-1utc.onrender.com/brand-discounts";
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+    const method = editId
+      ? "PUT"
+      : "POST";
 
-        body:
-          JSON.stringify(payload)
-      }
-    );
+    await fetch(url, {
+      method,
+      headers: {
+        "Content-Type":
+          "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
+    setCustomerId("");
+    setCustomerName("");
     setBrand("");
     setDiscountPercentage("");
+    setEditId(null);
 
     loadDiscounts();
 
     alert(
-      "Discount Saved Successfully"
+      editId
+        ? "Discount Updated Successfully"
+        : "Discount Saved Successfully"
     );
   };
 
@@ -129,14 +128,29 @@ function BrandDiscountPage() {
     loadDiscounts();
   };
 
-  return (
+  const editDiscount = (discount) => {
 
+    setEditId(discount.id);
+
+    setCustomerId(discount.customerId);
+
+    setCustomerName(
+      discount.customerName
+    );
+
+    setBrand(discount.brand);
+
+    setDiscountPercentage(
+      discount.discountPercentage
+    );
+  };
+
+  return (
     <div
       style={{
         padding: "20px"
       }}
     >
-
       <h1
         style={{
           textAlign: "center",
@@ -173,30 +187,25 @@ function BrandDiscountPage() {
             );
 
             setCustomerName(
-              selected
-                ?.customerName || ""
+              selected?.customerName || ""
             );
           }}
           style={inputStyle}
         >
-
           <option value="">
             Select Customer
           </option>
 
           {customers.map(
             (customer) => (
-
               <option
                 key={customer.id}
                 value={customer.id}
               >
                 {customer.customerName}
               </option>
-
             )
           )}
-
         </select>
 
         <select
@@ -206,22 +215,20 @@ function BrandDiscountPage() {
           }
           style={inputStyle}
         >
-
           <option value="">
             Select Brand
           </option>
 
-          {brands.map((brandName) => (
-
-            <option
-              key={brandName}
-              value={brandName}
-            >
-              {brandName}
-            </option>
-
-          ))}
-
+          {brands.map(
+            (brandName) => (
+              <option
+                key={brandName}
+                value={brandName}
+              >
+                {brandName}
+              </option>
+            )
+          )}
         </select>
 
         <input
@@ -240,7 +247,7 @@ function BrandDiscountPage() {
           onClick={saveDiscount}
           style={buttonStyle}
         >
-          Save
+          {editId ? "Update" : "Save"}
         </button>
 
       </div>
@@ -251,16 +258,13 @@ function BrandDiscountPage() {
           borderCollapse: "collapse"
         }}
       >
-
         <thead>
-
           <tr
             style={{
               background: "#0d47a1",
               color: "white"
             }}
           >
-
             <th style={thStyle}>
               Customer
             </th>
@@ -278,7 +282,6 @@ function BrandDiscountPage() {
             </th>
 
           </tr>
-
         </thead>
 
         <tbody>
@@ -297,32 +300,54 @@ function BrandDiscountPage() {
                 </td>
 
                 <td style={tdStyle}>
-                  {
-                    discount.discountPercentage
-                  }%
+                  {discount.discountPercentage}%
                 </td>
 
                 <td style={tdStyle}>
 
-                  <button
-                    onClick={() =>
-                      deleteDiscount(
-                        discount.id
-                      )
-                    }
+                  <div
                     style={{
-                      background: "red",
-                      color: "white",
-                      border: "none",
-                      padding:
-                        "8px 15px",
-                      borderRadius:
-                        "5px",
-                      cursor: "pointer"
+                      display: "flex",
+                      gap: "10px",
+                      justifyContent: "center"
                     }}
                   >
-                    Delete
-                  </button>
+
+                    <button
+                      onClick={() =>
+                        editDiscount(discount)
+                      }
+                      style={{
+                        background: "#1565c0",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteDiscount(
+                          discount.id
+                        )
+                      }
+                      style={{
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Delete
+                    </button>
+
+                  </div>
 
                 </td>
 
