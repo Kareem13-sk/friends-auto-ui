@@ -680,39 +680,39 @@ function PurchaseHistory() {
 
   {bill.items?.map((item, index) => (
 
-    <tr key={index}>
+  <tr key={index}>
 
-      <td style={tdStyle}>
-        {index + 1}
-      </td>
+    <td style={tdStyle}>
+      {index + 1}
+    </td>
 
-      <td style={tdStyle}>
-        {item.product || item.productName}
-      </td>
+    <td style={tdStyle}>
+      {item.product || item.productName || "-"}
+    </td>
 
-      <td style={tdStyle}>
-        {item.qty || item.quantity}
-      </td>
+    <td style={tdStyle}>
+      {item.qty || item.quantity || 0}
+    </td>
 
-      <td style={tdStyle}>
-        {item.percentage}%
-      </td>
+    <td style={tdStyle}>
+      {item.percentage || 0}%
+    </td>
 
-      <td style={tdStyle}>
-        ₹{Number(item.actualPrice || 0).toFixed(2)}
-      </td>
+    <td style={tdStyle}>
+      ₹{Number(item.price || 0).toFixed(2)}
+    </td>
 
-      <td style={tdStyle}>
-        ₹{Number(item.price || 0).toFixed(2)}
-      </td>
+    <td style={tdStyle}>
+      ₹{Number(item.finalPrice ?? item.price ?? 0).toFixed(2)}
+    </td>
 
-      <td style={tdStyle}>
-        ₹{Number(item.total || 0).toFixed(2)}
-      </td>
+    <td style={tdStyle}>
+      ₹{Number(item.total || 0).toFixed(2)}
+    </td>
 
-    </tr>
+  </tr>
 
-  ))}
+))}
 
 </tbody>
           </table>
