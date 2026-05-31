@@ -73,7 +73,7 @@ const [bills, setBills] = useState([]);
               marginBottom: "10px",
             }}
           >
-            Friends Auto Mobile
+            Friends Auto Mobiles
           </h1>
 
           <p
