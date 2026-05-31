@@ -1,4 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom";
 
 import Layout from "./components/Layout";
 
@@ -9,15 +13,39 @@ import BillPage from "./components/BillPage";
 import PurchaseHistory from "./components/PurchaseHistory";
 import CustomerDetails from "./components/CustomerDetails";
 import BrandDiscountPage from "./components/BrandDiscountPage";
+import LoginPage from "./components/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+
   return (
+
     <BrowserRouter>
+
       <Routes>
 
-        <Route path="/" element={<Layout />}>
+        {/* LOGIN PAGE */}
 
-          <Route index element={<Dashboard />} />
+        <Route
+          path="/login"
+          element={<LoginPage />}
+        />
+
+        {/* PROTECTED PAGES */}
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+
+          <Route
+            index
+            element={<Dashboard />}
+          />
 
           <Route
             path="customers"
@@ -43,14 +71,16 @@ function App() {
             path="customer-details"
             element={<CustomerDetails />}
           />
+
           <Route
-  path="brand-discounts"
-  element={<BrandDiscountPage />}
-/>
+            path="brand-discounts"
+            element={<BrandDiscountPage />}
+          />
 
         </Route>
 
       </Routes>
+
     </BrowserRouter>
   );
 }
