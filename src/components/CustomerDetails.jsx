@@ -98,10 +98,11 @@ function CustomerDetails() {
           <tr>
             <td>${index + 1}</td>
             <td>${item.productName || "-"}</td>
-            <td>${item.quantity || 0}</td>
-            <td>₹${Number(item.price || 0).toFixed(2)}</td>
-            <td>₹${Number(item.finalPrice || 0).toFixed(2)}</td>
-            <td>₹${Number(item.total || 0).toFixed(2)}</td>
+<td>${item.quantity || 0}</td>
+<td>${item.percentage || 0}%</td>
+<td>₹${Number(item.actualPrice || 0).toFixed(2)}</td>
+<td>₹${Number(item.price || 0).toFixed(2)}</td>
+<td>₹${Number(item.total || 0).toFixed(2)}</td>
           </tr>
         `
       )
@@ -478,12 +479,13 @@ function CustomerDetails() {
 
                 <tr>
 
-                  <th>Sl.No</th>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Actual Price</th>
-                  <th>Final Price</th>
-                  <th>Total</th>
+                 <th>Sl.No</th>
+<th>Product</th>
+<th>Qty</th>
+<th>%</th>
+<th>Actual Price</th>
+<th>Final Price</th>
+<th>Total</th>
 
                 </tr>
 

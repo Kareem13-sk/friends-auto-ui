@@ -120,22 +120,24 @@ function BillPage() {
     const total = finalPrice * qty;
 
     // IMPORTANT FIX
-    const newItem = {
+   const newItem = {
 
-      productName:
-        product.productName ||
-        product.name,
+  productName:
+    product.productName ||
+    product.name,
 
-      quantity: qty,
+  quantity: qty,
 
-      percentage: percent,
+  actualPrice: actualPrice,
 
-      actualPrice,
+  percentage: percent,
 
-      price: finalPrice,
+  finalPrice: finalPrice,
 
-      total
-    };
+  price: finalPrice,
+
+  total: total
+};
 
     setBillItems([...billItems, newItem]);
 

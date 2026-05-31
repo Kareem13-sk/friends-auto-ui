@@ -101,9 +101,10 @@ function PurchaseHistory() {
             <td>${index + 1}</td>
             <td>${item.product || item.productName || ""}</td>
             <td>${item.qty || item.quantity || ""}</td>
-            <td>₹${item.actualPrice || 0}</td>
-            <td>₹${item.price || 0}</td>
-            <td>₹${item.total || 0}</td>
+<td>${item.percentage || 0}%</td>
+<td>₹${Number(item.actualPrice || 0).toFixed(2)}</td>
+<td>₹${Number(item.price || 0).toFixed(2)}</td>
+<td>₹${Number(item.total || 0).toFixed(2)}</td>
           </tr>
         `
       )
@@ -472,11 +473,12 @@ function PurchaseHistory() {
                 <tr>
 
                   <th>Sl.No</th>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Actual Price</th>
-                  <th>Final Price</th>
-                  <th>Total</th>
+<th>Product</th>
+<th>Qty</th>
+<th>%</th>
+<th>Actual Price</th>
+<th>Final Price</th>
+<th>Total</th>
 
                 </tr>
 
@@ -680,11 +682,12 @@ function PurchaseHistory() {
         }}
       >
         <th style={thStyle}>S.No</th>
-        <th style={thStyle}>Product</th>
-        <th style={thStyle}>Qty</th>
-        <th style={thStyle}>%</th>
-        <th style={thStyle}>Final Price</th>
-        <th style={thStyle}>Total</th>
+<th style={thStyle}>Product</th>
+<th style={thStyle}>Qty</th>
+<th style={thStyle}>%</th>
+<th style={thStyle}>Actual Price</th>
+<th style={thStyle}>Final Price</th>
+<th style={thStyle}>Total</th>
       </tr>
 
     </thead>
@@ -707,17 +710,21 @@ function PurchaseHistory() {
             {item.qty || item.quantity || 0}
           </td>
 
-          <td style={tdStyle}>
-            {item.percentage || 0}%
-          </td>
+        <td style={tdStyle}>
+  {item.percentage || 0}%
+</td>
 
-          <td style={tdStyle}>
-            ₹{Number(item.price || 0).toFixed(2)}
-          </td>
+<td style={tdStyle}>
+  ₹{Number(item.actualPrice || 0).toFixed(2)}
+</td>
 
-          <td style={tdStyle}>
-            ₹{Number(item.total || 0).toFixed(2)}
-          </td>
+<td style={tdStyle}>
+  ₹{Number(item.price || 0).toFixed(2)}
+</td>
+
+<td style={tdStyle}>
+  ₹{Number(item.total || 0).toFixed(2)}
+</td>
 
         </tr>
 
