@@ -460,13 +460,14 @@ function BillPage() {
                 color: "white"
               }}
             >
-              <th style={thStyle}>Product</th>
-              <th style={thStyle}>Qty</th>
-              <th style={thStyle}>%</th>
-              <th style={thStyle}>Actual Price</th>
-              <th style={thStyle}>Final Price</th>
-              <th style={thStyle}>Total</th>
-              <th style={thStyle}>Action</th>
+             <th style={thStyle}>S.No</th>
+<th style={thStyle}>Product</th>
+<th style={thStyle}>Qty</th>
+<th style={thStyle}>%</th>
+<th style={thStyle}>Actual Price</th>
+<th style={thStyle}>Final Price</th>
+<th style={thStyle}>Total</th>
+<th style={thStyle}>Action</th>
             </tr>
 
           </thead>
@@ -476,6 +477,9 @@ function BillPage() {
             {billItems.map((item, index) => (
 
               <tr key={index}>
+                <td style={tdStyle}>
+  {index + 1}
+</td>
 
                 <td style={tdStyle}>
                   {item.productName}
@@ -490,17 +494,16 @@ function BillPage() {
                 </td>
 
                 <td style={tdStyle}>
-                  ₹{item.actualPrice}
-                </td>
+  ₹{Number(item.actualPrice).toFixed(2)}
+</td>
 
-                <td style={tdStyle}>
-                  ₹{item.price}
-                </td>
+<td style={tdStyle}>
+  ₹{Number(item.price).toFixed(2)}
+</td>
 
-                <td style={tdStyle}>
-                  ₹{item.total}
-                </td>
-
+<td style={tdStyle}>
+  ₹{Number(item.total).toFixed(2)}
+</td>
                 <td style={tdStyle}>
 
                   <button
@@ -600,10 +603,13 @@ function BillPage() {
           }}
         />
 
-        <h2>Subtotal : ₹{subtotal}</h2>
+       <h2>
+  Subtotal : ₹{subtotal.toFixed(2)}
+</h2>
 
-        <h2>Balance : ₹{balance}</h2>
-
+<h2>
+  Balance : ₹{balance.toFixed(2)}
+</h2>
         <button
           onClick={saveBill}
           style={{
