@@ -41,7 +41,7 @@ function Header() {
           fontSize: "42px"
         }}
       >
-        Friends Auto Mobile
+        Friends Auto Mobiles
       </h1>
 
       <div
