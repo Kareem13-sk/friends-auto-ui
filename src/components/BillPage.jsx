@@ -619,7 +619,7 @@ const balance =
           }}
         />
 
-       <<h2>
+       <h2>
   Current Bill :
   ₹{subtotal.toFixed(2)}
 </h2>
