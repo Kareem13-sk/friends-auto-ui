@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Select from "react-select";
 
 function BillPage() {
 
@@ -231,7 +232,7 @@ function BillPage() {
           marginBottom: "30px"
         }}
       >
-        Billing Management
+        Billing
       </h1>
 
       {/* FORM */}
@@ -316,94 +317,83 @@ function BillPage() {
           </div>
 
           {/* PRODUCT */}
-          <select
-            value={selectedProduct}
-            onChange={(e) => {
+          <Select
+  placeholder="Search Product..."
+  isSearchable={true}
+  options={products.map((product) => ({
+    value: product.productName,
+    label: product.productName
+  }))}
+  value={
+    products
+      .map((product) => ({
+        value: product.productName,
+        label: product.productName
+      }))
+      .find(
+        (option) =>
+          option.value === selectedProduct
+      ) || null
+  }
+  onChange={(selectedOption) => {
 
-              const value = e.target.value;
+    const value =
+      selectedOption?.value || "";
 
-              setSelectedProduct(value);
+    setSelectedProduct(value);
 
-              const product = products.find(
-                (p) =>
-                  (
-                    p.productName ||
-                    p.name ||
-                    ""
-                  ) === value
-              );
-
-              if (product) {
-
-  if (!selectedCustomer) {
-
-    setPercentage(
-      product.defaultPercentage || 0
+    const product = products.find(
+      (p) =>
+        p.productName === value
     );
 
-    return;
-  }
+    if (product) {
 
-  fetch(
-    `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
-  )
-    .then((res) => {
-
-      if (!res.ok) {
-        throw new Error();
-      }
-
-      return res.json();
-    })
-    .then((discount) => {
-
-      if (
-        discount &&
-        discount.discountPercentage
-      ) {
-
-        setPercentage(
-          discount.discountPercentage
-        );
-
-      } else {
+      if (!selectedCustomer) {
 
         setPercentage(
           product.defaultPercentage || 0
         );
+
+        return;
       }
+
+      fetch(
+        `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
+      )
+        .then((res) => {
+
+          if (!res.ok)
+            throw new Error();
+
+          return res.json();
+        })
+        .then((discount) => {
+
+          setPercentage(
+            discount?.discountPercentage ||
+            product.defaultPercentage ||
+            0
+          );
+
+        })
+        .catch(() => {
+
+          setPercentage(
+            product.defaultPercentage || 0
+          );
+
+        });
+    }
+  }}
+  styles={{
+    control: (provided) => ({
+      ...provided,
+      minHeight: "55px",
+      borderRadius: "10px"
     })
-    .catch(() => {
-
-      setPercentage(
-        product.defaultPercentage || 0
-      );
-    });
-}
-            }}
-            style={inputStyle}
-          >
-
-            <option value="">
-              Select Product
-            </option>
-
-            {products.map((product, index) => (
-
-              <option
-                key={index}
-                value={
-                  product.productName ||
-                  product.name
-                }
-              >
-                {product.productName ||
-                  product.name}
-              </option>
-
-            ))}
-
-          </select>
+  }}
+/>
 
           {/* QTY */}
           <input
