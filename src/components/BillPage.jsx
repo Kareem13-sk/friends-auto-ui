@@ -24,6 +24,9 @@ function BillPage() {
 
   const [paidAmount, setPaidAmount] =
     useState("");
+    const [previousBalance,
+  setPreviousBalance] =
+  useState("");
 
     const [selectedCustomer, setSelectedCustomer] =
   useState(null);
@@ -148,12 +151,17 @@ function BillPage() {
 
   // TOTALS
   const subtotal = billItems.reduce(
-    (sum, item) => sum + item.total,
-    0
-  );
+  (sum, item) => sum + item.total,
+  0
+);
 
-  const balance =
-    subtotal - Number(paidAmount || 0);
+const grandTotal =
+  subtotal +
+  Number(previousBalance || 0);
+
+const balance =
+  grandTotal -
+  Number(paidAmount || 0);
 
   // SAVE BILL
   const saveBill = async () => {
@@ -169,7 +177,7 @@ function BillPage() {
 
       items: billItems,
 
-      totalAmount: subtotal,
+      totalAmount: grandTotal,
 
       paidAmount: Number(paidAmount || 0),
 
@@ -582,6 +590,22 @@ function BillPage() {
         </h2>
 
         <input
+  type="number"
+  placeholder="Previous Balance"
+  value={previousBalance}
+  onChange={(e) =>
+    setPreviousBalance(
+      e.target.value
+    )
+  }
+  style={{
+    ...inputStyle,
+    width: "100%",
+    marginBottom: "20px"
+  }}
+/>
+
+        <input
           type="number"
           placeholder="Paid Amount"
           value={paidAmount}
@@ -595,12 +619,26 @@ function BillPage() {
           }}
         />
 
-       <h2>
-  Subtotal : ₹{subtotal.toFixed(2)}
+       <<h2>
+  Current Bill :
+  ₹{subtotal.toFixed(2)}
 </h2>
 
 <h2>
-  Balance : ₹{balance.toFixed(2)}
+  Previous Balance :
+  ₹{Number(
+    previousBalance || 0
+  ).toFixed(2)}
+</h2>
+
+<h2>
+  Grand Total :
+  ₹{grandTotal.toFixed(2)}
+</h2>
+
+<h2>
+  Balance :
+  ₹{balance.toFixed(2)}
 </h2>
         <button
           onClick={saveBill}
