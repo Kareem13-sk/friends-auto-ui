@@ -81,7 +81,7 @@ const [bills, setBills] = useState([]);
               fontSize: "28px",
             }}
           >
-            Engine Spare Parts Billing & Inventory Management
+            Engine Spare Parts Billing
           </p>
         </div>
       </div>

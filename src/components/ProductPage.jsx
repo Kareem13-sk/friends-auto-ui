@@ -202,7 +202,7 @@ function ProductPage() {
               "clamp(32px,5vw,55px)"
           }}
         >
-          Product Management
+          Products
         </h1>
 
         {/* FORM */}
