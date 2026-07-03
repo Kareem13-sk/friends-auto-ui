@@ -49,8 +49,8 @@ function PurchaseHistory() {
     }
   };
 
-  // EDIT PAID AMOUNT
-  const editPaidAmount = async (billId) => {
+// EDIT PAID AMOUNT
+const editPaidAmount = async (billId) => {
   const bill = bills.find((b) => b.id === billId);
 
   if (!bill) return;
@@ -64,6 +64,11 @@ function PurchaseHistory() {
 
   const updatedPaid = Number(newPaid);
 
+  if (isNaN(updatedPaid)) {
+    alert("Please enter a valid amount.");
+    return;
+  }
+
   try {
     const response = await fetch(
       `https://friends-auto-backend-1utc.onrender.com/bills/${billId}`,
@@ -73,10 +78,7 @@ function PurchaseHistory() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...bill,
           paidAmount: updatedPaid,
-          balanceAmount:
-            Number(bill.totalAmount) - updatedPaid,
         }),
       }
     );
@@ -85,7 +87,6 @@ function PurchaseHistory() {
       throw new Error("Failed to update bill");
     }
 
-    // Reload latest bills from backend
     await fetchBills();
 
     alert("Bill updated successfully.");
