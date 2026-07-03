@@ -277,19 +277,26 @@ function BillPage() {
 
     const billData = {
 
-      customerName,
+  customerName,
 
-      items: billItems,
+  items: billItems,
 
-      totalAmount: grandTotal,
+  // Products total only
+  totalAmount: subtotal,
 
-      paidAmount: Number(paidAmount || 0),
+  // Previous pending amount
+  previousBalance: Number(previousBalance || 0),
 
-      balanceAmount: balance,
+  // Amount customer paid
+  paidAmount: Number(paidAmount || 0),
 
-      date: new Date().toLocaleString()
+  // Remaining balance
+  balanceAmount: balance,
 
-    };
+  // Bill date
+  billDate: new Date().toISOString().split("T")[0]
+
+};
 
     try {
 

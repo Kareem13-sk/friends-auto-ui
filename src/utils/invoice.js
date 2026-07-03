@@ -308,15 +308,19 @@ Customer : ${bill.customerName}
 </h2>
 
 <p>
-Total Amount : ₹${bill.totalAmount}
+Products Total : ₹${Number(bill.totalAmount || 0).toFixed(2)}
 </p>
 
 <p>
-Paid Amount : ₹${bill.paidAmount}
+Previous Balance : ₹${Number(bill.previousBalance || 0).toFixed(2)}
+</p>
+
+<p>
+Paid Amount : ₹${Number(bill.paidAmount || 0).toFixed(2)}
 </p>
 
 <p style="color:red;">
-Balance Amount : ₹${bill.balanceAmount}
+Remaining Balance : ₹${Number(bill.balanceAmount || 0).toFixed(2)}
 </p>
 
 </div>
@@ -365,13 +369,106 @@ ${rows}
 
 </table>
 
-<div class="grand-total">
+<div
+style="
+margin-top:25px;
+width:380px;
+margin-left:auto;
+font-size:20px;
+font-weight:bold;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+">
+<span>Products Total</span>
+
+<span>
+₹${Number(bill.totalAmount || 0).toFixed(2)}
+</span>
+
+</div>
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+">
+<span>Previous Balance</span>
+
+<span>
+₹${Number(bill.previousBalance || 0).toFixed(2)}
+</span>
+
+</div>
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+">
+<span>Paid Amount</span>
+
+<span>
+₹${Number(bill.paidAmount || 0).toFixed(2)}
+</span>
+
+</div>
+
+<hr
+style="
+margin:10px 0;
+border:1px solid #ddd;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+font-size:26px;
+color:#0d47a1;
+margin-top:12px;
+">
+
+<span>
+Grand Total
+</span>
 
 <span>
 
-Grand Total : ₹${bill.totalAmount}
+₹${(
+Number(bill.totalAmount || 0) +
+Number(bill.previousBalance || 0)
+).toFixed(2)}
 
 </span>
+
+</div>
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+margin-top:12px;
+color:red;
+">
+
+<span>
+Remaining Balance
+</span>
+
+<span>
+
+₹${Number(bill.balanceAmount || 0).toFixed(2)}
+
+</span>
+
+</div>
 
 </div>
 
