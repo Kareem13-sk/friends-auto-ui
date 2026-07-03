@@ -121,83 +121,411 @@ const editPaidAmount = async (billId) => {
         a[0].localeCompare(b[0])
       );
   }, [bills, search]);
-    return (
-    <div
+   return (
+  <div
+    style={{
+      padding: "20px",
+      background: "#f5f7fb",
+      minHeight: "100vh",
+    }}
+  >
+    <h1
       style={{
-        padding: "20px",
-        background: "#f5f7fb",
-        minHeight: "100vh",
+        textAlign: "center",
+        color: "#0d47a1",
+        fontSize: "42px",
+        marginBottom: "25px",
       }}
     >
-      <h1
+      Purchase History
+    </h1>
+
+    {/* Dashboard */}
+    <DashboardCards bills={bills} />
+
+    {/* Search */}
+    <div
+      style={{
+        margin: "30px 0",
+      }}
+    >
+      <input
+        type="text"
+        placeholder="🔍 Search Customer..."
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+        style={{
+          width: "100%",
+          maxWidth: "500px",
+          display: "block",
+          margin: "0 auto",
+          padding: "14px",
+          borderRadius: "10px",
+          border: "1px solid #ccc",
+          fontSize: "16px",
+          outline: "none",
+        }}
+      />
+    </div>
+
+    {/* No Bills */}
+    {groupedCustomers.length === 0 && (
+      <h2
         style={{
           textAlign: "center",
-          color: "#0d47a1",
-          fontSize: "42px",
-          marginBottom: "25px",
+          color: "gray",
+          marginTop: "40px",
         }}
       >
-        Purchase History
-      </h1>
+        No Bills Found
+      </h2>
+    )}
 
-      {/* Dashboard */}
-      <DashboardCards bills={bills} />
+    {/* Customer Folders */}
+    {groupedCustomers.map(
+      ([customerName, customerBills]) => (
+        <CustomerFolder
+          key={customerName}
+          customerName={customerName}
+          bills={customerBills}
+          onEdit={editProducts}
+          onDelete={deleteBill}
+          onDownload={downloadBill}
+        />
+      )
+    )}
 
-      {/* Search */}
+    {/* ===========================
+        EDIT PRODUCTS MODAL
+    ============================ */}
+
+    {editingBill && (
       <div
         style={{
-          margin: "30px 0",
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,.45)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 999,
         }}
       >
-        <input
-          type="text"
-          placeholder="🔍 Search Customer..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
+        <div
           style={{
-            width: "100%",
-            maxWidth: "500px",
-            display: "block",
-            margin: "0 auto",
-            padding: "14px",
-            borderRadius: "10px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-            outline: "none",
-          }}
-        />
-      </div>
-
-      {/* No Bills */}
-      {groupedCustomers.length === 0 && (
-        <h2
-          style={{
-            textAlign: "center",
-            color: "gray",
-            marginTop: "40px",
+            background: "#fff",
+            width: "95%",
+            maxWidth: "1100px",
+            borderRadius: "15px",
+            padding: "25px",
+            maxHeight: "90vh",
+            overflowY: "auto",
           }}
         >
-          No Bills Found
-        </h2>
-      )}
+          <h2
+            style={{
+              color: "#0d47a1",
+              marginBottom: "20px",
+            }}
+          >
+            Edit Products
+          </h2>
 
-      {/* Customer Folders */}
-      {groupedCustomers.map(
-        ([customerName, customerBills]) => (
-          <CustomerFolder
-            key={customerName}
-            customerName={customerName}
-            bills={customerBills}
-            onEdit={editPaidAmount}
-            onDelete={deleteBill}
-            onDownload={downloadBill}
-          />
-        )
-      )}
-    </div>
-  );
+          <h3>
+            Invoice :
+            INV-{editingBill.id}
+          </h3>
+
+          <h3>
+            Customer :
+            {editingBill.customerName}
+          </h3>
+
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              marginTop: "20px",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  background: "#0d47a1",
+                  color: "#fff",
+                }}
+              >
+                <th style={thStyle}>Product</th>
+                <th style={thStyle}>Qty</th>
+                <th style={thStyle}>%</th>
+                <th style={thStyle}>Actual</th>
+                <th style={thStyle}>Final</th>
+                <th style={thStyle}>Total</th>
+                <th style={thStyle}>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {editingItems.map(
+                (item, index) => (
+                  <tr key={index}>
+                    <td style={tdStyle}>
+                      <input
+                        value={
+                          item.product ||
+                          item.productName ||
+                          ""
+                        }
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "productName",
+                            e.target.value
+                          )
+                        }
+                        style={inputStyle}
+                      />
+                    </td>
+
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={
+                          item.quantity ||
+                          item.qty
+                        }
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "quantity",
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        style={smallInput}
+                      />
+                    </td>
+
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={
+                          item.percentage
+                        }
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "percentage",
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        style={smallInput}
+                      />
+                    </td>
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={
+                          item.actualPrice || 0
+                        }
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "actualPrice",
+                            Number(
+                              e.target.value
+                            )
+                          )
+                        }
+                        style={smallInput}
+                      />
+                    </td>
+
+                    <td style={tdStyle}>
+                      ₹
+                      {Number(
+                        item.price || 0
+                      ).toFixed(2)}
+                    </td>
+
+                    <td style={tdStyle}>
+                      ₹
+                      {Number(
+                        item.total || 0
+                      ).toFixed(2)}
+                    </td>
+
+                    <td style={tdStyle}>
+                      <button
+                        onClick={() =>
+                          removeItem(index)
+                        }
+                        style={{
+                          background: "#d32f2f",
+                          color: "#fff",
+                          border: "none",
+                          padding:
+                            "8px 14px",
+                          borderRadius:
+                            "6px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+
+          <div
+            style={{
+              marginTop: "25px",
+              display: "flex",
+              justifyContent:
+                "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "20px",
+            }}
+          >
+            <div>
+              <h3>
+                Products Total :
+                ₹
+                {productsTotal.toFixed(
+                  2
+                )}
+              </h3>
+
+              <h3>
+                Previous Balance :
+                ₹
+                {Number(
+                  editingBill.previousBalance ||
+                    0
+                ).toFixed(2)}
+              </h3>
+
+              <h2
+                style={{
+                  color: "#0d47a1",
+                }}
+              >
+                Grand Total :
+                ₹
+                {(
+                  productsTotal +
+                  Number(
+                    editingBill.previousBalance ||
+                      0
+                  )
+                ).toFixed(2)}
+              </h2>
+
+              <h3
+                style={{
+                  color: "red",
+                }}
+              >
+                Balance :
+                ₹
+                {(
+                  productsTotal +
+                  Number(
+                    editingBill.previousBalance ||
+                      0
+                  ) -
+                  Number(
+                    editingBill.paidAmount ||
+                      0
+                  )
+                ).toFixed(2)}
+              </h3>
+            </div>
+                        <div
+              style={{
+                display: "flex",
+                gap: "15px",
+              }}
+            >
+              <button
+                onClick={saveProducts}
+                style={{
+                  background: "#2e7d32",
+                  color: "#fff",
+                  border: "none",
+                  padding: "12px 25px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Save Changes
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingBill(null);
+                  setEditingItems([]);
+                }}
+                style={{
+                  background: "#757575",
+                  color: "#fff",
+                  border: "none",
+                  padding: "12px 25px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+// =======================
+// STYLES
+// =======================
+
+const thStyle = {
+  padding: "12px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+};
+
+const tdStyle = {
+  padding: "10px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "8px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  fontSize: "14px",
+};
+
+const smallInput = {
+  width: "80px",
+  padding: "8px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  textAlign: "center",
+};
 }
-
 export default PurchaseHistory;

@@ -89,11 +89,11 @@ export default function BillCard({
           </button>
 
           <button
-            style={blueBtn}
-            onClick={() => onEdit(bill.id)}
-          >
-            Edit
-          </button>
+  style={blueBtn}
+  onClick={() => onEdit(bill)}
+>
+  Edit Products
+</button>
 
           <button
             style={redBtn}
