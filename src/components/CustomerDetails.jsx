@@ -7,7 +7,6 @@ function CustomerDetails() {
 
   const [search, setSearch] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState("");
-
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
@@ -16,9 +15,7 @@ function CustomerDetails() {
   }, []);
 
   const fetchCustomers = async () => {
-
     try {
-
       const response = await fetch(
         "https://friends-auto-backend-1utc.onrender.com/customers"
       );
@@ -26,17 +23,13 @@ function CustomerDetails() {
       const data = await response.json();
 
       setCustomers(data || []);
-
     } catch (error) {
-
       console.log(error);
     }
   };
 
   const fetchBills = async () => {
-
     try {
-
       const response = await fetch(
         "https://friends-auto-backend-1utc.onrender.com/bills"
       );
@@ -44,9 +37,7 @@ function CustomerDetails() {
       const data = await response.json();
 
       setBills(data || []);
-
     } catch (error) {
-
       console.log(error);
     }
   };
@@ -60,22 +51,24 @@ function CustomerDetails() {
   const customerBills = bills.filter((bill) => {
 
     const customerMatch =
-      bill.customerName
-        ?.toLowerCase()
-        .includes(selectedCustomer.toLowerCase());
+      selectedCustomer === ""
+        ? true
+        : bill.customerName
+            ?.toLowerCase()
+            .includes(selectedCustomer.toLowerCase());
 
     if (!selectedDate) {
-
       return customerMatch;
     }
 
-    const billDate = bill.createdAt
-      ? new Date(bill.createdAt)
-          .toISOString()
-          .split("T")[0]
-      : "";
+    const billDate =
+      bill.billDate || "";
 
-    return customerMatch && billDate === selectedDate;
+    return (
+      customerMatch &&
+      billDate === selectedDate
+    );
+
   });
 
   const totalPurchase = customerBills.reduce(
@@ -89,6 +82,8 @@ function CustomerDetails() {
       sum + Number(bill.balanceAmount || 0),
     0
   );
+
+  // KEEP YOUR EXISTING downloadBill() FUNCTION BELOW THIS LINE
 
   const downloadBill = (bill) => {
 
@@ -554,8 +549,7 @@ function CustomerDetails() {
     invoiceWindow.print();
   };
 
-  return (
-
+   return (
     <div
       style={{
         padding: "20px",
@@ -563,11 +557,11 @@ function CustomerDetails() {
         minHeight: "100vh",
       }}
     >
-
       <h1
         style={{
           textAlign: "center",
           color: "#0d47a1",
+          marginBottom: "20px",
         }}
       >
         Customer Details
@@ -575,32 +569,29 @@ function CustomerDetails() {
 
       <div
         style={{
-          maxWidth: "900px",
+          maxWidth: "1000px",
           margin: "auto",
           background: "white",
           padding: "20px",
           borderRadius: "12px",
-          marginTop: "20px",
         }}
       >
+        {/* CUSTOMER SEARCH */}
 
         <input
           type="text"
           placeholder="Search Customer"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
           style={{
             width: "100%",
             padding: "12px",
-            borderRadius: "8px",
             border: "1px solid #ccc",
+            borderRadius: "8px",
           }}
         />
 
         {search && (
-
           <div
             style={{
               border: "1px solid #ddd",
@@ -610,41 +601,33 @@ function CustomerDetails() {
               overflowY: "auto",
             }}
           >
-
             {filteredCustomers.map((customer) => (
-
               <div
                 key={customer.id}
                 onClick={() => {
-
-                  setSelectedCustomer(
-                    customer.customerName
-                  );
-
+                  setSelectedCustomer(customer.customerName);
                   setSearch(customer.customerName);
                 }}
                 style={{
                   padding: "10px",
                   cursor: "pointer",
-                  borderBottom:
-                    "1px solid #eee",
+                  borderBottom: "1px solid #eee",
                 }}
               >
                 {customer.customerName}
               </div>
-
             ))}
-
           </div>
-
         )}
+
+        {/* DATE FILTER */}
 
         <div
           style={{
             marginTop: "15px",
+            marginBottom: "20px",
           }}
         >
-
           <input
             type="date"
             value={selectedDate}
@@ -657,17 +640,17 @@ function CustomerDetails() {
               border: "1px solid #ccc",
             }}
           />
-
         </div>
+
+        {/* SUMMARY */}
 
         <div
           style={{
             display: "flex",
             gap: "20px",
-            marginTop: "20px",
+            marginBottom: "25px",
           }}
         >
-
           <div
             style={{
               flex: 1,
@@ -678,13 +661,11 @@ function CustomerDetails() {
               textAlign: "center",
             }}
           >
-
             <h3>Total Purchase</h3>
 
             <h1>
-              ₹{Number(totalPurchase || 0).toFixed(2)}
+              ₹{Number(totalPurchase).toFixed(2)}
             </h1>
-
           </div>
 
           <div
@@ -697,175 +678,156 @@ function CustomerDetails() {
               textAlign: "center",
             }}
           >
-
             <h3>Pending Balance</h3>
 
             <h1>
-              ₹{Number(pendingBalance || 0).toFixed(2)}
+              ₹{Number(pendingBalance).toFixed(2)}
             </h1>
-
           </div>
-
         </div>
 
-        <div
+        {/* BILL HISTORY */}
+
+        <h2
           style={{
-            marginTop: "30px",
+            color: "#0d47a1",
+            marginBottom: "10px",
           }}
         >
+          Bill History
+        </h2>
 
-          <h2
-            style={{
-              color: "#0d47a1",
-            }}
-          >
-            Bill History
-          </h2>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr
+              style={{
+                background: "#0d47a1",
+                color: "white",
+              }}
+            >
+              <th style={{ padding: "12px" }}>Date</th>
 
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "10px",
-            }}
-          >
+              <th style={{ padding: "12px" }}>
+                Customer
+              </th>
 
-            <thead>
+              <th style={{ padding: "12px" }}>
+                Total
+              </th>
 
-              <tr
-                style={{
-                  background: "#0d47a1",
-                  color: "white",
-                }}
-              >
+              <th style={{ padding: "12px" }}>
+                Paid
+              </th>
 
-                <th style={{ padding: "10px" }}>
-                  Date
-                </th>
+              <th style={{ padding: "12px" }}>
+                Balance
+              </th>
 
-                <th>Total</th>
+              <th style={{ padding: "12px" }}>
+                Download
+              </th>
+            </tr>
+          </thead>
 
-                <th>Paid</th>
-
-                <th>Balance</th>
-
-                <th>Download</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {customerBills.length > 0 ? (
-
-                customerBills.map((bill) => (
-
-                  <tr key={bill.id}>
-
-                    <td
-                      style={{
-                        padding: "10px",
-                        textAlign: "center",
-                      }}
-                    >
-                      {bill.createdAt
-                        ? new Date(
-                            bill.createdAt
-                          ).toLocaleDateString()
-                        : bill.date
-                        ? new Date(
-                            bill.date
-                          ).toLocaleDateString()
-                        : new Date().toLocaleDateString()}
-                    </td>
-
-                    <td
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
-                      ₹{Number(
-                        bill.totalAmount || 0
-                      ).toFixed(2)}
-                    </td>
-
-                    <td
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
-                      ₹{Number(
-                        bill.paidAmount || 0
-                      ).toFixed(2)}
-                    </td>
-
-                    <td
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
-                      ₹{Number(
-                        bill.balanceAmount || 0
-                      ).toFixed(2)}
-                    </td>
-
-                    <td
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
-
-                      <button
-                        onClick={() =>
-                          downloadBill(bill)
-                        }
-                        style={{
-                          background: "#0d47a1",
-                          color: "white",
-                          border: "none",
-                          padding: "8px 14px",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Download
-                      </button>
-
-                    </td>
-
-                  </tr>
-
-                ))
-
-              ) : (
-
-                <tr>
-
+          <tbody>
+            {customerBills.length > 0 ? (
+              customerBills.map((bill) => (
+                <tr key={bill.id}>
                   <td
-                    colSpan="5"
                     style={{
                       textAlign: "center",
-                      padding: "20px",
+                      padding: "10px",
                     }}
                   >
-                    No Bills Found
+                    {bill.billDate}
                   </td>
 
+                  <td
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    {bill.customerName}
+                  </td>
+
+                  <td
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    ₹
+                    {Number(
+                      bill.totalAmount || 0
+                    ).toFixed(2)}
+                  </td>
+
+                  <td
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    ₹
+                    {Number(
+                      bill.paidAmount || 0
+                    ).toFixed(2)}
+                  </td>
+
+                  <td
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    ₹
+                    {Number(
+                      bill.balanceAmount || 0
+                    ).toFixed(2)}
+                  </td>
+
+                  <td
+                    style={{
+                      textAlign: "center",
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        downloadBill(bill)
+                      }
+                      style={{
+                        background: "#0d47a1",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Download
+                    </button>
+                  </td>
                 </tr>
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="6"
+                  style={{
+                    textAlign: "center",
+                    padding: "20px",
+                  }}
+                >
+                  No Bills Found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-
     </div>
-
   );
 }
 
