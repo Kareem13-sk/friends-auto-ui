@@ -29,17 +29,27 @@ export default function BillCard({
       >
         <div>
           <h3
-            style={{
-              color: "#0d47a1",
-              marginBottom: "10px",
-            }}
-          >
-            Invoice : INV-{bill.id}
-          </h3>
+  style={{
+    color: "#0d47a1",
+    marginBottom: "5px",
+  }}
+>
+  Invoice : INV-{bill.id}
+</h3>
 
-          <p>
-            <strong>Customer :</strong> {bill.customerName}
-          </p>
+<p
+  style={{
+    color: "#666",
+    marginBottom: "12px",
+    fontWeight: "bold",
+  }}
+>
+  Date : {bill.billDate || "N/A"}
+</p>
+
+<p>
+  <strong>Customer :</strong> {bill.customerName}
+</p>
 
           <p>
             <strong>Total :</strong> ₹
