@@ -1,45 +1,64 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
 
+const STORAGE_KEY = "billingDraft";
+
 function BillPage() {
 
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
 
-  const [customerName, setCustomerName] =
-    useState("");
+  const [customerName, setCustomerName] = useState("");
 
-  const [filteredCustomers, setFilteredCustomers] =
-    useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
 
-  const [selectedProduct, setSelectedProduct] =
-    useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
 
   const [quantity, setQuantity] = useState(1);
 
-  const [percentage, setPercentage] =
-    useState("");
+  const [percentage, setPercentage] = useState("");
 
   const [billItems, setBillItems] = useState([]);
 
-  const [paidAmount, setPaidAmount] =
-    useState("");
-    const [previousBalance,
-  setPreviousBalance] =
-  useState("");
+  const [paidAmount, setPaidAmount] = useState("");
 
-    const [selectedCustomer, setSelectedCustomer] =
-  useState(null);
-  
-  
+  const [previousBalance, setPreviousBalance] = useState("");
 
-  // LOAD CUSTOMERS + PRODUCTS
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  // ============================
+  // LOAD CUSTOMERS & PRODUCTS
+  // ============================
   useEffect(() => {
 
     fetch("https://friends-auto-backend-1utc.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
+
         setCustomers(data);
+
+        // Restore selected customer after customers load
+        const draft =
+          localStorage.getItem(STORAGE_KEY);
+
+        if (draft) {
+
+          const saved = JSON.parse(draft);
+
+          if (saved.customerName) {
+
+            const customer = data.find(
+              (c) =>
+                c.customerName ===
+                saved.customerName
+            );
+
+            if (customer) {
+              setSelectedCustomer(customer);
+            }
+          }
+        }
+
       })
       .catch((err) => console.log(err));
 
@@ -52,7 +71,94 @@ function BillPage() {
 
   }, []);
 
-  // CUSTOMER AUTO SUGGESTION
+  // ============================
+  // RESTORE BILL DRAFT
+  // ============================
+  useEffect(() => {
+
+    const draft =
+      localStorage.getItem(STORAGE_KEY);
+
+    if (!draft) return;
+
+    const data = JSON.parse(draft);
+
+    setCustomerName(
+      data.customerName || ""
+    );
+
+    setSelectedProduct(
+      data.selectedProduct || ""
+    );
+
+    setQuantity(
+      data.quantity || 1
+    );
+
+    setPercentage(
+      data.percentage || ""
+    );
+
+    setBillItems(
+      data.billItems || []
+    );
+
+    setPaidAmount(
+      data.paidAmount || ""
+    );
+
+    setPreviousBalance(
+      data.previousBalance || ""
+    );
+
+  }, []);
+
+  // ============================
+  // AUTO SAVE DRAFT
+  // ============================
+  useEffect(() => {
+
+    const draft = {
+
+      customerName,
+
+      selectedProduct,
+
+      quantity,
+
+      percentage,
+
+      billItems,
+
+      paidAmount,
+
+      previousBalance
+
+    };
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(draft)
+    );
+
+  }, [
+
+    customerName,
+
+    selectedProduct,
+
+    quantity,
+
+    percentage,
+
+    billItems,
+
+    paidAmount,
+
+    previousBalance
+
+  ]);
+    // CUSTOMER AUTO SUGGESTION
   const handleCustomerChange = (e) => {
 
     const value = e.target.value;
@@ -112,38 +218,36 @@ function BillPage() {
 
     const percent = Number(percentage || 0);
 
-    // ACTUAL PRICE
     const actualPrice =
       Number(product.price) || 0;
 
-    // DISCOUNTED PRICE
     const finalPrice =
       actualPrice -
       (actualPrice * percent) / 100;
 
     const total = finalPrice * qty;
 
-    // IMPORTANT FIX
-   const newItem = {
+    const newItem = {
 
-  productName:
-    product.productName ||
-    product.name,
+      productName:
+        product.productName ||
+        product.name,
 
-  quantity: qty,
+      quantity: qty,
 
-  actualPrice: actualPrice,
+      actualPrice,
 
-  percentage: percent,
+      percentage: percent,
 
-  finalPrice: finalPrice,
+      finalPrice,
 
-  price: finalPrice,
+      price: finalPrice,
 
-  total: total
-};
+      total
 
-    setBillItems([...billItems, newItem]);
+    };
+
+    setBillItems((prev) => [...prev, newItem]);
 
     setSelectedProduct("");
     setQuantity(1);
@@ -151,17 +255,17 @@ function BillPage() {
 
   // TOTALS
   const subtotal = billItems.reduce(
-  (sum, item) => sum + item.total,
-  0
-);
+    (sum, item) => sum + item.total,
+    0
+  );
 
-const grandTotal =
-  subtotal +
-  Number(previousBalance || 0);
+  const grandTotal =
+    subtotal +
+    Number(previousBalance || 0);
 
-const balance =
-  grandTotal -
-  Number(paidAmount || 0);
+  const balance =
+    grandTotal -
+    Number(paidAmount || 0);
 
   // SAVE BILL
   const saveBill = async () => {
@@ -184,6 +288,7 @@ const balance =
       balanceAmount: balance,
 
       date: new Date().toLocaleString()
+
     };
 
     try {
@@ -207,12 +312,19 @@ const balance =
 
       alert("Bill Saved Successfully");
 
+      // REMOVE SAVED DRAFT
+      localStorage.removeItem(STORAGE_KEY);
+
       // CLEAR FORM
       setBillItems([]);
       setCustomerName("");
-      setPaidAmount("");
-      setPercentage("");
+      setSelectedCustomer(null);
       setSelectedProduct("");
+      setQuantity(1);
+      setPercentage("");
+      setPaidAmount("");
+      setPreviousBalance("");
+      setFilteredCustomers([]);
 
     } catch (error) {
 
@@ -221,8 +333,7 @@ const balance =
       alert("Error saving bill");
     }
   };
-
-  return (
+    return (
 
     <div
       style={{
@@ -244,6 +355,7 @@ const balance =
       </h1>
 
       {/* FORM */}
+
       <div
         style={{
           background: "white",
@@ -264,7 +376,12 @@ const balance =
         >
 
           {/* CUSTOMER */}
-          <div style={{ position: "relative" }}>
+
+          <div
+            style={{
+              position: "relative"
+            }}
+          >
 
             <input
               type="text"
@@ -274,168 +391,221 @@ const balance =
               style={inputStyle}
             />
 
-            {/* AUTO SUGGESTION */}
-            {customerName &&
+            {
+              customerName &&
               filteredCustomers.length > 0 && (
 
-              <div
-                style={{
-                  position: "absolute",
-                  top: "55px",
-                  left: 0,
-                  right: 0,
-                  background: "white",
-                  borderRadius: "10px",
-                  boxShadow:
-                    "0 2px 10px rgba(0,0,0,0.2)",
-                  zIndex: 1000
-                }}
-              >
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "55px",
+                    left: 0,
+                    right: 0,
+                    background: "white",
+                    borderRadius: "10px",
+                    boxShadow:
+                      "0 2px 10px rgba(0,0,0,0.2)",
+                    zIndex: 1000
+                  }}
+                >
 
-                {filteredCustomers.map(
-                  (customer, index) => (
+                  {
+                    filteredCustomers.map(
+                      (customer, index) => (
 
-                    <div
-                      key={index}
-                      onClick={() => {
+                        <div
+                          key={index}
+                          onClick={() => {
 
-  setCustomerName(
-    customer.customerName
-  );
+                            setCustomerName(
+                              customer.customerName
+                            );
 
-  setSelectedCustomer(customer);
+                            setSelectedCustomer(
+                              customer
+                            );
 
-  setFilteredCustomers([]);
-}}
-                      style={{
-                        padding: "12px",
-                        cursor: "pointer",
-                        borderBottom:
-                          "1px solid #eee"
-                      }}
-                    >
-                      {customer.customerName}
-                    </div>
-                  )
-                )}
+                            setFilteredCustomers([]);
 
-              </div>
-            )}
+                          }}
+                          style={{
+                            padding: "12px",
+                            cursor: "pointer",
+                            borderBottom:
+                              "1px solid #eee"
+                          }}
+                        >
+
+                          {customer.customerName}
+
+                        </div>
+
+                      )
+                    )
+                  }
+
+                </div>
+
+              )
+            }
 
           </div>
 
           {/* PRODUCT */}
+
           <Select
-  placeholder="Search Product..."
-  isSearchable={true}
-  options={products.map((product) => ({
-    value: product.productName,
-    label: product.productName
-  }))}
-  value={
-    products
-      .map((product) => ({
-        value: product.productName,
-        label: product.productName
-      }))
-      .find(
-        (option) =>
-          option.value === selectedProduct
-      ) || null
-  }
-  onChange={(selectedOption) => {
 
-    const value =
-      selectedOption?.value || "";
+            placeholder="Search Product..."
 
-    setSelectedProduct(value);
+            isSearchable
 
-    const product = products.find(
-      (p) =>
-        p.productName === value
-    );
+            options={products.map(product => ({
+              value: product.productName,
+              label: product.productName
+            }))}
 
-    if (product) {
+            value={
+              products
+                .map(product => ({
+                  value: product.productName,
+                  label: product.productName
+                }))
+                .find(
+                  option =>
+                    option.value ===
+                    selectedProduct
+                ) || null
+            }
 
-      if (!selectedCustomer) {
+            onChange={(selectedOption) => {
 
-        setPercentage(
-          product.defaultPercentage || 0
-        );
+              const value =
+                selectedOption?.value || "";
 
-        return;
-      }
+              setSelectedProduct(value);
 
-      fetch(
-        `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
-      )
-        .then((res) => {
+              const product =
+                products.find(
+                  p =>
+                    p.productName === value
+                );
 
-          if (!res.ok)
-            throw new Error();
+              if (!product) return;
 
-          return res.json();
-        })
-        .then((discount) => {
+              if (!selectedCustomer) {
 
-          setPercentage(
-            discount?.discountPercentage ||
-            product.defaultPercentage ||
-            0
-          );
+                setPercentage(
+                  product.defaultPercentage || 0
+                );
 
-        })
-        .catch(() => {
+                return;
 
-          setPercentage(
-            product.defaultPercentage || 0
-          );
+              }
 
-        });
-    }
-  }}
-  styles={{
-    control: (provided) => ({
-      ...provided,
-      minHeight: "55px",
-      borderRadius: "10px"
-    })
-  }}
-/>
+              fetch(
+                `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
+              )
 
-          {/* QTY */}
+                .then(res => {
+
+                  if (!res.ok)
+                    throw new Error();
+
+                  return res.json();
+
+                })
+
+                .then(discount => {
+
+                  setPercentage(
+
+                    discount?.discountPercentage ||
+
+                    product.defaultPercentage ||
+
+                    0
+
+                  );
+
+                })
+
+                .catch(() => {
+
+                  setPercentage(
+                    product.defaultPercentage || 0
+                  );
+
+                });
+
+            }}
+
+            styles={{
+
+              control: (provided) => ({
+
+                ...provided,
+
+                minHeight: "55px",
+
+                borderRadius: "10px"
+
+              })
+
+            }}
+
+          />
+
+          {/* QUANTITY */}
+
           <input
+
             type="number"
+
             value={quantity}
+
             onChange={(e) =>
               setQuantity(e.target.value)
             }
+
             style={inputStyle}
+
           />
 
-          {/* PERCENTAGE */}
+          {/* DISCOUNT */}
+
           <input
+
             type="number"
+
             placeholder="Percentage"
+
             value={percentage}
+
             onChange={(e) =>
               setPercentage(e.target.value)
             }
+
             style={inputStyle}
+
           />
 
         </div>
 
         <button
+
           onClick={addItem}
+
           style={buttonStyle}
+
         >
+
           Add Item
+
         </button>
 
       </div>
+            {/* TABLE */}
 
-      {/* TABLE */}
       <div
         style={{
           background: "white",
@@ -460,118 +630,145 @@ const balance =
                 color: "white"
               }}
             >
-             <th style={thStyle}>S.No</th>
-<th style={thStyle}>Product</th>
-<th style={thStyle}>Qty</th>
-<th style={thStyle}>%</th>
-<th style={thStyle}>Actual Price</th>
-<th style={thStyle}>Final Price</th>
-<th style={thStyle}>Total</th>
-<th style={thStyle}>Action</th>
+              <th style={thStyle}>S.No</th>
+              <th style={thStyle}>Product</th>
+              <th style={thStyle}>Qty</th>
+              <th style={thStyle}>%</th>
+              <th style={thStyle}>Actual Price</th>
+              <th style={thStyle}>Final Price</th>
+              <th style={thStyle}>Total</th>
+              <th style={thStyle}>Action</th>
             </tr>
 
           </thead>
 
           <tbody>
 
-            {billItems.map((item, index) => (
+            {billItems.length === 0 ? (
 
-              <tr key={index}>
-                <td style={tdStyle}>
-  {index + 1}
-</td>
+              <tr>
 
-                <td style={tdStyle}>
-                  {item.productName}
-                </td>
-
-                <td style={tdStyle}>
-                  {item.quantity}
-                </td>
-
-                <td style={tdStyle}>
-                  {item.percentage}%
-                </td>
-
-                <td style={tdStyle}>
-  ₹{Number(item.actualPrice).toFixed(2)}
-</td>
-
-<td style={tdStyle}>
-  ₹{Number(item.price).toFixed(2)}
-</td>
-
-<td style={tdStyle}>
-  ₹{Number(item.total).toFixed(2)}
-</td>
-                <td style={tdStyle}>
-
-                  <button
-                    onClick={() => {
-
-                      setSelectedProduct(
-                        item.productName
-                      );
-
-                      setQuantity(item.quantity);
-
-                      setPercentage(
-                        item.percentage
-                      );
-
-                      setBillItems(
-                        billItems.filter(
-                          (_, i) => i !== index
-                        )
-                      );
-                    }}
-                    style={{
-                      background: "#1565c0",
-                      color: "white",
-                      border: "none",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      marginRight: "10px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => {
-
-                      setBillItems(
-                        billItems.filter(
-                          (_, i) => i !== index
-                        )
-                      );
-                    }}
-                    style={{
-                      background: "red",
-                      color: "white",
-                      border: "none",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Delete
-                  </button>
-
+                <td
+                  colSpan="8"
+                  style={{
+                    textAlign: "center",
+                    padding: "25px",
+                    color: "#777"
+                  }}
+                >
+                  No Products Added
                 </td>
 
               </tr>
 
-            ))}
+            ) : (
+
+              billItems.map((item, index) => (
+
+                <tr key={index}>
+
+                  <td style={tdStyle}>
+                    {index + 1}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {item.productName}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {item.quantity}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {item.percentage}%
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{Number(item.actualPrice).toFixed(2)}
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{Number(item.price).toFixed(2)}
+                  </td>
+
+                  <td style={tdStyle}>
+                    ₹{Number(item.total).toFixed(2)}
+                  </td>
+
+                  <td style={tdStyle}>
+
+                    <button
+                      onClick={() => {
+
+                        setSelectedProduct(
+                          item.productName
+                        );
+
+                        setQuantity(
+                          item.quantity
+                        );
+
+                        setPercentage(
+                          item.percentage
+                        );
+
+                        setBillItems(
+                          billItems.filter(
+                            (_, i) => i !== index
+                          )
+                        );
+
+                      }}
+                      style={{
+                        background: "#1565c0",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        marginRight: "10px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => {
+
+                        setBillItems(
+                          billItems.filter(
+                            (_, i) => i !== index
+                          )
+                        );
+
+                      }}
+                      style={{
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )}
 
           </tbody>
 
         </table>
 
       </div>
+            {/* SUMMARY */}
 
-      {/* SUMMARY */}
       <div
         style={{
           background: "white",
@@ -590,20 +787,18 @@ const balance =
         </h2>
 
         <input
-  type="number"
-  placeholder="Previous Balance"
-  value={previousBalance}
-  onChange={(e) =>
-    setPreviousBalance(
-      e.target.value
-    )
-  }
-  style={{
-    ...inputStyle,
-    width: "100%",
-    marginBottom: "20px"
-  }}
-/>
+          type="number"
+          placeholder="Previous Balance"
+          value={previousBalance}
+          onChange={(e) =>
+            setPreviousBalance(e.target.value)
+          }
+          style={{
+            ...inputStyle,
+            width: "100%",
+            marginBottom: "20px"
+          }}
+        />
 
         <input
           type="number"
@@ -619,27 +814,26 @@ const balance =
           }}
         />
 
-       <h2>
-  Current Bill :
-  ₹{subtotal.toFixed(2)}
-</h2>
+        <h2>
+          Current Bill :
+          ₹{subtotal.toFixed(2)}
+        </h2>
 
-<h2>
-  Previous Balance :
-  ₹{Number(
-    previousBalance || 0
-  ).toFixed(2)}
-</h2>
+        <h2>
+          Previous Balance :
+          ₹{Number(previousBalance || 0).toFixed(2)}
+        </h2>
 
-<h2>
-  Grand Total :
-  ₹{grandTotal.toFixed(2)}
-</h2>
+        <h2>
+          Grand Total :
+          ₹{grandTotal.toFixed(2)}
+        </h2>
 
-<h2>
-  Balance :
-  ₹{balance.toFixed(2)}
-</h2>
+        <h2>
+          Balance :
+          ₹{balance.toFixed(2)}
+        </h2>
+
         <button
           onClick={saveBill}
           style={{
