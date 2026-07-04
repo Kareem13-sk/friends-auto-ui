@@ -95,6 +95,60 @@ const [editingItems, setEditingItems] = useState([]);
   );
 
 };
+// ===============================
+// UPDATE PRODUCT
+// ===============================
+
+const updateItem = (index, field, value) => {
+
+  const items = [...editingItems];
+
+  items[index][field] = value;
+
+  const qty = Number(items[index].quantity || 0);
+
+  const actual = Number(items[index].actualPrice || 0);
+
+  const percent = Number(items[index].percentage || 0);
+
+  const finalPrice =
+    actual - (actual * percent) / 100;
+
+  items[index].finalPrice = finalPrice;
+
+  items[index].price = finalPrice;
+
+  items[index].total = finalPrice * qty;
+
+  setEditingItems(items);
+
+};
+
+// ===============================
+// REMOVE PRODUCT
+// ===============================
+
+const removeItem = (index) => {
+
+  const items = [...editingItems];
+
+  items.splice(index, 1);
+
+  setEditingItems(items);
+
+};
+
+// ===============================
+// PRODUCTS TOTAL
+// ===============================
+
+const productsTotal = editingItems.reduce(
+
+  (sum, item) => sum + Number(item.total || 0),
+
+  0
+
+);
 
   // ===============================
   // DOWNLOAD
