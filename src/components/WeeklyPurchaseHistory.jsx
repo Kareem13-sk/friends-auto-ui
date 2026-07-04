@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardCards from "./DashboardCards";
 import CustomerFolder from "./CustomerFolder";
+import { downloadBill } from "../utils/invoice";
 
 function WeeklyPurchaseHistory() {
 
@@ -258,18 +259,6 @@ function WeeklyPurchaseHistory() {
   };
 
   // ===============================
-  // DOWNLOAD
-  // ===============================
-
-  const downloadWeeklyBill = (bill) => {
-
-    alert(
-      "Download PDF will be connected next."
-    );
-
-  };
-
-  // ===============================
   // GROUP CUSTOMER
   // ===============================
 
@@ -394,7 +383,7 @@ function WeeklyPurchaseHistory() {
             bills={customerBills}
             onEdit={editProducts}
             onDelete={deleteBill}
-            onDownload={downloadWeeklyBill}
+            onDownload={downloadBill}
           />
         )
       )}
