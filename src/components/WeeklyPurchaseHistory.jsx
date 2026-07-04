@@ -2,10 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardCards from "./DashboardCards";
 import CustomerFolder from "./CustomerFolder";
 
+
+
 function WeeklyPurchaseHistory() {
 
   const [bills, setBills] = useState([]);
   const [search, setSearch] = useState("");
+  // Edit Weekly Bill
+const [editingBill, setEditingBill] = useState(null);
+const [editingItems, setEditingItems] = useState([]);
 
   useEffect(() => {
 
@@ -79,6 +84,17 @@ function WeeklyPurchaseHistory() {
     }
 
   };
+  const editProducts = (bill) => {
+
+  setEditingBill(bill);
+
+  setEditingItems(
+    JSON.parse(
+      JSON.stringify(bill.items || [])
+    )
+  );
+
+};
 
   // ===============================
   // DOWNLOAD
@@ -225,21 +241,13 @@ function WeeklyPurchaseHistory() {
         ([customerName, customerBills]) => (
 
           <CustomerFolder
-
-            key={customerName}
-
-            customerName={customerName}
-
-            bills={customerBills}
-
-            // Weekly Bills are already finalized
-            onEdit={() => {}}
-
-            onDelete={deleteBill}
-
-            onDownload={downloadWeeklyBill}
-
-          />
+  key={customerName}
+  customerName={customerName}
+  bills={customerBills}
+  onEdit={editProducts}
+  onDelete={deleteBill}
+  onDownload={downloadWeeklyBill}
+/>
 
         )
 
