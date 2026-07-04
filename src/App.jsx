@@ -17,6 +17,7 @@ import CustomerDetails from "./components/CustomerDetails";
 import BrandDiscountPage from "./components/BrandDiscountPage";
 import LoginPage from "./components/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import WeeklyPurchaseHistory from "./components/WeeklyPurchaseHistory";
 
 function App() {
 
@@ -78,6 +79,10 @@ function App() {
             path="history"
             element={<PurchaseHistory />}
           />
+          <Route
+  path="weekly-history"
+  element={<WeeklyPurchaseHistory />}
+/>
 
           <Route
             path="customer-details"

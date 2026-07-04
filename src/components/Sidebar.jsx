@@ -118,6 +118,13 @@ function Sidebar() {
       </Link>
 
       <Link
+  to="/weekly-history"
+  style={menuStyle("/weekly-history")}
+>
+  Weekly Purchase History
+</Link>
+
+      <Link
         to="/customer-details"
         style={menuStyle("/customer-details")}
       >
