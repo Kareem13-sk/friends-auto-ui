@@ -303,9 +303,140 @@ const productsTotal = editingItems.reduce(
   onDownload={downloadWeeklyBill}
 />
 
+
         )
+        
 
       )}
+
+            {/* ===============================
+          EDIT PRODUCTS MODAL
+      =============================== */}
+
+      {editingBill && (
+
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.45)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}
+        >
+
+          <div
+            style={{
+              background: "#fff",
+              width: "95%",
+              maxWidth: "1150px",
+              borderRadius: "15px",
+              padding: "25px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+
+            <h2
+              style={{
+                color: "#0d47a1",
+                marginBottom: "20px",
+              }}
+            >
+              Edit Weekly Products
+            </h2>
+
+            <h3>
+              Invoice : WINV-{editingBill.id}
+            </h3>
+
+            <h3>
+              Customer : {editingBill.customerName}
+            </h3>
+
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginTop: "20px",
+              }}
+            >
+
+              <thead>
+
+                <tr
+                  style={{
+                    background: "#0d47a1",
+                    color: "#fff",
+                  }}
+                >
+
+                  <th style={thStyle}>Product</th>
+
+                  <th style={thStyle}>Qty</th>
+
+                  <th style={thStyle}>%</th>
+
+                  <th style={thStyle}>Actual</th>
+
+                  <th style={thStyle}>Final</th>
+
+                  <th style={thStyle}>Total</th>
+
+                  <th style={thStyle}>Action</th>
+
+                </tr>
+
+              </thead>
+
+             <tbody>
+
+  {/* Products will be added here in the next step */}
+
+</tbody>
+
+</table>
+
+<div
+  style={{
+    marginTop: "20px",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "15px",
+  }}
+>
+
+  <button
+    onClick={() => {
+
+      setEditingBill(null);
+
+      setEditingItems([]);
+
+    }}
+    style={{
+      background: "#757575",
+      color: "#fff",
+      border: "none",
+      padding: "12px 25px",
+      borderRadius: "8px",
+      cursor: "pointer",
+    }}
+  >
+    Cancel
+  </button>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+
+      
           </div>
 
   );
