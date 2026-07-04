@@ -19,6 +19,7 @@ function WeeklyBilling() {
   const [percentage, setPercentage] = useState("");
 
   const [weeklyItems, setWeeklyItems] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
@@ -783,25 +784,15 @@ const deleteWeeklyItem = async (id) => {
                     <button
                       onClick={() => {
 
-                        setSelectedProduct(
-                          item.productName
-                        );
+  setEditingId(item.id);
 
-                        setQuantity(
-                          item.quantity
-                        );
+  setSelectedProduct(item.productName);
 
-                        setPercentage(
-                          item.percentage
-                        );
+  setQuantity(item.quantity);
 
-                        setWeeklyItems(
-                          weeklyItems.filter(
-                            (_, i) => i !== index
-                          )
-                        );
+  setPercentage(item.percentage);
 
-                      }}
+}}
                       style={{
                         background:"#1565c0",
                         color:"white",
