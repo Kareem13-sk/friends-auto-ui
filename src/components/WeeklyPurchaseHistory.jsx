@@ -527,145 +527,148 @@ const addItem = () => {
 
   {editingItems.map((item, index) => (
 
-    <tr key={index}>
+  <tr key={index}>
 
-      <td style={tdStyle}>
-        <input
-          style={inputStyle}
-          value={item.productName || ""}
-          onChange={(e) =>
-            updateItem(
-              index,
-              "productName",
-              e.target.value
-            )
+    {/* Product */}
+    <td style={tdStyle}>
+      <select
+        style={inputStyle}
+        value={item.productName || ""}
+        onChange={(e) => {
+
+          const selected = products.find(
+            p => p.productName === e.target.value
+          );
+
+          if (selected) {
+
+            const items = [...editingItems];
+
+            items[index].productName = selected.productName;
+            items[index].actualPrice = selected.price;
+            items[index].percentage =
+              selected.defaultPercentage || 0;
+
+            const finalPrice =
+              selected.price -
+              (selected.price *
+                (selected.defaultPercentage || 0)) /
+                100;
+
+            items[index].price = finalPrice;
+            items[index].finalPrice = finalPrice;
+            items[index].total =
+              finalPrice *
+              Number(items[index].quantity || 1);
+
+            setEditingItems(items);
+
           }
-        />
-      </td>
 
-      <td style={tdStyle}>
-        <select
-  style={inputStyle}
-  value={item.productName || ""}
-  onChange={(e) => {
+        }}
+      >
 
-    const selected = products.find(
-      p => p.productName === e.target.value
-    );
+        <option value="">
+          Select Product
+        </option>
 
-    if (selected) {
+        {products.map(product => (
 
-      const items = [...editingItems];
+          <option
+            key={product.id}
+            value={product.productName}
+          >
+            {product.productName}
+          </option>
 
-      items[index].productName = selected.productName;
+        ))}
 
-      items[index].actualPrice = selected.price;
+      </select>
+    </td>
 
-      items[index].percentage =
-        selected.defaultPercentage || 0;
+    {/* Qty */}
+    <td style={tdStyle}>
+      <input
+        type="number"
+        style={smallInput}
+        value={item.quantity}
+        onChange={(e) =>
+          updateItem(
+            index,
+            "quantity",
+            Number(e.target.value)
+          )
+        }
+      />
+    </td>
 
-      const finalPrice =
-        selected.price -
-        (selected.price *
-          (selected.defaultPercentage || 0)) /
-          100;
+    {/* Percentage */}
+    <td style={tdStyle}>
+      <input
+        type="number"
+        style={smallInput}
+        value={item.percentage}
+        onChange={(e) =>
+          updateItem(
+            index,
+            "percentage",
+            Number(e.target.value)
+          )
+        }
+      />
+    </td>
 
-      items[index].price = finalPrice;
+    {/* Actual Price */}
+    <td style={tdStyle}>
+      <input
+        type="number"
+        style={smallInput}
+        value={item.actualPrice}
+        onChange={(e) =>
+          updateItem(
+            index,
+            "actualPrice",
+            Number(e.target.value)
+          )
+        }
+      />
+    </td>
 
-      items[index].finalPrice = finalPrice;
+    {/* Final Price */}
+    <td style={tdStyle}>
+      ₹{Number(
+        item.finalPrice || item.price || 0
+      ).toFixed(2)}
+    </td>
 
-      items[index].total =
-        finalPrice *
-        Number(items[index].quantity || 1);
+    {/* Total */}
+    <td style={tdStyle}>
+      ₹{Number(
+        item.total || 0
+      ).toFixed(2)}
+    </td>
 
-      setEditingItems(items);
+    {/* Delete */}
+    <td style={tdStyle}>
+      <button
+        onClick={() => removeItem(index)}
+        style={{
+          background: "#d32f2f",
+          color: "#fff",
+          border: "none",
+          padding: "8px 15px",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+      >
+        Delete
+      </button>
+    </td>
 
-    }
+  </tr>
 
-  }}
->
+))}
 
-  <option value="">
-    Select Product
-  </option>
-
-  {products.map(product => (
-
-    <option
-      key={product.id}
-      value={product.productName}
-    >
-      {product.productName}
-    </option>
-
-  ))}
-
-</select>
-      </td>
-
-      <td style={tdStyle}>
-        <input
-          type="number"
-          style={smallInput}
-          value={item.percentage}
-          onChange={(e) =>
-            updateItem(
-              index,
-              "percentage",
-              Number(e.target.value)
-            )
-          }
-        />
-      </td>
-
-      <td style={tdStyle}>
-        <input
-          type="number"
-          style={smallInput}
-          value={item.actualPrice}
-          onChange={(e) =>
-            updateItem(
-              index,
-              "actualPrice",
-              Number(e.target.value)
-            )
-          }
-        />
-      </td>
-
-      <td style={tdStyle}>
-        ₹{Number(
-          item.finalPrice || item.price || 0
-        ).toFixed(2)}
-      </td>
-
-      <td style={tdStyle}>
-        ₹{Number(
-          item.total || 0
-        ).toFixed(2)}
-      </td>
-
-      <td style={tdStyle}>
-        <button
-          onClick={() =>
-            removeItem(index)
-          }
-          style={{
-            background: "#d32f2f",
-            color: "#fff",
-            border: "none",
-            padding: "8px 15px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Delete
-        </button>
-      </td>
-
-    </tr>
-
-  ))}
 
 </tbody>
 
