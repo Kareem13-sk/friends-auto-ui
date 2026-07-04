@@ -4,24 +4,20 @@ import CustomerFolder from "./CustomerFolder";
 
 function WeeklyPurchaseHistory() {
 
-  const [weeklyBills, setWeeklyBills] = useState([]);
-
+  const [bills, setBills] = useState([]);
   const [search, setSearch] = useState("");
-
-  const [expandedCustomer, setExpandedCustomer] =
-    useState(null);
-
-  // ============================
-  // LOAD WEEKLY BILLS
-  // ============================
 
   useEffect(() => {
 
-    fetchWeeklyBills();
+    fetchBills();
 
   }, []);
 
-  const fetchWeeklyBills = async () => {
+  // ===============================
+  // LOAD WEEKLY BILLS
+  // ===============================
+
+  const fetchBills = async () => {
 
     try {
 
@@ -31,11 +27,9 @@ function WeeklyPurchaseHistory() {
 
       const data = await response.json();
 
-      setWeeklyBills(data);
+      setBills(Array.isArray(data) ? data : []);
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
       console.log(
         "Unable to load weekly bills",
@@ -46,15 +40,15 @@ function WeeklyPurchaseHistory() {
 
   };
 
-  // ============================
-  // DELETE WEEKLY BILL
-  // ============================
+  // ===============================
+  // DELETE BILL
+  // ===============================
 
-  const deleteBill = async (id) => {
+  const deleteBill = async (billId) => {
 
     const confirmDelete =
       window.confirm(
-        "Delete Weekly Bill?"
+        "Delete this weekly bill?"
       );
 
     if (!confirmDelete) return;
@@ -62,20 +56,15 @@ function WeeklyPurchaseHistory() {
     try {
 
       await fetch(
-
-        `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${id}`,
-
+        `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${billId}`,
         {
-
           method: "DELETE"
-
         }
-
       );
 
-      setWeeklyBills(prev =>
+      setBills(prev =>
         prev.filter(
-          bill => bill.id !== id
+          bill => bill.id !== billId
         )
       );
 
@@ -85,84 +74,90 @@ function WeeklyPurchaseHistory() {
 
       console.log(error);
 
-      alert("Unable to delete.");
+      alert("Unable to delete bill.");
 
     }
 
   };
 
-  // ============================
-  // SEARCH
-  // ============================
+  // ===============================
+  // DOWNLOAD
+  // ===============================
 
-  const filteredBills = useMemo(() => {
+  const downloadWeeklyBill = (bill) => {
 
-    if (!search) return weeklyBills;
-
-    return weeklyBills.filter(
-
-      bill =>
-
-        bill.customerName
-          .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
-
+    alert(
+      "Weekly Invoice PDF will be connected in the next step."
     );
 
-  }, [
+  };
 
-    weeklyBills,
-
-    search
-
-  ]);
-
-  // ============================
+  // ===============================
   // GROUP CUSTOMER
-  // ============================
+  // ===============================
 
-  const groupedCustomers = useMemo(() => {
+  const groupedCustomers =
+    useMemo(() => {
 
-    const map = {};
+      const groups = {};
 
-    filteredBills.forEach(bill => {
+      bills.forEach((bill) => {
 
-      if (!map[bill.customerName]) {
+        const customer =
+          bill.customerName || "Unknown";
 
-        map[bill.customerName] = [];
+        if (!groups[customer]) {
 
-      }
+          groups[customer] = [];
 
-      map[bill.customerName].push(bill);
+        }
 
-    });
+        groups[customer].push(bill);
 
-    return map;
+      });
 
-  }, [
+      return Object.entries(groups)
 
-    filteredBills
+        .filter(([customer]) =>
 
-  ]);
+          customer
+            .toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+
+        )
+
+        .sort((a, b) =>
+
+          a[0].localeCompare(b[0])
+
+        );
+
+    }, [
+
+      bills,
+
+      search
+
+    ]);
 
   return (
 
     <div
       style={{
-        background:"#eef3f9",
-        minHeight:"100vh",
-        padding:"20px"
+        padding: "20px",
+        background: "#f5f7fb",
+        minHeight: "100vh"
       }}
     >
 
       <h1
         style={{
-          textAlign:"center",
-          color:"#0d47a1",
-          fontSize:"55px",
-          marginBottom:"30px"
+          textAlign: "center",
+          color: "#0d47a1",
+          fontSize: "42px",
+          marginBottom: "25px"
         }}
       >
 
@@ -171,456 +166,80 @@ function WeeklyPurchaseHistory() {
       </h1>
 
       <DashboardCards
-        bills={weeklyBills}
+        bills={bills}
       />
+            {/* ===============================
+          SEARCH
+      =============================== */}
 
       <div
         style={{
-          background:"white",
-          padding:"20px",
-          borderRadius:"20px",
-          marginBottom:"25px"
+          margin: "30px 0",
         }}
       >
-
         <input
-
           type="text"
-
-          placeholder="Search Weekly Customer..."
-
+          placeholder="🔍 Search Weekly Customer..."
           value={search}
-
-          onChange={(e)=>
-
-            setSearch(
-              e.target.value
-            )
-
+          onChange={(e) =>
+            setSearch(e.target.value)
           }
-
           style={{
-
-            width:"100%",
-
-            padding:"15px",
-
-            fontSize:"18px",
-
-            borderRadius:"10px",
-
-            border:"1px solid #ccc"
-
+            width: "100%",
+            maxWidth: "500px",
+            display: "block",
+            margin: "0 auto",
+            padding: "14px",
+            borderRadius: "10px",
+            border: "1px solid #ccc",
+            fontSize: "16px",
+            outline: "none",
           }}
-
         />
-
       </div>
-            {/* CUSTOMER FOLDERS */}
 
-      {Object.keys(groupedCustomers).length === 0 ? (
+      {/* ===============================
+          NO BILLS
+      =============================== */}
 
-        <div
+      {groupedCustomers.length === 0 && (
+
+        <h2
           style={{
-            background: "white",
-            padding: "30px",
-            borderRadius: "20px",
             textAlign: "center",
-            color: "#777",
-            fontSize: "20px"
+            color: "gray",
+            marginTop: "40px",
           }}
         >
           No Weekly Bills Found
-        </div>
+        </h2>
 
-      ) : (
+      )}
 
-        Object.keys(groupedCustomers).map(
+      {/* ===============================
+          CUSTOMER FOLDERS
+      =============================== */}
 
-          (customerName, customerIndex) => (
+      {groupedCustomers.map(
 
-            <div
-              key={customerIndex}
-              style={{
-                marginBottom: "20px"
-              }}
-            >
+        ([customerName, customerBills]) => (
 
-              <CustomerFolder
-                customerName={customerName}
-                isOpen={
-                  expandedCustomer ===
-                  customerName
-                }
-                onClick={() =>
-                  setExpandedCustomer(
+          <CustomerFolder
 
-                    expandedCustomer ===
-                    customerName
+            key={customerName}
 
-                      ? null
+            customerName={customerName}
 
-                      : customerName
+            bills={customerBills}
 
-                  )
-                }
-              />
+            // Weekly Bills are already finalized
+            onEdit={() => {}}
 
-              {expandedCustomer ===
-                customerName && (
+            onDelete={deleteBill}
 
-                <div
-                  style={{
-                    background: "white",
-                    borderRadius: "20px",
-                    marginTop: "10px",
-                    padding: "20px"
-                  }}
-                >
+            onDownload={downloadWeeklyBill}
 
-                  {groupedCustomers[
-                    customerName
-                  ].map((bill) => (
-
-                    <div
-                      key={bill.id}
-                      style={{
-                        border:
-                          "1px solid #ddd",
-                        borderRadius: "15px",
-                        padding: "20px",
-                        marginBottom: "20px"
-                      }}
-                    >
-
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent:
-                            "space-between",
-                          alignItems: "center",
-                          flexWrap: "wrap",
-                          gap: "15px"
-                        }}
-                      >
-
-                        <div>
-
-                          <h2
-                            style={{
-                              color:
-                                "#0d47a1",
-                              marginBottom:
-                                "10px"
-                            }}
-                          >
-                            Weekly Bill
-                            #{bill.id}
-                          </h2>
-
-                          <p>
-
-                            <b>Date :</b>{" "}
-
-                            {bill.billDate}
-
-                          </p>
-
-                          <p>
-
-                            <b>
-                              Products Total :
-                            </b>{" "}
-
-                            ₹
-                            {Number(
-                              bill.totalAmount
-                            ).toFixed(2)}
-
-                          </p>
-
-                          <p>
-
-                            <b>
-                              Previous Balance :
-                            </b>{" "}
-
-                            ₹
-                            {Number(
-                              bill.previousBalance
-                            ).toFixed(2)}
-
-                          </p>
-
-                          <p>
-
-                            <b>
-                              Paid :
-                            </b>{" "}
-
-                            ₹
-                            {Number(
-                              bill.paidAmount
-                            ).toFixed(2)}
-
-                          </p>
-
-                          <p>
-
-                            <b>
-                              Balance :
-                            </b>{" "}
-
-                            ₹
-                            {Number(
-                              bill.balanceAmount
-                            ).toFixed(2)}
-
-                          </p>
-
-                        </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection:
-                              "column",
-                            gap: "10px"
-                          }}
-                        >
-                                                      <button
-                            onClick={() => {
-
-                              alert(
-                                "Weekly Invoice will be added in the next step."
-                              );
-
-                            }}
-                            style={{
-                              background: "#1565c0",
-                              color: "white",
-                              border: "none",
-                              padding: "10px 15px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "bold"
-                            }}
-                          >
-                            Download Invoice
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              deleteBill(bill.id)
-                            }
-                            style={{
-                              background: "red",
-                              color: "white",
-                              border: "none",
-                              padding: "10px 15px",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              fontWeight: "bold"
-                            }}
-                          >
-                            Delete Bill
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                      {/* PRODUCTS */}
-
-                      <div
-                        style={{
-                          marginTop: "25px",
-                          overflowX: "auto"
-                        }}
-                      >
-
-                        <table
-                          style={{
-                            width: "100%",
-                            borderCollapse: "collapse"
-                          }}
-                        >
-
-                          <thead>
-
-                            <tr
-                              style={{
-                                background: "#0d47a1",
-                                color: "white"
-                              }}
-                            >
-                              <th style={thStyle}>
-                                S.No
-                              </th>
-
-                              <th style={thStyle}>
-                                Product
-                              </th>
-
-                              <th style={thStyle}>
-                                Qty
-                              </th>
-
-                              <th style={thStyle}>
-                                %
-                              </th>
-
-                              <th style={thStyle}>
-                                Actual
-                              </th>
-
-                              <th style={thStyle}>
-                                Final
-                              </th>
-
-                              <th style={thStyle}>
-                                Total
-                              </th>
-
-                            </tr>
-
-                          </thead>
-
-                          <tbody>
-
-                            {bill.items &&
-                            bill.items.length > 0 ? (
-
-                              bill.items.map(
-                                (
-                                  item,
-                                  index
-                                ) => (
-
-                                  <tr
-                                    key={index}
-                                  >
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      {index + 1}
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      {
-                                        item.productName
-                                      }
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      {
-                                        item.quantity
-                                      }
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      {
-                                        item.percentage
-                                      }
-                                      %
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      ₹
-                                      {Number(
-                                        item.actualPrice
-                                      ).toFixed(
-                                        2
-                                      )}
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      ₹
-                                      {Number(
-                                        item.finalPrice
-                                      ).toFixed(
-                                        2
-                                      )}
-                                    </td>
-
-                                    <td
-                                      style={
-                                        tdStyle
-                                      }
-                                    >
-                                      ₹
-                                      {Number(
-                                        item.total
-                                      ).toFixed(
-                                        2
-                                      )}
-                                    </td>
-
-                                  </tr>
-
-                                )
-                              )
-
-                            ) : (
-
-                              <tr>
-
-                                <td
-                                  colSpan="7"
-                                  style={{
-                                    textAlign:
-                                      "center",
-                                    padding:
-                                      "20px"
-                                  }}
-                                >
-                                  No Products
-                                </td>
-
-                              </tr>
-
-                            )}
-
-                          </tbody>
-
-                        </table>
-
-                      </div>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
-              )}
-
-            </div>
-
-          )
+          />
 
         )
 
@@ -630,31 +249,5 @@ function WeeklyPurchaseHistory() {
   );
 
 }
-
-const thStyle = {
-
-  padding: "15px",
-
-  border: "1px solid #ddd",
-
-  fontSize: "17px",
-
-  fontWeight: "bold",
-
-  textAlign: "center"
-
-};
-
-const tdStyle = {
-
-  padding: "12px",
-
-  border: "1px solid #ddd",
-
-  textAlign: "center",
-
-  fontSize: "16px"
-
-};
 
 export default WeeklyPurchaseHistory;

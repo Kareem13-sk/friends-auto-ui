@@ -1,4 +1,4 @@
-export default function DashboardCards({ bills }) {
+export default function DashboardCards({ bills = [] }) {
   const totalCustomers = new Set(
     bills.map((bill) => bill.customerName)
   ).size;
