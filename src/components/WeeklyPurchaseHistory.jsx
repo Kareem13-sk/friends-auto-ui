@@ -153,6 +153,26 @@ function WeeklyPurchaseHistory() {
     setEditingItems(items);
 
   };
+  // ===============================
+// ADD PRODUCT
+// ===============================
+
+const addItem = () => {
+
+  setEditingItems([
+    ...editingItems,
+    {
+      productName: "",
+      quantity: 1,
+      percentage: 0,
+      actualPrice: 0,
+      finalPrice: 0,
+      price: 0,
+      total: 0,
+    },
+  ]);
+
+};
 
   // ===============================
   // PRODUCTS TOTAL
@@ -428,9 +448,33 @@ function WeeklyPurchaseHistory() {
               Invoice : WINV-{editingBill.id}
             </h3>
 
-            <h3>
-              Customer : {editingBill.customerName}
-            </h3>
+           <h3>
+  Customer : {editingBill.customerName}
+</h3>
+
+<div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: "15px",
+  }}
+>
+  <button
+    onClick={addItem}
+    style={{
+      background: "#2e7d32",
+      color: "#fff",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      fontSize: "15px",
+    }}
+  >
+    ➕ Add Product
+  </button>
+</div>
 
             <table
               style={{
