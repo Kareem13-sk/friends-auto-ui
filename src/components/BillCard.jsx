@@ -88,9 +88,14 @@ export default function BillCard({
             {showProducts ? "Hide Products" : "View Products"}
           </button>
 
-          <button
+         <button
   style={blueBtn}
-  onClick={() => onEdit(bill)}
+  onClick={() => {
+    console.log("Edit button clicked");
+    if (onEdit) {
+      onEdit(bill);
+    }
+  }}
 >
   Edit Products
 </button>
