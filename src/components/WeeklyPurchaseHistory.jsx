@@ -8,15 +8,19 @@ function WeeklyPurchaseHistory() {
   const [bills, setBills] = useState([]);
   const [search, setSearch] = useState("");
 
+
   // Edit Popup
   const [editingBill, setEditingBill] = useState(null);
   const [editingItems, setEditingItems] = useState([]);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
 
-    fetchBills();
+  fetchBills();
 
-  }, []);
+  fetchProducts();
+
+}, []);
 
   // ===============================
   // LOAD WEEKLY BILLS
@@ -43,6 +47,25 @@ function WeeklyPurchaseHistory() {
     }
 
   };
+  const fetchProducts = async () => {
+
+  try {
+
+    const response = await fetch(
+      "https://friends-auto-backend-1utc.onrender.com/products"
+    );
+
+    const data = await response.json();
+
+    setProducts(data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   // ===============================
   // DELETE BILL
@@ -521,18 +544,63 @@ const addItem = () => {
       </td>
 
       <td style={tdStyle}>
-        <input
-          type="number"
-          style={smallInput}
-          value={item.quantity}
-          onChange={(e) =>
-            updateItem(
-              index,
-              "quantity",
-              Number(e.target.value)
-            )
-          }
-        />
+        <select
+  style={inputStyle}
+  value={item.productName || ""}
+  onChange={(e) => {
+
+    const selected = products.find(
+      p => p.productName === e.target.value
+    );
+
+    if (selected) {
+
+      const items = [...editingItems];
+
+      items[index].productName = selected.productName;
+
+      items[index].actualPrice = selected.price;
+
+      items[index].percentage =
+        selected.defaultPercentage || 0;
+
+      const finalPrice =
+        selected.price -
+        (selected.price *
+          (selected.defaultPercentage || 0)) /
+          100;
+
+      items[index].price = finalPrice;
+
+      items[index].finalPrice = finalPrice;
+
+      items[index].total =
+        finalPrice *
+        Number(items[index].quantity || 1);
+
+      setEditingItems(items);
+
+    }
+
+  }}
+>
+
+  <option value="">
+    Select Product
+  </option>
+
+  {products.map(product => (
+
+    <option
+      key={product.id}
+      value={product.productName}
+    >
+      {product.productName}
+    </option>
+
+  ))}
+
+</select>
       </td>
 
       <td style={tdStyle}>
