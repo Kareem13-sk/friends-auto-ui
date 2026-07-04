@@ -91,7 +91,11 @@ export default function BillCard({
          <button
   style={blueBtn}
   onClick={() => {
+    alert("Edit button clicked");
     console.log("Edit button clicked");
+    console.log(onEdit);
+    console.log(bill);
+
     if (onEdit) {
       onEdit(bill);
     }
