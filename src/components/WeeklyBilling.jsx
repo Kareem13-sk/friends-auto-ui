@@ -201,6 +201,45 @@ function WeeklyBilling() {
 // ============================
 
 const loadWeeklyItems = async (customerName) => {
+  // ============================
+// DELETE PRODUCT
+// ============================
+
+const deleteWeeklyItem = async (id) => {
+
+  const confirmDelete = window.confirm(
+    "Delete this product?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await fetch(
+
+      `https://friends-auto-backend-1utc.onrender.com/weekly-entry/${id}`,
+
+      {
+
+        method: "DELETE"
+
+      }
+
+    );
+
+    await loadWeeklyItems(customerName);
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert("Unable to delete.");
+
+  }
+
+};
 
   try {
 
@@ -784,15 +823,8 @@ const loadWeeklyItems = async (customerName) => {
                     </button>
 
                     <button
-                      onClick={() => {
 
-                        setWeeklyItems(
-                          weeklyItems.filter(
-                            (_, i) => i !== index
-                          )
-                        );
-
-                      }}
+  onClick={() => deleteWeeklyItem(item.id)}
                       style={{
                         background:"red",
                         color:"white",
