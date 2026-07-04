@@ -458,105 +458,104 @@ function WeeklyPurchaseHistory() {
 
               <tbody>
 
-                {editingItems.map((item, index) => (
+  {editingItems.map((item, index) => (
 
-                  <tr key={index}>
+    <tr key={index}>
 
-                    <td style={tdStyle}>
-                      <input
-                        value={item.productName}
-                        style={inputStyle}
-                        onChange={(e) =>
-                          updateItem(
-                            index,
-                            "productName",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
+      <td style={tdStyle}>
+        <input
+          style={inputStyle}
+          value={item.productName || ""}
+          onChange={(e) =>
+            updateItem(
+              index,
+              "productName",
+              e.target.value
+            )
+          }
+        />
+      </td>
 
-                    <td style={tdStyle}>
-                      <input
-                        type="number"
-                        value={item.quantity}
-                        style={smallInput}
-                        onChange={(e) =>
-                          updateItem(
-                            index,
-                            "quantity",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
+      <td style={tdStyle}>
+        <input
+          type="number"
+          style={smallInput}
+          value={item.quantity}
+          onChange={(e) =>
+            updateItem(
+              index,
+              "quantity",
+              Number(e.target.value)
+            )
+          }
+        />
+      </td>
 
-                    <td style={tdStyle}>
-                      <input
-                        type="number"
-                        value={item.percentage}
-                        style={smallInput}
-                        onChange={(e) =>
-                          updateItem(
-                            index,
-                            "percentage",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
+      <td style={tdStyle}>
+        <input
+          type="number"
+          style={smallInput}
+          value={item.percentage}
+          onChange={(e) =>
+            updateItem(
+              index,
+              "percentage",
+              Number(e.target.value)
+            )
+          }
+        />
+      </td>
 
-                    <td style={tdStyle}>
-                      <input
-                        type="number"
-                        value={item.actualPrice}
-                        style={smallInput}
-                        onChange={(e) =>
-                          updateItem(
-                            index,
-                            "actualPrice",
-                            Number(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                                        <td style={tdStyle}>
-                      ₹
-                      {Number(
-                        item.finalPrice || 0
-                      ).toFixed(2)}
-                    </td>
+      <td style={tdStyle}>
+        <input
+          type="number"
+          style={smallInput}
+          value={item.actualPrice}
+          onChange={(e) =>
+            updateItem(
+              index,
+              "actualPrice",
+              Number(e.target.value)
+            )
+          }
+        />
+      </td>
 
-                    <td style={tdStyle}>
-                      ₹
-                      {Number(
-                        item.total || 0
-                      ).toFixed(2)}
-                    </td>
+      <td style={tdStyle}>
+        ₹{Number(
+          item.finalPrice || item.price || 0
+        ).toFixed(2)}
+      </td>
 
-                    <td style={tdStyle}>
-                      <button
-                        style={{
-                          background: "#d32f2f",
-                          color: "#fff",
-                          border: "none",
-                          padding: "8px 15px",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() =>
-                          removeItem(index)
-                        }
-                      >
-                        Delete
-                      </button>
-                    </td>
+      <td style={tdStyle}>
+        ₹{Number(
+          item.total || 0
+        ).toFixed(2)}
+      </td>
 
-                  </tr>
+      <td style={tdStyle}>
+        <button
+          onClick={() =>
+            removeItem(index)
+          }
+          style={{
+            background: "#d32f2f",
+            color: "#fff",
+            border: "none",
+            padding: "8px 15px",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Delete
+        </button>
+      </td>
 
-                ))}
+    </tr>
 
-              </tbody>
+  ))}
+
+</tbody>
 
             </table>
 
