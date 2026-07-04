@@ -312,40 +312,43 @@ const deleteWeeklyItem = async (id) => {
 
     const newItem = {
 
-      customerName,
+  id: editingId,
 
-      productName:
-        product.productName,
+  customerName,
 
-      quantity: qty,
+  productName: product.productName,
 
-      percentage: percent,
+  quantity: qty,
 
-      actualPrice,
+  percentage: percent,
 
-      finalPrice,
+  actualPrice,
 
-      total
+  finalPrice,
 
-    };
+  total
+
+};
 
     try {
 
-      const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/weekly-entry",
-        {
+  const url = editingId
+    ? `https://friends-auto-backend-1utc.onrender.com/weekly-entry/${editingId}`
+    : "https://friends-auto-backend-1utc.onrender.com/weekly-entry";
 
-          method: "POST",
+  const method = editingId ? "PUT" : "POST";
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
+  const response = await fetch(url, {
 
-          body: JSON.stringify(newItem)
+    method,
 
-        }
-      );
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(newItem)
+
+  });
 
       if (!response.ok) {
 
@@ -355,12 +358,13 @@ const deleteWeeklyItem = async (id) => {
 
       await loadWeeklyItems(customerName);
 
-      setSelectedProduct("");
+      setEditingId(null);
 
-      setQuantity(1);
+setSelectedProduct("");
 
-      setPercentage("");
+setQuantity(1);
 
+setPercentage("");
       alert("Product Added");
 
     }
@@ -676,16 +680,11 @@ const deleteWeeklyItem = async (id) => {
         </div>
 
         <button
-
-          onClick={addItem}
-
-          style={buttonStyle}
-
-        >
-
-          Add Product
-
-        </button>
+  onClick={addItem}
+  style={buttonStyle}
+>
+  {editingId ? "Update Product" : "Add Product"}
+</button>
 
       </div>
             {/* WEEKLY PRODUCTS */}
