@@ -404,15 +404,96 @@ setPercentage("");
   // GENERATE BILL
   // ============================
 
-  const generateBill = () => {
+  const generateBill = async () => {
 
-    alert(
+  if (!selectedCustomer) {
 
-      "Weekly Bill generation will be implemented in next step."
+    alert("Please select a customer.");
+
+    return;
+
+  }
+
+  if (weeklyItems.length === 0) {
+
+    alert("No products found.");
+
+    return;
+
+  }
+
+  const paid = Number(
+    prompt("Enter Paid Amount", "0")
+  );
+
+  if (isNaN(paid)) {
+
+    alert("Invalid amount.");
+
+    return;
+
+  }
+
+  const billData = {
+
+    customerName,
+
+    totalAmount: productsTotal,
+
+    previousBalance: Number(previousBalance || 0),
+
+    paidAmount: paid,
+
+    balanceAmount:
+      productsTotal +
+      Number(previousBalance || 0) -
+      paid
+
+  };
+
+  try {
+
+    const response = await fetch(
+
+      "https://friends-auto-backend-1utc.onrender.com/weekly-bills",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json"
+
+        },
+
+        body: JSON.stringify(billData)
+
+      }
 
     );
 
-  };
+    if (!response.ok) {
+
+      throw new Error();
+
+    }
+
+    alert("Weekly Bill Generated Successfully.");
+
+    await loadWeeklyItems(customerName);
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert("Unable to Generate Weekly Bill.");
+
+  }
+
+};
 
   return (
 
