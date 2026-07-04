@@ -665,7 +665,6 @@ const addItem = () => {
     </option>
 
   ))}
-
 </select>
                     </td>
 
