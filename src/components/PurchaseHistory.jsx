@@ -245,22 +245,6 @@ function PurchaseHistory() {
     setEditingItems(items);
 
   };
-  const addItem = () => {
-
-  setEditingItems([
-    ...editingItems,
-    {
-      productName: "",
-      quantity: 1,
-      percentage: 0,
-      actualPrice: 0,
-      finalPrice: 0,
-      price: 0,
-      total: 0,
-    },
-  ]);
-
-};
   // ===============================
 // ADD PRODUCT
 // ===============================
@@ -556,28 +540,6 @@ const addItem = () => {
     ➕ Add Product
   </button>
 
-</div>
-            <div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "15px",
-  }}
->
-  <button
-    onClick={addItem}
-    style={{
-      background: "#2e7d32",
-      color: "#fff",
-      border: "none",
-      padding: "10px 20px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontWeight: "bold",
-    }}
-  >
-    + Add Product
-  </button>
 </div>
 
             <table
