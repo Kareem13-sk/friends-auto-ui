@@ -2,15 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardCards from "./DashboardCards";
 import CustomerFolder from "./CustomerFolder";
 
-
-
 function WeeklyPurchaseHistory() {
 
   const [bills, setBills] = useState([]);
   const [search, setSearch] = useState("");
-  // Edit Weekly Bill
-const [editingBill, setEditingBill] = useState(null);
-const [editingItems, setEditingItems] = useState([]);
+
+  // Edit Popup
+  const [editingBill, setEditingBill] = useState(null);
+  const [editingItems, setEditingItems] = useState([]);
 
   useEffect(() => {
 
@@ -34,12 +33,11 @@ const [editingItems, setEditingItems] = useState([]);
 
       setBills(Array.isArray(data) ? data : []);
 
-    } catch (error) {
+    }
 
-      console.log(
-        "Unable to load weekly bills",
-        error
-      );
+    catch (error) {
+
+      console.log(error);
 
     }
 
@@ -51,27 +49,25 @@ const [editingItems, setEditingItems] = useState([]);
 
   const deleteBill = async (billId) => {
 
-    const confirmDelete =
-      window.confirm(
-        "Delete this weekly bill?"
-      );
+    const confirmDelete = window.confirm(
+      "Delete this weekly bill?"
+    );
 
     if (!confirmDelete) return;
 
     try {
 
       await fetch(
+
         `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${billId}`,
+
         {
           method: "DELETE"
         }
+
       );
 
-      setBills(prev =>
-        prev.filter(
-          bill => bill.id !== billId
-        )
-      );
+      await fetchBills();
 
     }
 
@@ -79,76 +75,187 @@ const [editingItems, setEditingItems] = useState([]);
 
       console.log(error);
 
-      alert("Unable to delete bill.");
+    }
+
+  };
+
+  // ===============================
+  // EDIT PRODUCTS
+  // ===============================
+
+  const editProducts = (bill) => {
+
+    setEditingBill(bill);
+
+    setEditingItems(
+
+      JSON.parse(
+        JSON.stringify(
+          bill.items || []
+        )
+      )
+
+    );
+
+  };
+
+  // ===============================
+  // UPDATE ITEM
+  // ===============================
+
+  const updateItem = (
+    index,
+    field,
+    value
+  ) => {
+
+    const items = [...editingItems];
+
+    items[index][field] = value;
+
+    const qty =
+      Number(items[index].quantity || 0);
+
+    const actual =
+      Number(items[index].actualPrice || 0);
+
+    const percent =
+      Number(items[index].percentage || 0);
+
+    const finalPrice =
+      actual -
+      (actual * percent) / 100;
+
+    items[index].finalPrice =
+      finalPrice;
+
+    items[index].price =
+      finalPrice;
+
+    items[index].total =
+      finalPrice * qty;
+
+    setEditingItems(items);
+
+  };
+
+  // ===============================
+  // REMOVE PRODUCT
+  // ===============================
+
+  const removeItem = (index) => {
+
+    const items = [...editingItems];
+
+    items.splice(index, 1);
+
+    setEditingItems(items);
+
+  };
+
+  // ===============================
+  // PRODUCTS TOTAL
+  // ===============================
+
+  const productsTotal =
+    editingItems.reduce(
+
+      (sum, item) =>
+
+        sum + Number(item.total || 0),
+
+      0
+
+    );
+
+  // ===============================
+  // SAVE PRODUCTS
+  // ===============================
+
+  const saveProducts = async () => {
+
+    if (!editingBill) return;
+
+    try {
+
+      const response = await fetch(
+
+        `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${editingBill.id}`,
+
+        {
+
+          method: "PUT",
+
+          headers: {
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+          body: JSON.stringify({
+
+            customerName:
+              editingBill.customerName,
+
+            items: editingItems,
+
+            totalAmount:
+              productsTotal,
+
+            previousBalance:
+              editingBill.previousBalance || 0,
+
+            paidAmount:
+              editingBill.paidAmount || 0,
+
+            balanceAmount:
+
+              productsTotal +
+
+              Number(
+                editingBill.previousBalance || 0
+              ) -
+
+              Number(
+                editingBill.paidAmount || 0
+              )
+
+          })
+
+        }
+
+      );
+
+      if (!response.ok) {
+
+        throw new Error();
+
+      }
+
+      alert(
+        "Weekly Bill Updated Successfully"
+      );
+
+      setEditingBill(null);
+
+      setEditingItems([]);
+
+      fetchBills();
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Unable to update Weekly Bill."
+      );
 
     }
 
   };
-  const editProducts = (bill) => {
-
-  setEditingBill(bill);
-
-  setEditingItems(
-    JSON.parse(
-      JSON.stringify(bill.items || [])
-    )
-  );
-
-};
-// ===============================
-// UPDATE PRODUCT
-// ===============================
-
-const updateItem = (index, field, value) => {
-
-  const items = [...editingItems];
-
-  items[index][field] = value;
-
-  const qty = Number(items[index].quantity || 0);
-
-  const actual = Number(items[index].actualPrice || 0);
-
-  const percent = Number(items[index].percentage || 0);
-
-  const finalPrice =
-    actual - (actual * percent) / 100;
-
-  items[index].finalPrice = finalPrice;
-
-  items[index].price = finalPrice;
-
-  items[index].total = finalPrice * qty;
-
-  setEditingItems(items);
-
-};
-
-// ===============================
-// REMOVE PRODUCT
-// ===============================
-
-const removeItem = (index) => {
-
-  const items = [...editingItems];
-
-  items.splice(index, 1);
-
-  setEditingItems(items);
-
-};
-
-// ===============================
-// PRODUCTS TOTAL
-// ===============================
-
-const productsTotal = editingItems.reduce(
-
-  (sum, item) => sum + Number(item.total || 0),
-
-  0
-
-);
 
   // ===============================
   // DOWNLOAD
@@ -157,7 +264,7 @@ const productsTotal = editingItems.reduce(
   const downloadWeeklyBill = (bill) => {
 
     alert(
-      "Weekly Invoice PDF will be connected in the next step."
+      "Download PDF will be connected next."
     );
 
   };
@@ -191,9 +298,13 @@ const productsTotal = editingItems.reduce(
         .filter(([customer]) =>
 
           customer
+
             .toLowerCase()
+
             .includes(
+
               search.toLowerCase()
+
             )
 
         )
@@ -213,35 +324,28 @@ const productsTotal = editingItems.reduce(
     ]);
 
   return (
-
-    <div
+        <div
       style={{
         padding: "20px",
         background: "#f5f7fb",
-        minHeight: "100vh"
+        minHeight: "100vh",
       }}
     >
-
       <h1
         style={{
           textAlign: "center",
           color: "#0d47a1",
           fontSize: "42px",
-          marginBottom: "25px"
+          marginBottom: "25px",
         }}
       >
-
         Weekly Purchase History
-
       </h1>
 
-      <DashboardCards
-        bills={bills}
-      />
-            {/* ===============================
-          SEARCH
-      =============================== */}
+      {/* Dashboard */}
+      <DashboardCards bills={bills} />
 
+      {/* Search */}
       <div
         style={{
           margin: "30px 0",
@@ -268,12 +372,8 @@ const productsTotal = editingItems.reduce(
         />
       </div>
 
-      {/* ===============================
-          NO BILLS
-      =============================== */}
-
+      {/* No Bills */}
       {groupedCustomers.length === 0 && (
-
         <h2
           style={{
             textAlign: "center",
@@ -283,38 +383,27 @@ const productsTotal = editingItems.reduce(
         >
           No Weekly Bills Found
         </h2>
-
       )}
 
-      {/* ===============================
-          CUSTOMER FOLDERS
-      =============================== */}
-
+      {/* Customer Folders */}
       {groupedCustomers.map(
-
         ([customerName, customerBills]) => (
-
           <CustomerFolder
-  key={customerName}
-  customerName={customerName}
-  bills={customerBills}
-  onEdit={editProducts}
-  onDelete={deleteBill}
-  onDownload={downloadWeeklyBill}
-/>
-
-
+            key={customerName}
+            customerName={customerName}
+            bills={customerBills}
+            onEdit={editProducts}
+            onDelete={deleteBill}
+            onDownload={downloadWeeklyBill}
+          />
         )
-        
-
       )}
 
-            {/* ===============================
-          EDIT PRODUCTS MODAL
-      =============================== */}
+      {/* ==========================================
+          EDIT PRODUCTS POPUP
+      =========================================== */}
 
       {editingBill && (
-
         <div
           style={{
             position: "fixed",
@@ -326,7 +415,6 @@ const productsTotal = editingItems.reduce(
             zIndex: 999,
           }}
         >
-
           <div
             style={{
               background: "#fff",
@@ -338,7 +426,6 @@ const productsTotal = editingItems.reduce(
               overflowY: "auto",
             }}
           >
-
             <h2
               style={{
                 color: "#0d47a1",
@@ -363,84 +450,231 @@ const productsTotal = editingItems.reduce(
                 marginTop: "20px",
               }}
             >
-
               <thead>
-
                 <tr
                   style={{
                     background: "#0d47a1",
                     color: "#fff",
                   }}
                 >
-
                   <th style={thStyle}>Product</th>
-
                   <th style={thStyle}>Qty</th>
-
                   <th style={thStyle}>%</th>
-
-                  <th style={thStyle}>Actual</th>
-
-                  <th style={thStyle}>Final</th>
-
+                  <th style={thStyle}>Actual Price</th>
+                  <th style={thStyle}>Final Price</th>
                   <th style={thStyle}>Total</th>
-
                   <th style={thStyle}>Action</th>
-
                 </tr>
-
               </thead>
 
-             <tbody>
+              <tbody>
 
-  {/* Products will be added here in the next step */}
+                {editingItems.map((item, index) => (
 
-</tbody>
+                  <tr key={index}>
 
-</table>
+                    <td style={tdStyle}>
+                      <input
+                        value={item.productName}
+                        style={inputStyle}
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "productName",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
 
-<div
-  style={{
-    marginTop: "20px",
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "15px",
-  }}
->
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        style={smallInput}
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "quantity",
+                            Number(e.target.value)
+                          )
+                        }
+                      />
+                    </td>
 
-  <button
-    onClick={() => {
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={item.percentage}
+                        style={smallInput}
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "percentage",
+                            Number(e.target.value)
+                          )
+                        }
+                      />
+                    </td>
 
-      setEditingBill(null);
+                    <td style={tdStyle}>
+                      <input
+                        type="number"
+                        value={item.actualPrice}
+                        style={smallInput}
+                        onChange={(e) =>
+                          updateItem(
+                            index,
+                            "actualPrice",
+                            Number(e.target.value)
+                          )
+                        }
+                      />
+                    </td>
+                                        <td style={tdStyle}>
+                      ₹
+                      {Number(
+                        item.finalPrice || 0
+                      ).toFixed(2)}
+                    </td>
 
-      setEditingItems([]);
+                    <td style={tdStyle}>
+                      ₹
+                      {Number(
+                        item.total || 0
+                      ).toFixed(2)}
+                    </td>
 
-    }}
-    style={{
-      background: "#757575",
-      color: "#fff",
-      border: "none",
-      padding: "12px 25px",
-      borderRadius: "8px",
-      cursor: "pointer",
-    }}
-  >
-    Cancel
-  </button>
+                    <td style={tdStyle}>
+                      <button
+                        style={{
+                          background: "#d32f2f",
+                          color: "#fff",
+                          border: "none",
+                          padding: "8px 15px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          removeItem(index)
+                        }
+                      >
+                        Delete
+                      </button>
+                    </td>
 
-</div>
+                  </tr>
 
-</div>
+                ))}
 
-</div>
+              </tbody>
 
-)}
+            </table>
 
-      
+            <div
+              style={{
+                marginTop: "25px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "20px",
+              }}
+            >
+
+              <div>
+
+                <h2>
+                  Products Total : ₹
+                  {productsTotal.toFixed(2)}
+                </h2>
+
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "15px",
+                }}
+              >
+
+                <button
+                  onClick={saveProducts}
+                  style={{
+                    background: "#2e7d32",
+                    color: "#fff",
+                    border: "none",
+                    padding: "12px 25px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Save Changes
+                </button>
+
+                <button
+                  onClick={() => {
+
+                    setEditingBill(null);
+
+                    setEditingItems([]);
+
+                  }}
+                  style={{
+                    background: "#757575",
+                    color: "#fff",
+                    border: "none",
+                    padding: "12px 25px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </div>
+
           </div>
+
+        </div>
+
+      )}
+
+    </div>
 
   );
 
 }
+
+const thStyle = {
+  padding: "12px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+};
+
+const tdStyle = {
+  padding: "10px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "8px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+};
+
+const smallInput = {
+  width: "80px",
+  padding: "8px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  textAlign: "center",
+};
 
 export default WeeklyPurchaseHistory;
