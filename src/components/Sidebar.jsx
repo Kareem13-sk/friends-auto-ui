@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
+
   const location = useLocation();
 
   const menuStyle = (path) => ({
+
     background:
       location.pathname === path
         ? "white"
@@ -15,17 +17,27 @@ function Sidebar() {
         : "white",
 
     padding: "18px",
+
     borderRadius: "18px",
+
     textDecoration: "none",
+
     fontSize: "20px",
+
     fontWeight: "bold",
+
     textAlign: "center",
+
     marginBottom: "18px",
+
     display: "block",
+
     transition: "0.3s ease",
+
   });
 
   return (
+
     <div
       style={{
         width: "280px",
@@ -40,6 +52,7 @@ function Sidebar() {
         boxSizing: "border-box",
       }}
     >
+
       <h1
         style={{
           color: "white",
@@ -55,7 +68,10 @@ function Sidebar() {
         Auto
       </h1>
 
-      <Link to="/" style={menuStyle("/")}>
+      <Link
+        to="/"
+        style={menuStyle("/")}
+      >
         Dashboard
       </Link>
 
@@ -64,6 +80,13 @@ function Sidebar() {
         style={menuStyle("/customers")}
       >
         Customers
+      </Link>
+
+      <Link
+        to="/weekly-customers"
+        style={menuStyle("/weekly-customers")}
+      >
+        Weekly Customers
       </Link>
 
       <Link
@@ -81,6 +104,13 @@ function Sidebar() {
       </Link>
 
       <Link
+        to="/weekly-billing"
+        style={menuStyle("/weekly-billing")}
+      >
+        Weekly Billing
+      </Link>
+
+      <Link
         to="/history"
         style={menuStyle("/history")}
       >
@@ -95,13 +125,16 @@ function Sidebar() {
       </Link>
 
       <Link
-  to="/brand-discounts"
-  style={menuStyle("/brand-discounts")}
->
-  Brand Discounts
-</Link>
+        to="/brand-discounts"
+        style={menuStyle("/brand-discounts")}
+      >
+        Brand Discounts
+      </Link>
+
     </div>
+
   );
+
 }
 
 export default Sidebar;

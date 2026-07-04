@@ -8,8 +8,10 @@ import Layout from "./components/Layout";
 
 import Dashboard from "./components/Dashboard";
 import CustomerPage from "./components/CustomerPage";
+import WeeklyCustomers from "./components/WeeklyCustomers";
 import ProductPage from "./components/ProductPage";
 import BillPage from "./components/BillPage";
+import WeeklyBilling from "./components/WeeklyBilling";
 import PurchaseHistory from "./components/PurchaseHistory";
 import CustomerDetails from "./components/CustomerDetails";
 import BrandDiscountPage from "./components/BrandDiscountPage";
@@ -53,6 +55,11 @@ function App() {
           />
 
           <Route
+            path="weekly-customers"
+            element={<WeeklyCustomers />}
+          />
+
+          <Route
             path="products"
             element={<ProductPage />}
           />
@@ -60,6 +67,11 @@ function App() {
           <Route
             path="billing"
             element={<BillPage />}
+          />
+
+          <Route
+            path="weekly-billing"
+            element={<WeeklyBilling />}
           />
 
           <Route
@@ -82,7 +94,9 @@ function App() {
       </Routes>
 
     </BrowserRouter>
+
   );
+
 }
 
 export default App;
