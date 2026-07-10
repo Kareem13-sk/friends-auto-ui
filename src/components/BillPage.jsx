@@ -514,7 +514,7 @@ function BillPage() {
               }
 
               fetch(
-                `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&brand=${product.brand}`
+                `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=CUSTOMER&brand=${product.brand}`
               )
 
                 .then(res => {

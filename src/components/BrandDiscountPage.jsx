@@ -2,16 +2,22 @@ import { useEffect, useState } from "react";
 
 function BrandDiscountPage() {
 
+  const [customerType, setCustomerType] = useState("CUSTOMER");
+
   const [customers, setCustomers] = useState([]);
+
   const [discounts, setDiscounts] = useState([]);
 
   const [customerId, setCustomerId] = useState("");
+
   const [customerName, setCustomerName] = useState("");
 
   const [brand, setBrand] = useState("");
+
   const [discountPercentage, setDiscountPercentage] = useState("");
 
   const [brands, setBrands] = useState([]);
+
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
@@ -20,11 +26,21 @@ function BrandDiscountPage() {
     loadBrands();
   }, []);
 
+  useEffect(() => {
+    loadCustomers();
+
+    setCustomerId("");
+    setCustomerName("");
+  }, [customerType]);
+
   const loadCustomers = async () => {
 
-    const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/customers"
-    );
+    const url =
+      customerType === "CUSTOMER"
+        ? "https://friends-auto-backend-1utc.onrender.com/customers"
+        : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
+
+    const response = await fetch(url);
 
     const data = await response.json();
 
@@ -77,34 +93,48 @@ function BrandDiscountPage() {
     }
 
     const payload = {
+
       customerId: Number(customerId),
+
       customerName,
+
+      customerType,
+
       brand,
+
       discountPercentage:
         Number(discountPercentage)
+
     };
 
     const url = editId
       ? `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${editId}`
       : "https://friends-auto-backend-1utc.onrender.com/brand-discounts";
 
-    const method = editId
-      ? "PUT"
-      : "POST";
+    const method =
+      editId ? "PUT" : "POST";
 
     await fetch(url, {
+
       method,
+
       headers: {
         "Content-Type":
           "application/json"
       },
+
       body: JSON.stringify(payload)
+
     });
 
     setCustomerId("");
+
     setCustomerName("");
+
     setBrand("");
+
     setDiscountPercentage("");
+
     setEditId(null);
 
     loadDiscounts();
@@ -114,6 +144,7 @@ function BrandDiscountPage() {
         ? "Discount Updated Successfully"
         : "Discount Saved Successfully"
     );
+
   };
 
   const deleteDiscount = async (id) => {
@@ -126,242 +157,287 @@ function BrandDiscountPage() {
     );
 
     loadDiscounts();
+
   };
 
   const editDiscount = (discount) => {
 
     setEditId(discount.id);
 
-    setCustomerId(discount.customerId);
+    setCustomerType(
+      discount.customerType || "CUSTOMER"
+    );
+
+    setCustomerId(
+      discount.customerId
+    );
 
     setCustomerName(
       discount.customerName
     );
 
-    setBrand(discount.brand);
+    setBrand(
+      discount.brand
+    );
 
     setDiscountPercentage(
       discount.discountPercentage
     );
-  };
 
+  };
   return (
-    <div
+  <div
+    style={{
+      padding: "20px"
+    }}
+  >
+    <h1
       style={{
-        padding: "20px"
+        textAlign: "center",
+        color: "#0d47a1"
       }}
     >
-      <h1
-        style={{
-          textAlign: "center",
-          color: "#0d47a1"
-        }}
+      Brand Discounts
+    </h1>
+
+    <div
+      style={{
+        background: "white",
+        padding: "20px",
+        borderRadius: "10px",
+        marginBottom: "20px"
+      }}
+    >
+
+      {/* CUSTOMER TYPE */}
+
+      <select
+        value={customerType}
+        onChange={(e) =>
+          setCustomerType(e.target.value)
+        }
+        style={inputStyle}
       >
-        Brand Discounts
-      </h1>
+        <option value="CUSTOMER">
+          Regular Customer
+        </option>
 
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "10px",
-          marginBottom: "20px"
-        }}
-      >
+        <option value="WEEKLY_CUSTOMER">
+          Weekly Customer
+        </option>
 
-        <select
-          value={customerId}
-          onChange={(e) => {
+      </select>
 
-            const selected =
-              customers.find(
-                (c) =>
-                  c.id ===
-                  Number(
-                    e.target.value
-                  )
-              );
+      {/* CUSTOMER */}
 
-            setCustomerId(
-              e.target.value
+      <select
+        value={customerId}
+        onChange={(e) => {
+
+          const selected =
+            customers.find(
+              (c) =>
+                c.id ===
+                Number(e.target.value)
             );
 
-            setCustomerName(
-              selected?.customerName || ""
-            );
-          }}
-          style={inputStyle}
-        >
-          <option value="">
-            Select Customer
-          </option>
+          setCustomerId(
+            e.target.value
+          );
 
-          {customers.map(
-            (customer) => (
-              <option
-                key={customer.id}
-                value={customer.id}
-              >
-                {customer.customerName}
-              </option>
-            )
-          )}
-        </select>
+          setCustomerName(
+            selected?.customerName ||
+            selected?.name ||
+            ""
+          );
 
-        <select
-          value={brand}
-          onChange={(e) =>
-            setBrand(e.target.value)
-          }
-          style={inputStyle}
-        >
-          <option value="">
-            Select Brand
-          </option>
-
-          {brands.map(
-            (brandName) => (
-              <option
-                key={brandName}
-                value={brandName}
-              >
-                {brandName}
-              </option>
-            )
-          )}
-        </select>
-
-        <input
-          type="number"
-          placeholder="Discount %"
-          value={discountPercentage}
-          onChange={(e) =>
-            setDiscountPercentage(
-              e.target.value
-            )
-          }
-          style={inputStyle}
-        />
-
-        <button
-          onClick={saveDiscount}
-          style={buttonStyle}
-        >
-          {editId ? "Update" : "Save"}
-        </button>
-
-      </div>
-
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse"
         }}
+        style={inputStyle}
       >
-        <thead>
-          <tr
-            style={{
-              background: "#0d47a1",
-              color: "white"
-            }}
+
+        <option value="">
+
+          {customerType === "CUSTOMER"
+            ? "Select Customer"
+            : "Select Weekly Customer"}
+
+        </option>
+
+        {customers.map((customer) => (
+
+          <option
+            key={customer.id}
+            value={customer.id}
           >
-            <th style={thStyle}>
-              Customer
-            </th>
 
-            <th style={thStyle}>
-              Brand
-            </th>
+            {customer.customerName ||
+              customer.name}
 
-            <th style={thStyle}>
-              Discount %
-            </th>
+          </option>
 
-            <th style={thStyle}>
-              Action
-            </th>
+        ))}
 
-          </tr>
-        </thead>
+      </select>
 
-        <tbody>
+      {/* BRAND */}
 
-          {discounts.map(
-            (discount) => (
+      <select
+        value={brand}
+        onChange={(e) =>
+          setBrand(e.target.value)
+        }
+        style={inputStyle}
+      >
 
-              <tr key={discount.id}>
+        <option value="">
+          Select Brand
+        </option>
 
-                <td style={tdStyle}>
-                  {discount.customerName}
-                </td>
+        {brands.map(
+          (brandName) => (
 
-                <td style={tdStyle}>
-                  {discount.brand}
-                </td>
+            <option
+              key={brandName}
+              value={brandName}
+            >
+              {brandName}
+            </option>
 
-                <td style={tdStyle}>
-                  {discount.discountPercentage}%
-                </td>
+          )
+        )}
 
-                <td style={tdStyle}>
+      </select>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      justifyContent: "center"
-                    }}
-                  >
+      {/* DISCOUNT */}
 
-                    <button
-                      onClick={() =>
-                        editDiscount(discount)
-                      }
-                      style={{
-                        background: "#1565c0",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Edit
-                    </button>
+      <input
+        type="number"
+        placeholder="Discount %"
+        value={discountPercentage}
+        onChange={(e) =>
+          setDiscountPercentage(
+            e.target.value
+          )
+        }
+        style={inputStyle}
+      />
 
-                    <button
-                      onClick={() =>
-                        deleteDiscount(
-                          discount.id
-                        )
-                      }
-                      style={{
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Delete
-                    </button>
-
-                  </div>
-
-                </td>
-
-              </tr>
-
-            )
-          )}
-
-        </tbody>
-
-      </table>
+      <button
+        onClick={saveDiscount}
+        style={buttonStyle}
+      >
+        {editId
+          ? "Update"
+          : "Save"}
+      </button>
 
     </div>
-  );
+
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "collapse"
+      }}
+    >
+      <thead>
+  <tr
+    style={{
+      background: "#0d47a1",
+      color: "white"
+    }}
+  >
+    <th style={thStyle}>Customer Type</th>
+
+    <th style={thStyle}>Customer</th>
+
+    <th style={thStyle}>Brand</th>
+
+    <th style={thStyle}>Discount %</th>
+
+    <th style={thStyle}>Action</th>
+  </tr>
+</thead>
+
+<tbody>
+
+  {discounts.map((discount) => (
+
+    <tr key={discount.id}>
+
+      <td style={tdStyle}>
+        {discount.customerType === "WEEKLY_CUSTOMER"
+          ? "Weekly Customer"
+          : "Regular Customer"}
+      </td>
+
+      <td style={tdStyle}>
+        {discount.customerName}
+      </td>
+
+      <td style={tdStyle}>
+        {discount.brand}
+      </td>
+
+      <td style={tdStyle}>
+        {discount.discountPercentage}%
+      </td>
+
+      <td style={tdStyle}>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "10px"
+          }}
+        >
+
+          <button
+            onClick={() =>
+              editDiscount(discount)
+            }
+            style={{
+              background: "#1565c0",
+              color: "white",
+              border: "none",
+              padding: "8px 15px",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={() =>
+              deleteDiscount(discount.id)
+            }
+            style={{
+              background: "red",
+              color: "white",
+              border: "none",
+              padding: "8px 15px",
+              borderRadius: "5px",
+              cursor: "pointer"
+            }}
+          >
+            Delete
+          </button>
+
+        </div>
+
+      </td>
+
+    </tr>
+
+  ))}
+
+</tbody>
+
+</table>
+
+</div>
+);
 }
 
 const inputStyle = {
@@ -389,3 +465,4 @@ const tdStyle = {
 };
 
 export default BrandDiscountPage;
+    
