@@ -179,17 +179,20 @@ function PurchaseHistory() {
   // EDIT PRODUCTS
   // ===============================
 
-  const editProducts = (bill) => {
+ const editProducts = (bill) => {
 
-    setEditingBill(bill);
+  setEditingBill({
+    ...bill,
+    previousBalance: bill.previousBalance || 0,
+  });
 
-    setEditingItems(
-      JSON.parse(
-        JSON.stringify(bill.items || [])
-      )
-    );
+  setEditingItems(
+    JSON.parse(
+      JSON.stringify(bill.items || [])
+    )
+  );
 
-  };
+};
 
   // ===============================
   // UPDATE PRODUCT
@@ -730,12 +733,40 @@ const addItem = () => {
                 {productsTotal.toFixed(2)}
               </h3>
 
-              <h3>
-                Previous Balance : ₹
-                {Number(
-                  editingBill.previousBalance || 0
-                ).toFixed(2)}
-              </h3>
+              <div style={{ marginBottom: "15px" }}>
+
+  <label
+    style={{
+      fontWeight: "bold",
+      display: "block",
+      marginBottom: "6px",
+    }}
+  >
+    Previous Amount
+  </label>
+
+  <input
+    type="number"
+    placeholder="Enter Previous Amount"
+    value={editingBill.previousBalance ?? ""}
+    onChange={(e) =>
+      setEditingBill({
+        ...editingBill,
+        previousBalance:
+          e.target.value === ""
+            ? 0
+            : Number(e.target.value),
+      })
+    }
+    style={{
+      width: "180px",
+      padding: "8px",
+      borderRadius: "6px",
+      border: "1px solid #ccc",
+    }}
+  />
+
+</div>
 
               <h2
                 style={{
