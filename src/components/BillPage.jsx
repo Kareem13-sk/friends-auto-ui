@@ -251,7 +251,7 @@ function BillPage() {
     setBillItems((prev) => [...prev, newItem]);
 
     setSelectedProduct("");
-    setQuantity(0);
+    setQuantity(1);
     setActualPrice("");
   };
 
