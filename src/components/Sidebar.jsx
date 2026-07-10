@@ -1,11 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
-
   const location = useLocation();
 
   const menuStyle = (path) => ({
-
     background:
       location.pathname === path
         ? "white"
@@ -33,11 +31,9 @@ function Sidebar() {
     display: "block",
 
     transition: "0.3s ease",
-
   });
 
   return (
-
     <div
       style={{
         width: "280px",
@@ -52,7 +48,6 @@ function Sidebar() {
         boxSizing: "border-box",
       }}
     >
-
       <h1
         style={{
           color: "white",
@@ -68,6 +63,7 @@ function Sidebar() {
         Auto
       </h1>
 
+      {/* Dashboard */}
       <Link
         to="/"
         style={menuStyle("/")}
@@ -75,54 +71,13 @@ function Sidebar() {
         Dashboard
       </Link>
 
+      {/* Customer Management */}
       <Link
         to="/customers"
         style={menuStyle("/customers")}
       >
         Customers
       </Link>
-
-      <Link
-        to="/weekly-customers"
-        style={menuStyle("/weekly-customers")}
-      >
-        Weekly Customers
-      </Link>
-
-      <Link
-        to="/products"
-        style={menuStyle("/products")}
-      >
-        Products
-      </Link>
-
-      <Link
-        to="/billing"
-        style={menuStyle("/billing")}
-      >
-        Billing
-      </Link>
-
-      <Link
-        to="/weekly-billing"
-        style={menuStyle("/weekly-billing")}
-      >
-        Weekly Billing
-      </Link>
-
-      <Link
-        to="/history"
-        style={menuStyle("/history")}
-      >
-        Purchase History
-      </Link>
-
-      <Link
-  to="/weekly-history"
-  style={menuStyle("/weekly-history")}
->
-  Weekly Purchase History
-</Link>
 
       <Link
         to="/customer-details"
@@ -138,10 +93,52 @@ function Sidebar() {
         Brand Discounts
       </Link>
 
+      {/* Products */}
+      <Link
+        to="/products"
+        style={menuStyle("/products")}
+      >
+        Products
+      </Link>
+
+      {/* Sales */}
+      <Link
+        to="/billing"
+        style={menuStyle("/billing")}
+      >
+        Billing
+      </Link>
+
+      <Link
+        to="/history"
+        style={menuStyle("/history")}
+      >
+        Purchase History
+      </Link>
+
+      {/* Weekly Reports */}
+      <Link
+        to="/weekly-customers"
+        style={menuStyle("/weekly-customers")}
+      >
+        Weekly Customers
+      </Link>
+
+      <Link
+        to="/weekly-billing"
+        style={menuStyle("/weekly-billing")}
+      >
+        Weekly Billing
+      </Link>
+
+      <Link
+        to="/weekly-history"
+        style={menuStyle("/weekly-history")}
+      >
+        Weekly Purchase History
+      </Link>
     </div>
-
   );
-
 }
 
 export default Sidebar;
