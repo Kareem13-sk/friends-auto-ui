@@ -18,6 +18,8 @@ function BillPage() {
 
   const [percentage, setPercentage] = useState("");
 
+  const [actualPrice, setActualPrice] = useState("");
+
   const [billItems, setBillItems] = useState([]);
 
   const [paidAmount, setPaidAmount] = useState("");
@@ -219,7 +221,7 @@ function BillPage() {
     const percent = Number(percentage || 0);
 
     const actualPrice =
-      Number(product.price) || 0;
+      Number(actualPrice || product.price);
 
     const finalPrice =
       actualPrice -
@@ -250,7 +252,8 @@ function BillPage() {
     setBillItems((prev) => [...prev, newItem]);
 
     setSelectedProduct("");
-    setQuantity(1);
+    setQuantity(0);
+    setActualPrice("");
   };
 
   // TOTALS
@@ -499,6 +502,8 @@ function BillPage() {
 
               if (!product) return;
 
+              setSelectedProduct(value);
+
               if (!selectedCustomer) {
 
                 setPercentage(
@@ -579,6 +584,24 @@ function BillPage() {
           />
 
           {/* DISCOUNT */}
+
+
+<div
+  style={{
+    display: "flex",
+    gap: "10px"
+  }}
+></div>
+<input
+    type="number"
+    placeholder="Actual Price"
+    value={actualPrice}
+    onChange={(e) =>
+      setActualPrice(e.target.value)
+    }
+    style={inputStyle}
+  />
+
 
           <input
 
@@ -718,6 +741,7 @@ function BillPage() {
                         setPercentage(
                           item.percentage
                         );
+                        setActualPrice(item.actualPrice);
 
                         setBillItems(
                           billItems.filter(
