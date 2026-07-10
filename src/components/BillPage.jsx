@@ -220,12 +220,11 @@ function BillPage() {
 
     const percent = Number(percentage || 0);
 
-    const actualPrice =
-      Number(actualPrice || product.price);
+    const price = Number(actualPrice || product.price);
 
     const finalPrice =
-      actualPrice -
-      (actualPrice * percent) / 100;
+  price -
+  (price * percent) / 100;
 
     const total = finalPrice * qty;
 
@@ -237,7 +236,7 @@ function BillPage() {
 
       quantity: qty,
 
-      actualPrice,
+      actualPrice: price,
 
       percentage: percent,
 
