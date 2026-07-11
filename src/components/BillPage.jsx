@@ -476,7 +476,7 @@ function BillPage() {
 
     return option.label
       .toLowerCase()
-      .startsWith(inputValue.toLowerCase());
+     .includes(inputValue.toLowerCase())
   }}
 
   value={
