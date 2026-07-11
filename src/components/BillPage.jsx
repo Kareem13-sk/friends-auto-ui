@@ -463,108 +463,74 @@ function BillPage() {
           {/* PRODUCT */}
 
           <Select
+  placeholder="Search Product..."
+  isSearchable
 
-            placeholder="Search Product..."
+  options={products.map(product => ({
+    value: product.productName,
+    label: product.productName
+  }))}
 
-            isSearchable
+  filterOption={(option, inputValue) => {
+    if (!inputValue) return true;
 
-            options={products.map(product => ({
-              value: product.productName,
-              label: product.productName
-            }))}
+    return option.label
+      .toLowerCase()
+      .startsWith(inputValue.toLowerCase());
+  }}
 
-            value={
-              products
-                .map(product => ({
-                  value: product.productName,
-                  label: product.productName
-                }))
-                .find(
-                  option =>
-                    option.value ===
-                    selectedProduct
-                ) || null
-            }
+  value={
+    products
+      .map(product => ({
+        value: product.productName,
+        label: product.productName
+      }))
+      .find(option => option.value === selectedProduct) || null
+  }
 
-            onChange={(selectedOption) => {
+  onChange={(selectedOption) => {
+    const value = selectedOption?.value || "";
 
-              const value =
-                selectedOption?.value || "";
+    setSelectedProduct(value);
 
-              setSelectedProduct(value);
+    const product = products.find(
+      p => p.productName === value
+    );
 
-              const product =
-                products.find(
-                  p =>
-                    p.productName === value
-                );
+    if (!product) return;
 
-              if (!product) return;
+    if (!selectedCustomer) {
+      setPercentage(product.defaultPercentage || 0);
+      return;
+    }
 
-              setSelectedProduct(value);
+    fetch(
+      `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=CUSTOMER&brand=${product.brand}`
+    )
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(discount => {
+        setPercentage(
+          discount?.discountPercentage ??
+          product.defaultPercentage ??
+          0
+        );
+      })
+      .catch(() => {
+        setPercentage(product.defaultPercentage || 0);
+      });
+  }}
 
-              if (!selectedCustomer) {
-
-                setPercentage(
-                  product.defaultPercentage || 0
-                );
-
-                return;
-
-              }
-
-              fetch(
-                `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=CUSTOMER&brand=${product.brand}`
-              )
-
-                .then(res => {
-
-                  if (!res.ok)
-                    throw new Error();
-
-                  return res.json();
-
-                })
-
-                .then(discount => {
-
-                  setPercentage(
-
-                    discount?.discountPercentage ||
-
-                    product.defaultPercentage ||
-
-                    0
-
-                  );
-
-                })
-
-                .catch(() => {
-
-                  setPercentage(
-                    product.defaultPercentage || 0
-                  );
-
-                });
-
-            }}
-
-            styles={{
-
-              control: (provided) => ({
-
-                ...provided,
-
-                minHeight: "55px",
-
-                borderRadius: "10px"
-
-              })
-
-            }}
-
-          />
+  styles={{
+    control: (provided) => ({
+      ...provided,
+      minHeight: "55px",
+      borderRadius: "10px"
+    })
+  }}
+/>
 
           {/* QUANTITY */}
 
