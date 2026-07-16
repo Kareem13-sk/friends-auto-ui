@@ -10,10 +10,6 @@ export default function DashboardCards({ bills = [] }) {
     0
   );
 
-  const totalBalance = bills.reduce(
-    (sum, bill) => sum + Number(bill.balanceAmount || 0),
-    0
-  );
 
   const cardStyle = {
     flex: "1",
@@ -48,11 +44,6 @@ export default function DashboardCards({ bills = [] }) {
       <div style={cardStyle}>
         <h2>Total Sales</h2>
         <h1>₹{totalSales.toFixed(2)}</h1>
-      </div>
-
-      <div style={cardStyle}>
-        <h2>Balance</h2>
-        <h1>₹{totalBalance.toFixed(2)}</h1>
       </div>
     </div>
   );
