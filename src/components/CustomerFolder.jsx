@@ -8,22 +8,42 @@ export default function CustomerFolder({
   onDelete,
   onDownload,
 }) {
+
   const [open, setOpen] = useState(false);
 
+  // ============================
+  // CUSTOMER SUMMARY
+  // ============================
   const summary = useMemo(() => {
-    return bills.reduce(
-      (acc, bill) => {
-        acc.total += Number(bill.totalAmount || 0);
-        acc.paid += Number(bill.paidAmount || 0);
-        acc.balance += Number(bill.balanceAmount || 0);
-        return acc;
-      },
-      {
-        total: 0,
-        paid: 0,
-        balance: 0,
-      }
-    );
+
+    // Latest bill (highest ID)
+    const latestBill = [...bills].sort(
+      (a, b) => b.id - a.id
+    )[0];
+
+    return {
+
+      // Sum of all bills
+      total: bills.reduce(
+        (sum, bill) =>
+          sum + Number(bill.totalAmount || 0),
+        0
+      ),
+
+      // Sum of all paid amounts
+      paid: bills.reduce(
+        (sum, bill) =>
+          sum + Number(bill.paidAmount || 0),
+        0
+      ),
+
+      // Latest customer's pending balance
+      balance: Number(
+        latestBill?.balanceAmount || 0
+      ),
+
+    };
+
   }, [bills]);
 
   return (
@@ -36,7 +56,9 @@ export default function CustomerFolder({
         boxShadow: "0 5px 15px rgba(0,0,0,.12)",
       }}
     >
+
       {/* Folder Header */}
+
       <div
         onClick={() => setOpen(!open)}
         style={{
@@ -50,7 +72,9 @@ export default function CustomerFolder({
           flexWrap: "wrap",
         }}
       >
+
         <div>
+
           <h2 style={{ margin: 0 }}>
             📁 {customerName}
           </h2>
@@ -63,6 +87,7 @@ export default function CustomerFolder({
           >
             Bills : {bills.length}
           </div>
+
         </div>
 
         <div
@@ -71,6 +96,7 @@ export default function CustomerFolder({
             fontSize: "15px",
           }}
         >
+
           <div>
             Total : ₹{summary.total.toFixed(2)}
           </div>
@@ -91,21 +117,27 @@ export default function CustomerFolder({
           >
             {open ? "▲" : "▼"}
           </div>
+
         </div>
+
       </div>
 
       {/* Bills */}
+
       {open && (
+
         <div
           style={{
             padding: "20px",
             background: "#f8fbff",
           }}
         >
+
           {bills
             .slice()
             .sort((a, b) => b.id - a.id)
             .map((bill) => (
+
               <BillCard
                 key={bill.id}
                 bill={bill}
@@ -113,9 +145,14 @@ export default function CustomerFolder({
                 onDelete={onDelete}
                 onDownload={onDownload}
               />
+
             ))}
+
         </div>
+
       )}
+
     </div>
   );
+
 }
