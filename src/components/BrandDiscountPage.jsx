@@ -3,22 +3,16 @@ import { useEffect, useState } from "react";
 function BrandDiscountPage() {
 
   const [customerType, setCustomerType] = useState("CUSTOMER");
-
   const [customers, setCustomers] = useState([]);
-
   const [discounts, setDiscounts] = useState([]);
-
   const [customerId, setCustomerId] = useState("");
-
   const [customerName, setCustomerName] = useState("");
-
   const [brand, setBrand] = useState("");
-
   const [discountPercentage, setDiscountPercentage] = useState("");
-
   const [brands, setBrands] = useState([]);
-
   const [editId, setEditId] = useState(null);
+
+  // Folder Open/Close
   const [openCustomer, setOpenCustomer] = useState(null);
 
   useEffect(() => {
@@ -29,7 +23,6 @@ function BrandDiscountPage() {
 
   useEffect(() => {
     loadCustomers();
-
     setCustomerId("");
     setCustomerName("");
   }, [customerType]);
@@ -42,9 +35,7 @@ function BrandDiscountPage() {
         : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
 
     const response = await fetch(url);
-
     const data = await response.json();
-
     setCustomers(data);
   };
 
@@ -55,7 +46,6 @@ function BrandDiscountPage() {
     );
 
     const data = await response.json();
-
     setDiscounts(data);
   };
 
@@ -81,137 +71,105 @@ function BrandDiscountPage() {
 
     setBrands(uniqueBrands);
   };
-
   const saveDiscount = async () => {
 
-    if (
-      !customerId ||
-      !brand ||
-      !discountPercentage
-    ) {
-      alert("Fill all fields");
-      return;
+  if (!customerId || !brand || !discountPercentage) {
+    alert("Fill all fields");
+    return;
+  }
+
+  const payload = {
+    customerId: Number(customerId),
+    customerName,
+    customerType,
+    brand,
+    discountPercentage: Number(discountPercentage)
+  };
+
+  const url = editId
+    ? `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${editId}`
+    : "https://friends-auto-backend-1utc.onrender.com/brand-discounts";
+
+  const method = editId ? "PUT" : "POST";
+
+  await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  setCustomerId("");
+  setCustomerName("");
+  setBrand("");
+  setDiscountPercentage("");
+  setEditId(null);
+
+  loadDiscounts();
+
+  alert(
+    editId
+      ? "Discount Updated Successfully"
+      : "Discount Saved Successfully"
+  );
+};
+
+const deleteDiscount = async (id) => {
+
+  await fetch(
+    `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${id}`,
+    {
+      method: "DELETE"
     }
+  );
 
-    const payload = {
+  loadDiscounts();
+};
 
-      customerId: Number(customerId),
+const editDiscount = (discount) => {
 
-      customerName,
+  setEditId(discount.id);
 
-      customerType,
+  setCustomerType(
+    discount.customerType || "CUSTOMER"
+  );
 
-      brand,
+  setCustomerId(discount.customerId);
 
-      discountPercentage:
-        Number(discountPercentage)
+  setCustomerName(discount.customerName);
 
-    };
+  setBrand(discount.brand);
 
-    const url = editId
-      ? `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${editId}`
-      : "https://friends-auto-backend-1utc.onrender.com/brand-discounts";
+  setDiscountPercentage(discount.discountPercentage);
+};
 
-    const method =
-      editId ? "PUT" : "POST";
+// Group all discounts by customer
+const groupedDiscounts = discounts.reduce((acc, item) => {
 
-    await fetch(url, {
-
-      method,
-
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-
-      body: JSON.stringify(payload)
-
-    });
-
-    setCustomerId("");
-
-    setCustomerName("");
-
-    setBrand("");
-
-    setDiscountPercentage("");
-
-    setEditId(null);
-
-    loadDiscounts();
-
-    alert(
-      editId
-        ? "Discount Updated Successfully"
-        : "Discount Saved Successfully"
-    );
-
-  };
-
-  const deleteDiscount = async (id) => {
-
-    await fetch(
-      `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${id}`,
-      {
-        method: "DELETE"
-      }
-    );
-
-    loadDiscounts();
-
-  };
-
-  const editDiscount = (discount) => {
-
-    setEditId(discount.id);
-
-    setCustomerType(
-      discount.customerType || "CUSTOMER"
-    );
-
-    setCustomerId(
-      discount.customerId
-    );
-
-    setCustomerName(
-      discount.customerName
-    );
-
-    setBrand(
-      discount.brand
-    );
-
-    setDiscountPercentage(
-      discount.discountPercentage
-    );
-
-  };
-
-  const groupedDiscounts = discounts.reduce((acc, item) => {
   const key = `${item.customerType}-${item.customerName}`;
 
   if (!acc[key]) {
     acc[key] = {
       customerName: item.customerName,
       customerType: item.customerType,
-      discounts: [],
+      discounts: []
     };
   }
 
   acc[key].discounts.push(item);
 
   return acc;
+
 }, {});
-  return (
-  <div
-    style={{
-      padding: "20px"
-    }}
-  >
+return (
+  <div style={{ padding: "20px" }}>
+
     <h1
       style={{
         textAlign: "center",
-        color: "#0d47a1"
+        color: "#0d47a1",
+        marginBottom: "20px"
       }}
     >
       Brand Discounts
@@ -222,7 +180,7 @@ function BrandDiscountPage() {
         background: "white",
         padding: "20px",
         borderRadius: "10px",
-        marginBottom: "20px"
+        marginBottom: "25px"
       }}
     >
 
@@ -230,9 +188,7 @@ function BrandDiscountPage() {
 
       <select
         value={customerType}
-        onChange={(e) =>
-          setCustomerType(e.target.value)
-        }
+        onChange={(e) => setCustomerType(e.target.value)}
         style={inputStyle}
       >
         <option value="CUSTOMER">
@@ -251,16 +207,11 @@ function BrandDiscountPage() {
         value={customerId}
         onChange={(e) => {
 
-          const selected =
-            customers.find(
-              (c) =>
-                c.id ===
-                Number(e.target.value)
-            );
-
-          setCustomerId(
-            e.target.value
+          const selected = customers.find(
+            (c) => c.id === Number(e.target.value)
           );
+
+          setCustomerId(e.target.value);
 
           setCustomerName(
             selected?.customerName ||
@@ -273,11 +224,9 @@ function BrandDiscountPage() {
       >
 
         <option value="">
-
           {customerType === "CUSTOMER"
             ? "Select Customer"
             : "Select Weekly Customer"}
-
         </option>
 
         {customers.map((customer) => (
@@ -286,10 +235,7 @@ function BrandDiscountPage() {
             key={customer.id}
             value={customer.id}
           >
-
-            {customer.customerName ||
-              customer.name}
-
+            {customer.customerName || customer.name}
           </option>
 
         ))}
@@ -300,9 +246,7 @@ function BrandDiscountPage() {
 
       <select
         value={brand}
-        onChange={(e) =>
-          setBrand(e.target.value)
-        }
+        onChange={(e) => setBrand(e.target.value)}
         style={inputStyle}
       >
 
@@ -310,18 +254,16 @@ function BrandDiscountPage() {
           Select Brand
         </option>
 
-        {brands.map(
-          (brandName) => (
+        {brands.map((brandName) => (
 
-            <option
-              key={brandName}
-              value={brandName}
-            >
-              {brandName}
-            </option>
+          <option
+            key={brandName}
+            value={brandName}
+          >
+            {brandName}
+          </option>
 
-          )
-        )}
+        ))}
 
       </select>
 
@@ -332,9 +274,7 @@ function BrandDiscountPage() {
         placeholder="Discount %"
         value={discountPercentage}
         onChange={(e) =>
-          setDiscountPercentage(
-            e.target.value
-          )
+          setDiscountPercentage(e.target.value)
         }
         style={inputStyle}
       />
@@ -343,120 +283,170 @@ function BrandDiscountPage() {
         onClick={saveDiscount}
         style={buttonStyle}
       >
-        {editId
-          ? "Update"
-          : "Save"}
+        {editId ? "Update" : "Save"}
       </button>
 
     </div>
 
-    <table
-  style={{
-    width: "100%",
-    borderCollapse: "collapse"
-  }}
->
-  <thead>
-    <tr
-      style={{
-        background: "#0d47a1",
-        color: "white"
-      }}
-    >
-      <th style={thStyle}>Customer Type</th>
-      <th style={thStyle}>Customer</th>
-      <th style={thStyle}>Brand</th>
-      <th style={thStyle}>Discount %</th>
-      <th style={thStyle}>Action</th>
-    </tr>
-  </thead>
+    {/* CUSTOMER FOLDERS */}
 
-  <tbody>
+    {Object.entries(groupedDiscounts).map(([key, customer]) => (
 
-    {discounts.map((discount) => (
+      <div
+        key={key}
+        style={{
+          background: "white",
+          borderRadius: "12px",
+          marginBottom: "20px",
+          overflow: "hidden",
+          boxShadow: "0 3px 10px rgba(0,0,0,0.1)"
+        }}
+      >
 
-      <tr key={discount.id}>
+        <div
+          onClick={() =>
+            setOpenCustomer(
+              openCustomer === key ? null : key
+            )
+          }
+          style={{
+            background: "#0d47a1",
+            color: "white",
+            padding: "18px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "18px"
+          }}
+        >
 
-        <td style={tdStyle}>
-          {discount.customerType === "WEEKLY_CUSTOMER"
-            ? "Weekly Customer"
-            : "Regular Customer"}
-        </td>
+          <div>
 
-        <td style={tdStyle}>
-          {discount.customerName}
-        </td>
+            📁 {customer.customerName}
 
-        <td style={tdStyle}>
-          {discount.brand}
-        </td>
-
-        <td style={tdStyle}>
-          {discount.discountPercentage}%
-        </td>
-
-        <td style={tdStyle}>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "10px"
-            }}
-          >
-
-            <button
-              onClick={() =>
-                editDiscount(discount)
-              }
+            <div
               style={{
-                background: "#1565c0",
-                color: "white",
-                border: "none",
-                padding: "8px 15px",
-                borderRadius: "5px",
-                cursor: "pointer"
+                fontSize: "13px",
+                marginTop: "5px",
+                opacity: 0.9
               }}
             >
-              Edit
-            </button>
-
-            <button
-              onClick={() =>
-                deleteDiscount(discount.id)
-              }
-              style={{
-                background: "red",
-                color: "white",
-                border: "none",
-                padding: "8px 15px",
-                borderRadius: "5px",
-                cursor: "pointer"
-              }}
-            >
-              Delete
-            </button>
+              {customer.customerType === "WEEKLY_CUSTOMER"
+                ? "Weekly Customer"
+                : "Regular Customer"}
+            </div>
 
           </div>
 
-        </td>
+          <div style={{ fontSize: "22px" }}>
+            {openCustomer === key ? "▼" : "▶"}
+          </div>
 
-      </tr>
+        </div>
+
+        {openCustomer === key && (
+
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse"
+            }}
+          >
+
+            <thead>
+
+              <tr
+                style={{
+                  background: "#1976d2",
+                  color: "white"
+                }}
+              >
+                <th style={thStyle}>Brand</th>
+                <th style={thStyle}>Discount %</th>
+                <th style={thStyle}>Action</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {customer.discounts.map((discount) => (
+
+                <tr key={discount.id}>
+
+                  <td style={tdStyle}>
+                    {discount.brand}
+                  </td>
+
+                  <td style={tdStyle}>
+                    {discount.discountPercentage}%
+                  </td>
+
+                  <td style={tdStyle}>
+
+                    <button
+                      onClick={() =>
+                        editDiscount(discount)
+                      }
+                      style={{
+                        background: "#1565c0",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "5px",
+                        marginRight: "10px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteDiscount(discount.id)
+                      }
+                      style={{
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        padding: "8px 15px",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        )}
+
+      </div>
 
     ))}
 
-  </tbody>
-
-</table>
-
-</div>
+  </div>
 );
 }
 
 const inputStyle = {
   width: "100%",
   padding: "12px",
-  marginBottom: "15px"
+  marginBottom: "15px",
+  border: "1px solid #ccc",
+  borderRadius: "6px",
+  fontSize: "15px",
+  boxSizing: "border-box"
 };
 
 const buttonStyle = {
@@ -464,11 +454,16 @@ const buttonStyle = {
   color: "white",
   border: "none",
   padding: "12px 20px",
-  cursor: "pointer"
+  borderRadius: "6px",
+  cursor: "pointer",
+  fontSize: "15px",
+  fontWeight: "bold"
 };
 
 const thStyle = {
-  padding: "15px"
+  padding: "15px",
+  textAlign: "center",
+  borderBottom: "1px solid #ddd"
 };
 
 const tdStyle = {
@@ -478,4 +473,3 @@ const tdStyle = {
 };
 
 export default BrandDiscountPage;
-    
