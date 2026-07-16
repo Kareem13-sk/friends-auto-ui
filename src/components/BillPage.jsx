@@ -504,22 +504,28 @@ function BillPage() {
       return;
     }
 
+    const customerType =
+      selectedCustomer.customerType || "CUSTOMER";
+
+    const brand = (product.brand || "").trim();
+
     fetch(
-      `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=CUSTOMER&brand=${product.brand}`
+      `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=${customerType}&brand=${encodeURIComponent(brand)}`
     )
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return await res.json();
       })
-      .then(discount => {
-        setPercentage(
+      .then((discount) => {
+        const value =
           discount?.discountPercentage ??
           product.defaultPercentage ??
-          0
-        );
+          0;
+
+        setPercentage(Number(value));
       })
       .catch(() => {
-        setPercentage(product.defaultPercentage || 0);
+        setPercentage(Number(product.defaultPercentage) || 0);
       });
   }}
 
