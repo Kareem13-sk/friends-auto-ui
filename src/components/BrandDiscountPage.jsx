@@ -3,16 +3,24 @@ import { useEffect, useState } from "react";
 function BrandDiscountPage() {
 
   const [customerType, setCustomerType] = useState("CUSTOMER");
+
   const [customers, setCustomers] = useState([]);
+
   const [discounts, setDiscounts] = useState([]);
+
   const [customerId, setCustomerId] = useState("");
+
   const [customerName, setCustomerName] = useState("");
+
   const [brand, setBrand] = useState("");
+
   const [discountPercentage, setDiscountPercentage] = useState("");
+
   const [brands, setBrands] = useState([]);
+
   const [editId, setEditId] = useState(null);
 
-  // Folder Open/Close
+  // Folder open/close
   const [openCustomer, setOpenCustomer] = useState(null);
 
   useEffect(() => {
@@ -35,7 +43,9 @@ function BrandDiscountPage() {
         : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
 
     const response = await fetch(url);
+
     const data = await response.json();
+
     setCustomers(data);
   };
 
@@ -46,6 +56,7 @@ function BrandDiscountPage() {
     );
 
     const data = await response.json();
+
     setDiscounts(data);
   };
 
@@ -69,12 +80,14 @@ function BrandDiscountPage() {
       )
     ];
 
+    uniqueBrands.sort();
+
     setBrands(uniqueBrands);
   };
   const saveDiscount = async () => {
 
   if (!customerId || !brand || !discountPercentage) {
-    alert("Fill all fields");
+    alert("Please fill all fields");
     return;
   }
 
@@ -92,7 +105,7 @@ function BrandDiscountPage() {
 
   const method = editId ? "PUT" : "POST";
 
-  await fetch(url, {
+  const response = await fetch(url, {
     method,
     headers: {
       "Content-Type": "application/json"
@@ -100,13 +113,18 @@ function BrandDiscountPage() {
     body: JSON.stringify(payload)
   });
 
+  if (!response.ok) {
+    alert("Failed to save discount");
+    return;
+  }
+
   setCustomerId("");
   setCustomerName("");
   setBrand("");
   setDiscountPercentage("");
   setEditId(null);
 
-  loadDiscounts();
+  await loadDiscounts();
 
   alert(
     editId
@@ -117,17 +135,28 @@ function BrandDiscountPage() {
 
 const deleteDiscount = async (id) => {
 
-  await fetch(
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this discount?"
+  );
+
+  if (!confirmDelete) return;
+
+  const response = await fetch(
     `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${id}`,
     {
       method: "DELETE"
     }
   );
 
-  loadDiscounts();
+  if (!response.ok) {
+    alert("Delete failed");
+    return;
+  }
+
+  await loadDiscounts();
 };
 
-const editDiscount = (discount) => {
+const editDiscount = async (discount) => {
 
   setEditId(discount.id);
 
@@ -135,60 +164,91 @@ const editDiscount = (discount) => {
     discount.customerType || "CUSTOMER"
   );
 
-  setCustomerId(discount.customerId);
+  // Wait until customers are loaded
+  const url =
+    (discount.customerType || "CUSTOMER") === "CUSTOMER"
+      ? "https://friends-auto-backend-1utc.onrender.com/customers"
+      : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
+
+  const response = await fetch(url);
+
+  const customerData = await response.json();
+
+  setCustomers(customerData);
+
+  setCustomerId(String(discount.customerId));
 
   setCustomerName(discount.customerName);
 
   setBrand(discount.brand);
 
-  setDiscountPercentage(discount.discountPercentage);
+  setDiscountPercentage(
+    String(discount.discountPercentage)
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 };
 
-// Group all discounts by customer
-const groupedDiscounts = discounts.reduce((acc, item) => {
+// GROUP BY CUSTOMER
+const groupedDiscounts = discounts.reduce((acc, discount) => {
 
-  const key = `${item.customerType}-${item.customerName}`;
+  const key = `${discount.customerType || "CUSTOMER"}-${discount.customerId}`;
 
   if (!acc[key]) {
+
     acc[key] = {
-      customerName: item.customerName,
-      customerType: item.customerType,
+      customerId: discount.customerId,
+      customerName: discount.customerName,
+      customerType:
+        discount.customerType || "CUSTOMER",
       discounts: []
     };
+
   }
 
-  acc[key].discounts.push(item);
+  acc[key].discounts.push(discount);
 
   return acc;
 
 }, {});
 return (
-  <div style={{ padding: "20px" }}>
+  <div
+    style={{
+      padding: "20px",
+      background: "#eef3f9",
+      minHeight: "100vh"
+    }}
+  >
 
     <h1
       style={{
         textAlign: "center",
         color: "#0d47a1",
-        marginBottom: "20px"
+        marginBottom: "25px"
       }}
     >
       Brand Discounts
     </h1>
 
+    {/* FORM */}
+
     <div
       style={{
         background: "white",
         padding: "20px",
-        borderRadius: "10px",
+        borderRadius: "12px",
         marginBottom: "25px"
       }}
     >
 
-      {/* CUSTOMER TYPE */}
-
       <select
         value={customerType}
-        onChange={(e) => setCustomerType(e.target.value)}
+        onChange={(e) =>
+          setCustomerType(e.target.value)
+        }
         style={inputStyle}
       >
         <option value="CUSTOMER">
@@ -201,14 +261,12 @@ return (
 
       </select>
 
-      {/* CUSTOMER */}
-
       <select
         value={customerId}
         onChange={(e) => {
 
           const selected = customers.find(
-            (c) => c.id === Number(e.target.value)
+            c => c.id === Number(e.target.value)
           );
 
           setCustomerId(e.target.value);
@@ -229,7 +287,7 @@ return (
             : "Select Weekly Customer"}
         </option>
 
-        {customers.map((customer) => (
+        {customers.map(customer => (
 
           <option
             key={customer.id}
@@ -242,11 +300,11 @@ return (
 
       </select>
 
-      {/* BRAND */}
-
       <select
         value={brand}
-        onChange={(e) => setBrand(e.target.value)}
+        onChange={(e) =>
+          setBrand(e.target.value)
+        }
         style={inputStyle}
       >
 
@@ -254,7 +312,7 @@ return (
           Select Brand
         </option>
 
-        {brands.map((brandName) => (
+        {brands.map(brandName => (
 
           <option
             key={brandName}
@@ -266,8 +324,6 @@ return (
         ))}
 
       </select>
-
-      {/* DISCOUNT */}
 
       <input
         type="number"
@@ -290,163 +346,203 @@ return (
 
     {/* CUSTOMER FOLDERS */}
 
-    {Object.entries(groupedDiscounts).map(([key, customer]) => (
+    {Object.values(groupedDiscounts).map((customer) => {
 
-      <div
-        key={key}
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          marginBottom: "20px",
-          overflow: "hidden",
-          boxShadow: "0 3px 10px rgba(0,0,0,0.1)"
-        }}
-      >
+      const folderKey =
+        `${customer.customerType}-${customer.customerId}`;
+
+      return (
 
         <div
-          onClick={() =>
-            setOpenCustomer(
-              openCustomer === key ? null : key
-            )
-          }
+          key={folderKey}
           style={{
-            background: "#0d47a1",
-            color: "white",
-            padding: "18px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "18px"
+            background: "white",
+            borderRadius: "12px",
+            overflow: "hidden",
+            marginBottom: "20px",
+            boxShadow:
+              "0 2px 10px rgba(0,0,0,0.08)"
           }}
         >
 
-          <div>
-
-            📁 {customer.customerName}
-
-            <div
-              style={{
-                fontSize: "13px",
-                marginTop: "5px",
-                opacity: 0.9
-              }}
-            >
-              {customer.customerType === "WEEKLY_CUSTOMER"
-                ? "Weekly Customer"
-                : "Regular Customer"}
-            </div>
-
-          </div>
-
-          <div style={{ fontSize: "22px" }}>
-            {openCustomer === key ? "▼" : "▶"}
-          </div>
-
-        </div>
-
-        {openCustomer === key && (
-
-          <table
+          <div
+            onClick={() =>
+              setOpenCustomer(
+                openCustomer === folderKey
+                  ? null
+                  : folderKey
+              )
+            }
             style={{
-              width: "100%",
-              borderCollapse: "collapse"
+              background: "#0d47a1",
+              color: "white",
+              padding: "18px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              cursor: "pointer"
             }}
           >
 
-            <thead>
+            <div>
 
-              <tr
+              <div
                 style={{
-                  background: "#1976d2",
-                  color: "white"
+                  fontSize: "18px",
+                  fontWeight: "bold"
                 }}
               >
-                <th style={thStyle}>Brand</th>
-                <th style={thStyle}>Discount %</th>
-                <th style={thStyle}>Action</th>
-              </tr>
+                📁 {customer.customerName}
+              </div>
 
-            </thead>
+              <div
+                style={{
+                  fontSize: "13px",
+                  marginTop: "5px",
+                  opacity: 0.9
+                }}
+              >
+                {customer.customerType ===
+                "WEEKLY_CUSTOMER"
+                  ? "Weekly Customer"
+                  : "Regular Customer"}
+              </div>
 
-            <tbody>
+            </div>
 
-              {customer.discounts.map((discount) => (
+            <div
+              style={{
+                fontSize: "22px"
+              }}
+            >
+              {openCustomer === folderKey
+                ? "▼"
+                : "▶"}
+            </div>
 
-                <tr key={discount.id}>
+          </div>
+                    {openCustomer === folderKey && (
 
-                  <td style={tdStyle}>
-                    {discount.brand}
-                  </td>
+            <div
+              style={{
+                padding: "20px"
+              }}
+            >
 
-                  <td style={tdStyle}>
-                    {discount.discountPercentage}%
-                  </td>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse"
+                }}
+              >
 
-                  <td style={tdStyle}>
+                <thead>
 
-                    <button
-                      onClick={() =>
-                        editDiscount(discount)
-                      }
-                      style={{
-                        background: "#1565c0",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "5px",
-                        marginRight: "10px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Edit
-                    </button>
+                  <tr
+                    style={{
+                      background: "#1976d2",
+                      color: "white"
+                    }}
+                  >
+                    <th style={thStyle}>Brand</th>
+                    <th style={thStyle}>Discount %</th>
+                    <th style={thStyle}>Action</th>
+                  </tr>
 
-                    <button
-                      onClick={() =>
-                        deleteDiscount(discount.id)
-                      }
-                      style={{
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        padding: "8px 15px",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Delete
-                    </button>
+                </thead>
 
-                  </td>
+                <tbody>
 
-                </tr>
+                  {customer.discounts.map((discount) => (
 
-              ))}
+                    <tr key={discount.id}>
 
-            </tbody>
+                      <td style={tdStyle}>
+                        {discount.brand}
+                      </td>
 
-          </table>
+                      <td style={tdStyle}>
+                        {discount.discountPercentage}%
+                      </td>
 
-        )}
+                      <td style={tdStyle}>
 
-      </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: "10px"
+                          }}
+                        >
 
-    ))}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              editDiscount(discount);
+                            }}
+                            style={{
+                              background: "#1565c0",
+                              color: "white",
+                              border: "none",
+                              padding: "8px 15px",
+                              borderRadius: "5px",
+                              cursor: "pointer"
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteDiscount(discount.id);
+                            }}
+                            style={{
+                              background: "red",
+                              color: "white",
+                              border: "none",
+                              padding: "8px 15px",
+                              borderRadius: "5px",
+                              cursor: "pointer"
+                            }}
+                          >
+                            Delete
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          )}
+
+        </div>
+
+      );
+
+    })}
 
   </div>
+
 );
 }
-
 const inputStyle = {
   width: "100%",
   padding: "12px",
   marginBottom: "15px",
   border: "1px solid #ccc",
-  borderRadius: "6px",
-  fontSize: "15px",
-  boxSizing: "border-box"
+  borderRadius: "6px"
 };
 
 const buttonStyle = {
@@ -455,15 +551,11 @@ const buttonStyle = {
   border: "none",
   padding: "12px 20px",
   borderRadius: "6px",
-  cursor: "pointer",
-  fontSize: "15px",
-  fontWeight: "bold"
+  cursor: "pointer"
 };
 
 const thStyle = {
-  padding: "15px",
-  textAlign: "center",
-  borderBottom: "1px solid #ddd"
+  padding: "15px"
 };
 
 const tdStyle = {
