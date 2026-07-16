@@ -19,6 +19,7 @@ function BrandDiscountPage() {
   const [brands, setBrands] = useState([]);
 
   const [editId, setEditId] = useState(null);
+  const [openCustomer, setOpenCustomer] = useState(null);
 
   useEffect(() => {
     loadCustomers();
@@ -185,6 +186,22 @@ function BrandDiscountPage() {
     );
 
   };
+
+  const groupedDiscounts = discounts.reduce((acc, item) => {
+  const key = `${item.customerType}-${item.customerName}`;
+
+  if (!acc[key]) {
+    acc[key] = {
+      customerName: item.customerName,
+      customerType: item.customerType,
+      discounts: [],
+    };
+  }
+
+  acc[key].discounts.push(item);
+
+  return acc;
+}, {});
   return (
   <div
     style={{
@@ -334,105 +351,101 @@ function BrandDiscountPage() {
     </div>
 
     <table
+  style={{
+    width: "100%",
+    borderCollapse: "collapse"
+  }}
+>
+  <thead>
+    <tr
       style={{
-        width: "100%",
-        borderCollapse: "collapse"
+        background: "#0d47a1",
+        color: "white"
       }}
     >
-      <thead>
-  <tr
-    style={{
-      background: "#0d47a1",
-      color: "white"
-    }}
-  >
-    <th style={thStyle}>Customer Type</th>
-
-    <th style={thStyle}>Customer</th>
-
-    <th style={thStyle}>Brand</th>
-
-    <th style={thStyle}>Discount %</th>
-
-    <th style={thStyle}>Action</th>
-  </tr>
-</thead>
-
-<tbody>
-
-  {discounts.map((discount) => (
-
-    <tr key={discount.id}>
-
-      <td style={tdStyle}>
-        {discount.customerType === "WEEKLY_CUSTOMER"
-          ? "Weekly Customer"
-          : "Regular Customer"}
-      </td>
-
-      <td style={tdStyle}>
-        {discount.customerName}
-      </td>
-
-      <td style={tdStyle}>
-        {discount.brand}
-      </td>
-
-      <td style={tdStyle}>
-        {discount.discountPercentage}%
-      </td>
-
-      <td style={tdStyle}>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "10px"
-          }}
-        >
-
-          <button
-            onClick={() =>
-              editDiscount(discount)
-            }
-            style={{
-              background: "#1565c0",
-              color: "white",
-              border: "none",
-              padding: "8px 15px",
-              borderRadius: "5px",
-              cursor: "pointer"
-            }}
-          >
-            Edit
-          </button>
-
-          <button
-            onClick={() =>
-              deleteDiscount(discount.id)
-            }
-            style={{
-              background: "red",
-              color: "white",
-              border: "none",
-              padding: "8px 15px",
-              borderRadius: "5px",
-              cursor: "pointer"
-            }}
-          >
-            Delete
-          </button>
-
-        </div>
-
-      </td>
-
+      <th style={thStyle}>Customer Type</th>
+      <th style={thStyle}>Customer</th>
+      <th style={thStyle}>Brand</th>
+      <th style={thStyle}>Discount %</th>
+      <th style={thStyle}>Action</th>
     </tr>
+  </thead>
 
-  ))}
+  <tbody>
 
-</tbody>
+    {discounts.map((discount) => (
+
+      <tr key={discount.id}>
+
+        <td style={tdStyle}>
+          {discount.customerType === "WEEKLY_CUSTOMER"
+            ? "Weekly Customer"
+            : "Regular Customer"}
+        </td>
+
+        <td style={tdStyle}>
+          {discount.customerName}
+        </td>
+
+        <td style={tdStyle}>
+          {discount.brand}
+        </td>
+
+        <td style={tdStyle}>
+          {discount.discountPercentage}%
+        </td>
+
+        <td style={tdStyle}>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px"
+            }}
+          >
+
+            <button
+              onClick={() =>
+                editDiscount(discount)
+              }
+              style={{
+                background: "#1565c0",
+                color: "white",
+                border: "none",
+                padding: "8px 15px",
+                borderRadius: "5px",
+                cursor: "pointer"
+              }}
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={() =>
+                deleteDiscount(discount.id)
+              }
+              style={{
+                background: "red",
+                color: "white",
+                border: "none",
+                padding: "8px 15px",
+                borderRadius: "5px",
+                cursor: "pointer"
+              }}
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    ))}
+
+  </tbody>
 
 </table>
 
