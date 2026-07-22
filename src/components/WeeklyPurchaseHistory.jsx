@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Select from "react-select";
 import DashboardCards from "./DashboardCards";
 import CustomerFolder from "./CustomerFolder";
 import { downloadBill } from "../utils/invoice";
@@ -532,60 +533,75 @@ const addItem = () => {
 
     {/* Product */}
     <td style={tdStyle}>
-      <select
-        style={inputStyle}
-        value={item.productName || ""}
-        onChange={(e) => {
+  <Select
+    placeholder="Search Product..."
+    isSearchable
+    options={products.map(product => ({
+      value: product.productName,
+      label: product.productName
+    }))}
 
-          const selected = products.find(
-            p => p.productName === e.target.value
-          );
+    filterOption={(option, inputValue) => {
+      if (!inputValue) return true;
 
-          if (selected) {
+      return option.label
+        .toLowerCase()
+        .includes(inputValue.toLowerCase());
+    }}
 
-            const items = [...editingItems];
+    value={
+      products
+        .map(product => ({
+          value: product.productName,
+          label: product.productName
+        }))
+        .find(option => option.value === item.productName) || null
+    }
 
-            items[index].productName = selected.productName;
-            items[index].actualPrice = selected.price;
-            items[index].percentage =
-              selected.defaultPercentage || 0;
+    onChange={(selectedOption) => {
 
-            const finalPrice =
-              selected.price -
-              (selected.price *
-                (selected.defaultPercentage || 0)) /
-                100;
+      const value = selectedOption?.value || "";
 
-            items[index].price = finalPrice;
-            items[index].finalPrice = finalPrice;
-            items[index].total =
-              finalPrice *
-              Number(items[index].quantity || 1);
+      const selected = products.find(
+        p => p.productName === value
+      );
 
-            setEditingItems(items);
+      if (!selected) return;
 
-          }
+      const items = [...editingItems];
 
-        }}
-      >
+      items[index].productName = selected.productName;
+      items[index].actualPrice = selected.price;
 
-        <option value="">
-          Select Product
-        </option>
+      items[index].percentage =
+        selected.defaultPercentage || 0;
 
-        {products.map(product => (
+      const finalPrice =
+        selected.price -
+        (
+          selected.price *
+          (selected.defaultPercentage || 0)
+        ) / 100;
 
-          <option
-            key={product.id}
-            value={product.productName}
-          >
-            {product.productName}
-          </option>
+      items[index].price = finalPrice;
+      items[index].finalPrice = finalPrice;
+      items[index].total =
+        finalPrice *
+        Number(items[index].quantity || 1);
 
-        ))}
+      setEditingItems(items);
 
-      </select>
-    </td>
+    }}
+
+    styles={{
+      control: (provided) => ({
+        ...provided,
+        minHeight: "40px",
+        borderRadius: "6px"
+      })
+    }}
+  />
+</td>
 
     {/* Qty */}
     <td style={tdStyle}>
