@@ -528,10 +528,9 @@ Owner
 
 invoiceWindow.document.close();
 
-invoiceWindow.focus();
-
-invoiceWindow.print();
-
-invoiceWindow.close();
+invoiceWindow.onload = () => {
+  invoiceWindow.focus();
+  invoiceWindow.print();
+};
 
 };
