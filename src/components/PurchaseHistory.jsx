@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Select from "react-select";
 import DashboardCards from "./DashboardCards";
 import CustomerFolder from "./CustomerFolder";
 import { downloadBill } from "../utils/invoice";
@@ -576,23 +577,45 @@ const addItem = () => {
                   <tr key={index}>
 
                     <td style={tdStyle}>
-                      <select
-  style={inputStyle}
-  value={item.productName || ""}
-  onChange={(e) => {
+  <Select
+    placeholder="Search Product..."
+    isSearchable
+    options={products.map(product => ({
+      value: product.productName,
+      label: product.productName
+    }))}
 
-    const selected = products.find(
-      p => p.productName === e.target.value
-    );
+    filterOption={(option, inputValue) => {
+      if (!inputValue) return true;
 
-    if (selected) {
+      return option.label
+        .toLowerCase()
+        .includes(inputValue.toLowerCase());
+    }}
+
+    value={
+      products
+        .map(product => ({
+          value: product.productName,
+          label: product.productName
+        }))
+        .find(option => option.value === item.productName) || null
+    }
+
+    onChange={(selectedOption) => {
+
+      const value = selectedOption?.value || "";
+
+      const selected = products.find(
+        p => p.productName === value
+      );
+
+      if (!selected) return;
 
       const items = [...editingItems];
 
       items[index].productName = selected.productName;
-
       items[index].actualPrice = selected.price;
-
       items[index].percentage =
         selected.defaultPercentage || 0;
 
@@ -602,36 +625,24 @@ const addItem = () => {
           (selected.defaultPercentage || 0)) / 100;
 
       items[index].price = finalPrice;
-
       items[index].finalPrice = finalPrice;
-
       items[index].total =
         finalPrice *
         Number(items[index].quantity || 1);
 
       setEditingItems(items);
 
-    }
+    }}
 
-  }}
->
-
-  <option value="">
-    Select Product
-  </option>
-
-  {products.map(product => (
-
-    <option
-      key={product.id}
-      value={product.productName}
-    >
-      {product.productName}
-    </option>
-
-  ))}
-</select>
-                    </td>
+    styles={{
+      control: (provided) => ({
+        ...provided,
+        minHeight: "40px",
+        borderRadius: "6px"
+      })
+    }}
+  />
+</td>
 
                     <td style={tdStyle}>
                       <input
