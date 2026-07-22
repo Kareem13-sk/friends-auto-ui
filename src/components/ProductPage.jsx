@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-import pistonImg from "../assets/piston.jpg";
+import BrandFolder from "../components/BrandFolder";
 
 function ProductPage() {
 
@@ -164,6 +164,21 @@ function ProductPage() {
         .toLowerCase()
         .includes(search.toLowerCase())
     );
+
+    const groupedProducts = filteredProducts.reduce(
+  (acc, product) => {
+
+    if (!acc[product.brand]) {
+      acc[product.brand] = [];
+    }
+
+    acc[product.brand].push(product);
+
+    return acc;
+
+  },
+  {}
+);
 
   return (
 
@@ -342,151 +357,19 @@ function ProductPage() {
           }}
         >
 
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              minWidth: "700px"
-            }}
-          >
+          {Object.entries(groupedProducts).map(
+  ([brand, products]) => (
 
-            <thead>
+    <BrandFolder
+      key={brand}
+      brand={brand}
+      products={products}
+      onEdit={editProduct}
+      onDelete={deleteProduct}
+    />
 
-              <tr
-                style={{
-                  backgroundColor:
-                    "#0d47a1",
-                  color: "white"
-                }}
-              >
-
-                <th style={tableHeader}>
-                  Image
-                </th>
-
-                <th style={tableHeader}>
-                  Product
-                </th>
-
-                  <th style={tableHeader}>
-                  Brand
-                </th>
-
-                <th style={tableHeader}>
-                  Category
-                </th>
-
-                <th style={tableHeader}>
-                  Price
-                </th>
-
-                <th style={tableHeader}>
-                  Stock
-                </th>
-
-                <th style={tableHeader}>
-                  %
-                </th>
-
-                <th style={tableHeader}>
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {filteredProducts.map(
-                (product) => (
-
-                  <tr key={product.id}>
-
-                    <td style={tableCell}>
-
-                      <img
-                        src={pistonImg}
-                        alt="Product"
-                        style={{
-                          width: "70px",
-                          height: "70px",
-                          borderRadius: "12px",
-                          objectFit: "cover"
-                        }}
-                      />
-
-                    </td>
-
-                    <td style={tableCell}>
-                      {product.productName}
-                    </td>
-                    <td style={tableCell}>
-                      {product.brand}
-                    </td>
-
-                    <td style={tableCell}>
-                      {product.category}
-                    </td>
-
-                    <td style={tableCell}>
-                      ₹{product.price}
-                    </td>
-
-                    <td style={tableCell}>
-                      {product.stock}
-                    </td>
-
-                    <td style={tableCell}>
-                      {
-                        product.defaultPercentage
-                      }%
-                    </td>
-
-                    <td style={tableCell}>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          flexWrap: "wrap"
-                        }}
-                      >
-
-                        <button
-                          onClick={() =>
-                            editProduct(
-                              product
-                            )
-                          }
-                          style={editButton}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            deleteProduct(
-                              product.id
-                            )
-                          }
-                          style={deleteButton}
-                        >
-                          Delete
-                        </button>
-
-                      </div>
-
-                    </td>
-
-                  </tr>
-
-                )
-              )}
-
-            </tbody>
-
-          </table>
+  )
+)}
 
         </div>
 
