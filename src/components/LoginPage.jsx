@@ -18,7 +18,7 @@ function LoginPage() {
     try {
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/auth/login",
+        "https://friends-auto-backend-sg.onrender.com/auth/login",
         {
           method: "POST",
           headers: {

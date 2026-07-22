@@ -32,7 +32,7 @@ function WeeklyBilling() {
   useEffect(() => {
 
     fetch(
-      "https://friends-auto-backend-1utc.onrender.com/weekly-customers"
+      "https://friends-auto-backend-sg.onrender.com/weekly-customers"
     )
       .then((res) => res.json())
       .then((data) => {
@@ -68,7 +68,7 @@ function WeeklyBilling() {
       });
 
     fetch(
-      "https://friends-auto-backend-1utc.onrender.com/products"
+      "https://friends-auto-backend-sg.onrender.com/products"
     )
       .then((res) => res.json())
       .then((data) => {
@@ -206,7 +206,7 @@ const loadWeeklyItems = async (customerName) => {
   try {
 
     const response = await fetch(
-      `https://friends-auto-backend-1utc.onrender.com/weekly-entry/customer/${customerName}`
+      `https://friends-auto-backend-sg.onrender.com/weekly-entry/customer/${customerName}`
     );
 
     if (!response.ok) {
@@ -243,7 +243,7 @@ const deleteWeeklyItem = async (id) => {
   try {
 
     await fetch(
-      `https://friends-auto-backend-1utc.onrender.com/weekly-entry/${id}`,
+      `https://friends-auto-backend-sg.onrender.com/weekly-entry/${id}`,
       {
         method: "DELETE"
       }
@@ -333,8 +333,8 @@ const deleteWeeklyItem = async (id) => {
     try {
 
   const url = editingId
-    ? `https://friends-auto-backend-1utc.onrender.com/weekly-entry/${editingId}`
-    : "https://friends-auto-backend-1utc.onrender.com/weekly-entry";
+    ? `https://friends-auto-backend-sg.onrender.com/weekly-entry/${editingId}`
+    : "https://friends-auto-backend-sg.onrender.com/weekly-entry";
 
   const method = editingId ? "PUT" : "POST";
 
@@ -455,7 +455,7 @@ setPercentage("");
 
     const response = await fetch(
 
-      "https://friends-auto-backend-1utc.onrender.com/weekly-bills",
+      "https://friends-auto-backend-sg.onrender.com/weekly-bills",
 
       {
 
@@ -669,7 +669,7 @@ setPercentage("");
 
               fetch(
 
-                `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=WEEKLY_CUSTOMER&brand=${product.brand}`
+                `https://friends-auto-backend-sg.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=WEEKLY_CUSTOMER&brand=${product.brand}`
 
               )
 

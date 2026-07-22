@@ -30,7 +30,7 @@ function PurchaseHistory() {
     try {
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/bills"
+        "https://friends-auto-backend-sg.onrender.com/bills"
       );
 
       const data = await response.json();
@@ -49,7 +49,7 @@ function PurchaseHistory() {
   try {
 
     const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/products"
+      "https://friends-auto-backend-sg.onrender.com/products"
     );
 
     const data = await response.json();
@@ -79,7 +79,7 @@ function PurchaseHistory() {
     try {
 
       await fetch(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${billId}`,
+        `https://friends-auto-backend-sg.onrender.com/bills/${billId}`,
         {
           method: "DELETE",
         }
@@ -131,7 +131,7 @@ function PurchaseHistory() {
     try {
 
       const response = await fetch(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${billId}`,
+        `https://friends-auto-backend-sg.onrender.com/bills/${billId}`,
         {
           method: "PUT",
           headers: {
@@ -292,7 +292,7 @@ const addItem = () => {
     try {
 
       const response = await fetch(
-        `https://friends-auto-backend-1utc.onrender.com/bills/${editingBill.id}`,
+        `https://friends-auto-backend-sg.onrender.com/bills/${editingBill.id}`,
         {
 
           method: "PUT",

@@ -50,7 +50,7 @@ function ProductPage() {
 
       const response =
         await axios.get(
-          "https://friends-auto-backend-1utc.onrender.com/products"
+          "https://friends-auto-backend-sg.onrender.com/products"
         );
 
       setProducts(response.data);
@@ -78,7 +78,7 @@ function ProductPage() {
       if (editId) {
 
         await axios.put(
-          `https://friends-auto-backend-1utc.onrender.com/products/${editId}`,
+          `https://friends-auto-backend-sg.onrender.com/products/${editId}`,
           productData
         );
 
@@ -87,7 +87,7 @@ function ProductPage() {
       } else {
 
         await axios.post(
-          "https://friends-auto-backend-1utc.onrender.com/products",
+          "https://friends-auto-backend-sg.onrender.com/products",
           productData
         );
 
@@ -110,7 +110,7 @@ function ProductPage() {
     try {
 
       await axios.delete(
-        `https://friends-auto-backend-1utc.onrender.com/products/${id}`
+        `https://friends-auto-backend-sg.onrender.com/products/${id}`
       );
 
       fetchProducts();

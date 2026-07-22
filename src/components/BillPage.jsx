@@ -33,7 +33,7 @@ function BillPage() {
   // ============================
   useEffect(() => {
 
-    fetch("https://friends-auto-backend-1utc.onrender.com/customers")
+    fetch("https://friends-auto-backend-sg.onrender.com/customers")
       .then((res) => res.json())
       .then((data) => {
 
@@ -64,7 +64,7 @@ function BillPage() {
       })
       .catch((err) => console.log(err));
 
-    fetch("https://friends-auto-backend-1utc.onrender.com/products")
+    fetch("https://friends-auto-backend-sg.onrender.com/products")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
@@ -303,7 +303,7 @@ function BillPage() {
     try {
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/bills",
+        "https://friends-auto-backend-sg.onrender.com/bills",
         {
           method: "POST",
 
@@ -510,7 +510,7 @@ function BillPage() {
     const brand = (product.brand || "").trim();
 
     fetch(
-      `https://friends-auto-backend-1utc.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=${customerType}&brand=${encodeURIComponent(brand)}`
+      `https://friends-auto-backend-sg.onrender.com/brand-discounts/find?customerId=${selectedCustomer.id}&customerType=${customerType}&brand=${encodeURIComponent(brand)}`
     )
       .then(async (res) => {
         if (!res.ok) return null;

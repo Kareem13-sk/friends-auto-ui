@@ -39,8 +39,8 @@ function BrandDiscountPage() {
 
     const url =
       customerType === "CUSTOMER"
-        ? "https://friends-auto-backend-1utc.onrender.com/customers"
-        : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
+        ? "https://friends-auto-backend-sg.onrender.com/customers"
+        : "https://friends-auto-backend-sg.onrender.com/weekly-customers";
 
     const response = await fetch(url);
 
@@ -52,7 +52,7 @@ function BrandDiscountPage() {
   const loadDiscounts = async () => {
 
     const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/brand-discounts"
+      "https://friends-auto-backend-sg.onrender.com/brand-discounts"
     );
 
     const data = await response.json();
@@ -63,7 +63,7 @@ function BrandDiscountPage() {
   const loadBrands = async () => {
 
     const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/products"
+      "https://friends-auto-backend-sg.onrender.com/products"
     );
 
     const products = await response.json();
@@ -100,8 +100,8 @@ function BrandDiscountPage() {
   };
 
   const url = editId
-    ? `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${editId}`
-    : "https://friends-auto-backend-1utc.onrender.com/brand-discounts";
+    ? `https://friends-auto-backend-sg.onrender.com/brand-discounts/${editId}`
+    : "https://friends-auto-backend-sg.onrender.com/brand-discounts";
 
   const method = editId ? "PUT" : "POST";
 
@@ -142,7 +142,7 @@ const deleteDiscount = async (id) => {
   if (!confirmDelete) return;
 
   const response = await fetch(
-    `https://friends-auto-backend-1utc.onrender.com/brand-discounts/${id}`,
+    `https://friends-auto-backend-sg.onrender.com/brand-discounts/${id}`,
     {
       method: "DELETE"
     }
@@ -167,8 +167,8 @@ const editDiscount = async (discount) => {
   // Wait until customers are loaded
   const url =
     (discount.customerType || "CUSTOMER") === "CUSTOMER"
-      ? "https://friends-auto-backend-1utc.onrender.com/customers"
-      : "https://friends-auto-backend-1utc.onrender.com/weekly-customers";
+      ? "https://friends-auto-backend-sg.onrender.com/customers"
+      : "https://friends-auto-backend-sg.onrender.com/weekly-customers";
 
   const response = await fetch(url);
 

@@ -17,7 +17,7 @@ function CustomerDetails() {
   const fetchCustomers = async () => {
     try {
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/customers"
+        "https://friends-auto-backend-sg.onrender.com/customers"
       );
 
       const data = await response.json();
@@ -31,7 +31,7 @@ function CustomerDetails() {
   const fetchBills = async () => {
     try {
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/bills"
+        "https://friends-auto-backend-sg.onrender.com/bills"
       );
 
       const data = await response.json();

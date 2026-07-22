@@ -20,7 +20,7 @@ function CustomerPage() {
   useEffect(() => {
 
     fetch(
-      "https://friends-auto-backend-1utc.onrender.com/customers"
+      "https://friends-auto-backend-sg.onrender.com/customers"
     )
       .then((res) => res.json())
       .then((data) => {
@@ -80,7 +80,7 @@ const handleSubmit = async () => {
         customers[editIndex].id;
 
       const response = await fetch(
-        `https://friends-auto-backend-1utc.onrender.com/customers/${customerId}`,
+        `https://friends-auto-backend-sg.onrender.com/customers/${customerId}`,
         {
           method: "PUT",
           headers: {
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
       // ADD CUSTOMER
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/customers",
+        "https://friends-auto-backend-sg.onrender.com/customers",
         {
           method: "POST",
           headers: {
@@ -182,7 +182,7 @@ const handleSubmit = async () => {
   try {
 
     const response = await fetch(
-      `https://friends-auto-backend-1utc.onrender.com/customers/${customerId}`,
+      `https://friends-auto-backend-sg.onrender.com/customers/${customerId}`,
       {
         method: "DELETE"
       }

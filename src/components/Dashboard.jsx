@@ -11,17 +11,17 @@ const [bills, setBills] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
 
-  fetch("https://friends-auto-backend-1utc.onrender.com/customers")
+  fetch("https://friends-auto-backend-sg.onrender.com/customers")
     .then((res) => res.json())
     .then((data) => setCustomers(data))
     .catch((err) => console.log(err));
 
-  fetch("https://friends-auto-backend-1utc.onrender.com/products")
+  fetch("https://friends-auto-backend-sg.onrender.com/products")
     .then((res) => res.json())
     .then((data) => setProducts(data))
     .catch((err) => console.log(err));
 
-  fetch("https://friends-auto-backend-1utc.onrender.com/bills")
+  fetch("https://friends-auto-backend-sg.onrender.com/bills")
     .then((res) => res.json())
     .then((data) => setBills(data))
     .catch((err) => console.log(err));

@@ -31,7 +31,7 @@ function WeeklyPurchaseHistory() {
     try {
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/weekly-bills"
+        "https://friends-auto-backend-sg.onrender.com/weekly-bills"
       );
 
       const data = await response.json();
@@ -52,7 +52,7 @@ function WeeklyPurchaseHistory() {
   try {
 
     const response = await fetch(
-      "https://friends-auto-backend-1utc.onrender.com/products"
+      "https://friends-auto-backend-sg.onrender.com/products"
     );
 
     const data = await response.json();
@@ -83,7 +83,7 @@ function WeeklyPurchaseHistory() {
 
       await fetch(
 
-        `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${billId}`,
+        `https://friends-auto-backend-sg.onrender.com/weekly-bills/${billId}`,
 
         {
           method: "DELETE"
@@ -225,7 +225,7 @@ const addItem = () => {
 
       const response = await fetch(
 
-        `https://friends-auto-backend-1utc.onrender.com/weekly-bills/${editingBill.id}`,
+        `https://friends-auto-backend-sg.onrender.com/weekly-bills/${editingBill.id}`,
 
         {
 

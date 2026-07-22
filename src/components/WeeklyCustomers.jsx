@@ -31,7 +31,7 @@ function WeeklyCustomers() {
     try {
 
       const response = await fetch(
-        "https://friends-auto-backend-1utc.onrender.com/weekly-customers"
+        "https://friends-auto-backend-sg.onrender.com/weekly-customers"
       );
 
       const data = await response.json();
@@ -130,7 +130,7 @@ function WeeklyCustomers() {
       if (editingCustomer) {
 
         await fetch(
-          `https://friends-auto-backend-1utc.onrender.com/weekly-customers/${editingCustomer.id}`,
+          `https://friends-auto-backend-sg.onrender.com/weekly-customers/${editingCustomer.id}`,
           {
             method: "PUT",
 
@@ -146,7 +146,7 @@ function WeeklyCustomers() {
       } else {
 
         await fetch(
-          "https://friends-auto-backend-1utc.onrender.com/weekly-customers",
+          "https://friends-auto-backend-sg.onrender.com/weekly-customers",
           {
             method: "POST",
 
@@ -189,7 +189,7 @@ function WeeklyCustomers() {
     try {
 
       await fetch(
-        `https://friends-auto-backend-1utc.onrender.com/weekly-customers/${id}`,
+        `https://friends-auto-backend-sg.onrender.com/weekly-customers/${id}`,
         {
           method: "DELETE",
         }
