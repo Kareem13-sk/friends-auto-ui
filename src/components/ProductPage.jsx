@@ -125,22 +125,25 @@ function ProductPage() {
   const editProduct = (product) => {
 
   setEditId(product.id);
-
   setProductName(product.productName);
-
   setBrand(product.brand);
-
   setCategory(product.category);
-
   setPrice(product.price);
-
   setStock(product.stock);
+  setDefaultPercentage(product.defaultPercentage);
 
-  setDefaultPercentage(
-    product.defaultPercentage
-  );
+  setTimeout(() => {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, 50);
+
 };
-
   const clearFields = () => {
 
     setEditId(null);
