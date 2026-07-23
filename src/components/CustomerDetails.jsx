@@ -9,6 +9,9 @@ function CustomerDetails() {
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
+  // NEW
+  const [expandedCustomer, setExpandedCustomer] = useState(null);
+
   useEffect(() => {
     fetchCustomers();
     fetchBills();
@@ -61,8 +64,7 @@ function CustomerDetails() {
       return customerMatch;
     }
 
-    const billDate =
-      bill.billDate || "";
+    const billDate = bill.billDate || "";
 
     return (
       customerMatch &&
@@ -83,7 +85,42 @@ function CustomerDetails() {
     0
   );
 
-  // KEEP YOUR EXISTING downloadBill() FUNCTION BELOW THIS LINE
+  // NEW - GROUP BILLS CUSTOMER WISE
+  const groupedBills = customerBills.reduce((result, bill) => {
+
+    const name = bill.customerName || "Unknown";
+
+    if (!result[name]) {
+      result[name] = {
+        customerName: name,
+        totalPurchase: 0,
+        totalPaid: 0,
+        totalBalance: 0,
+        bills: [],
+      };
+    }
+
+    result[name].bills.push(bill);
+
+    result[name].totalPurchase += Number(
+      bill.totalAmount || 0
+    );
+
+    result[name].totalPaid += Number(
+      bill.paidAmount || 0
+    );
+
+    result[name].totalBalance += Number(
+      bill.balanceAmount || 0
+    );
+
+    return result;
+
+  }, {});
+
+  const customerFolders = Object.values(groupedBills);
+
+  // KEEP YOUR EXISTING downloadBill() FUNCTION BELOW
 
   const downloadBill = (bill) => {
 
@@ -768,56 +805,149 @@ color:red;
 
         {/* BILL HISTORY */}
 
-        <h2
+  <h2
+  style={{
+    color: "#0d47a1",
+    marginBottom: "15px",
+  }}
+>
+  Customer Bill History
+</h2>
+
+{customerFolders.length === 0 ? (
+
+  <div
+    style={{
+      textAlign: "center",
+      padding: "40px",
+      fontSize: "20px",
+      fontWeight: "bold",
+    }}
+  >
+    No Bills Found
+  </div>
+
+) : (
+
+  customerFolders.map((customer) => (
+
+    <div
+      key={customer.customerName}
+      style={{
+        marginBottom: "18px",
+        border: "1px solid #ddd",
+        borderRadius: "12px",
+        overflow: "hidden",
+        background: "#fff",
+      }}
+    >
+
+      <div
+        onClick={() =>
+          setExpandedCustomer(
+            expandedCustomer === customer.customerName
+              ? null
+              : customer.customerName
+          )
+        }
+        style={{
+          cursor: "pointer",
+          background: "#0d47a1",
+          color: "white",
+          padding: "18px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+
+        <div>
+
+          <h2 style={{ margin: 0 }}>
+            📁 {customer.customerName}
+          </h2>
+
+          <p style={{ marginTop: 8 }}>
+            Bills :
+            <b> {customer.bills.length}</b>
+          </p>
+
+        </div>
+
+        <div
           style={{
-            color: "#0d47a1",
-            marginBottom: "10px",
+            textAlign: "right",
           }}
         >
-          Bill History
-        </h2>
 
-        <table
+          <div>
+            Purchase :
+            ₹{customer.totalPurchase.toFixed(2)}
+          </div>
+
+          <div>
+            Paid :
+            ₹{customer.totalPaid.toFixed(2)}
+          </div>
+
+          <div
+            style={{
+              color: "#ffeb3b",
+              fontWeight: "bold",
+            }}
+          >
+            Balance :
+            ₹{customer.totalBalance.toFixed(2)}
+          </div>
+
+        </div>
+
+      </div>
+
+      {expandedCustomer === customer.customerName && (
+
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
+            padding: "20px",
           }}
         >
-          <thead>
-            <tr
-              style={{
-                background: "#0d47a1",
-                color: "white",
-              }}
-            >
-              <th style={{ padding: "12px" }}>Date</th>
 
-              <th style={{ padding: "12px" }}>
-                Customer
-              </th>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
 
-              <th style={{ padding: "12px" }}>
-                Total
-              </th>
+            <thead>
 
-              <th style={{ padding: "12px" }}>
-                Paid
-              </th>
+              <tr
+                style={{
+                  background: "#1976d2",
+                  color: "white",
+                }}
+              >
 
-              <th style={{ padding: "12px" }}>
-                Balance
-              </th>
+                <th style={{ padding: 10 }}>Date</th>
 
-              <th style={{ padding: "12px" }}>
-                Download
-              </th>
-            </tr>
-          </thead>
+                <th>Total</th>
 
-          <tbody>
-            {customerBills.length > 0 ? (
-              customerBills.map((bill) => (
+                <th>Paid</th>
+
+                <th>Balance</th>
+
+                <th>Download</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {customer.bills.map((bill) => (
+
                 <tr key={bill.id}>
+
                   <td
                     style={{
                       textAlign: "center",
@@ -832,16 +962,7 @@ color:red;
                       textAlign: "center",
                     }}
                   >
-                    {bill.customerName}
-                  </td>
-
-                  <td
-                    style={{
-                      textAlign: "center",
-                    }}
-                  >
-                    ₹
-                    {Number(
+                    ₹{Number(
                       bill.totalAmount || 0
                     ).toFixed(2)}
                   </td>
@@ -851,8 +972,7 @@ color:red;
                       textAlign: "center",
                     }}
                   >
-                    ₹
-                    {Number(
+                    ₹{Number(
                       bill.paidAmount || 0
                     ).toFixed(2)}
                   </td>
@@ -860,10 +980,10 @@ color:red;
                   <td
                     style={{
                       textAlign: "center",
+                      color: "red",
                     }}
                   >
-                    ₹
-                    {Number(
+                    ₹{Number(
                       bill.balanceAmount || 0
                     ).toFixed(2)}
                   </td>
@@ -873,6 +993,7 @@ color:red;
                       textAlign: "center",
                     }}
                   >
+
                     <button
                       onClick={() =>
                         downloadBill(bill)
@@ -888,24 +1009,24 @@ color:red;
                     >
                       Download
                     </button>
+
                   </td>
+
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="6"
-                  style={{
-                    textAlign: "center",
-                    padding: "20px",
-                  }}
-                >
-                  No Bills Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+
+              ))}
+
+            </tbody>
+          </table>
+        </div>
+      )}
+
+    </div>
+
+  ))
+
+)}
+
       </div>
     </div>
   );

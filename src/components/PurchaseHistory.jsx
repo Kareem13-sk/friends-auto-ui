@@ -521,31 +521,7 @@ const addItem = () => {
               Invoice : INV-{editingBill.id}
             </h3>
 
-            <div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "15px",
-  }}
->
-
-  <button
-    onClick={addItem}
-    style={{
-      background: "#2e7d32",
-      color: "#fff",
-      border: "none",
-      padding: "10px 18px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontWeight: "bold",
-    }}
-  >
-    ➕ Add Product
-  </button>
-
-</div>
-
+            
             <table
               style={{
                 width: "100%",
@@ -812,61 +788,82 @@ const addItem = () => {
 
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "15px",
-              }}
-            >
+   <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: "15px",
+  }}
+>
+  <button
+    onClick={addItem}
+    style={{
+      background: "#2e7d32",
+      color: "#fff",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+  >
+    ➕ Add Product
+  </button>
 
-              <button
-                onClick={saveProducts}
-                style={{
-                  background: "#2e7d32",
-                  color: "#fff",
-                  border: "none",
-                  padding: "12px 25px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Save Changes
-              </button>
+  <div
+    style={{
+      display: "flex",
+      gap: "15px",
+    }}
+  >
+    <button
+      onClick={saveProducts}
+      style={{
+        background: "#2e7d32",
+        color: "#fff",
+        border: "none",
+        padding: "12px 25px",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Save Changes
+    </button>
 
-              <button
-                onClick={() => {
-                  setEditingBill(null);
-                  setEditingItems([]);
-                }}
-                style={{
-                  background: "#757575",
-                  color: "#fff",
-                  border: "none",
-                  padding: "12px 25px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
-              >
-                Cancel
-              </button>
+    <button
+      onClick={() => {
+        setEditingBill(null);
+        setEditingItems([]);
+      }}
+      style={{
+        background: "#757575",
+        color: "#fff",
+        border: "none",
+        padding: "12px 25px",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Cancel
+        </button>
 
-            </div>
+    </div>   {/* Save/Cancel buttons */}
+  </div>     {/* Right side button container */}
 
-          </div>
+          </div>   {/* Bottom summary */}
+        </div>     {/* Modal content */}
+      </div>      // {/* Overlay */}
+    )}
 
-        </div>
-
-      </div>
-
-      )}
-
-    </div>
-
-  );
-
+  //</div> 
+  //{/* PurchaseHistory page */}
+      );
 }
+
+  
 
 const thStyle = {
   padding: "12px",
